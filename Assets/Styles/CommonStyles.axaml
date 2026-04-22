@@ -1,0 +1,24 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- 페이지 기본 여백 -->
+  <Style Selector="UserControl.page">
+    <Setter Property="Padding" Value="24" />
+  </Style>
+
+  <!-- 섹션 헤더 -->
+  <Style Selector="TextBlock.section-header">
+    <Setter Property="FontSize" Value="16" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Margin" Value="0,0,0,8" />
+  </Style>
+
+  <!-- 카드 스타일 Border -->
+  <Style Selector="Border.card">
+    <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Padding" Value="16" />
+    <Setter Property="BoxShadow" Value="0 2 8 0 #20000000" />
+  </Style>
+
+</Styles>

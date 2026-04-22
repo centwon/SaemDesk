@@ -1,0 +1,20 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SaemDesk.Views.Dialogs.ConfirmDialog"
+        Title="확인"
+        Width="360" Height="160"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        ShowInTaskbar="False">
+
+  <Border Padding="24" Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+    <StackPanel Spacing="20">
+      <TextBlock x:Name="MessageText" TextWrapping="Wrap" FontSize="14" />
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+        <Button x:Name="CancelButton" Content="취소" MinWidth="80" Click="OnCancel" />
+        <Button x:Name="ConfirmButton" Content="확인" MinWidth="80"
+                Classes="accent" Click="OnConfirm" />
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</Window>

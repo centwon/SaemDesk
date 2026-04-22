@@ -9,22 +9,33 @@
     <PublishAot>true</PublishAot>
     <TrimmerRootDescriptor>TrimmerRoots.xml</TrimmerRootDescriptor>
     <InvariantGlobalization>false</InvariantGlobalization>
+    <!-- 코드로만 생성하는 다이얼로그의 무매개변수 생성자 경고 억제 -->
+    <NoWarn>$(NoWarn);AVLN3001</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Avalonia UI -->
     <PackageReference Include="Avalonia" Version="12.0.1" />
     <PackageReference Include="Avalonia.Desktop" Version="12.0.1" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.1" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.1" />
+    <PackageReference Include="Avalonia.Controls.WebView" Version="12.0.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.1" />
     <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.1">
       <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.1" />
+    <!-- Database -->
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.0" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.2" />
+    <!-- Export -->
+    <PackageReference Include="QuestPDF" Version="2025.4.0" />
+    <PackageReference Include="MiniExcel" Version="1.43.1" />
+    <!-- Windows: DPAPI token encryption -->
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.0" />
   </ItemGroup>
 </Project>

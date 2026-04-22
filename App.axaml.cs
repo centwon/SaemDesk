@@ -1,8 +1,5 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Data.Core;
-using Avalonia.Data.Core.Plugins;
-using System.Linq;
 using Avalonia.Markup.Xaml;
 using SaemDesk.ViewModels;
 using SaemDesk.Views;
@@ -13,6 +10,7 @@ public partial class App : Application
 {
     public override void Initialize()
     {
+        RegisterViews();
         AvaloniaXamlLoader.Load(this);
     }
 
@@ -27,5 +25,11 @@ public partial class App : Application
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    // ViewLocator AOT 등록 — 새 페이지 추가 시 여기에 추가
+    private static void RegisterViews()
+    {
+        ViewLocator.Register<MainWindowViewModel>(() => new MainWindow());
     }
 }

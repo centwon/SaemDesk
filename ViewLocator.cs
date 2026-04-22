@@ -1,37 +1,32 @@
-using System;
-using System.Diagnostics.CodeAnalysis;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using SaemDesk.ViewModels;
+using System;
+using System.Collections.Generic;
 
 namespace SaemDesk;
 
 /// <summary>
-/// Given a view model, returns the corresponding view if possible.
+/// AOT-safe ViewLocator: Activator.CreateInstance 대신 수동 팩토리 딕셔너리 사용.
+/// 새 ViewModel/View 쌍 추가 시 Register() 호출 추가 (App.axaml.cs).
 /// </summary>
-[RequiresUnreferencedCode(
-    "Default implementation of ViewLocator involves reflection which may be trimmed away.",
-    Url = "https://docs.avaloniaui.net/docs/concepts/view-locator")]
 public class ViewLocator : IDataTemplate
 {
+    private static readonly Dictionary<Type, Func<Control>> _registry = [];
+
+    public static void Register<TViewModel>(Func<Control> factory)
+        where TViewModel : ViewModelBase
+        => _registry[typeof(TViewModel)] = factory;
+
     public Control? Build(object? param)
     {
-        if (param is null)
-            return null;
-        
-        var name = param.GetType().FullName!.Replace("ViewModel", "View", StringComparison.Ordinal);
-        var type = Type.GetType(name);
+        if (param is null) return null;
 
-        if (type != null)
-        {
-            return (Control)Activator.CreateInstance(type)!;
-        }
-        
-        return new TextBlock { Text = "Not Found: " + name };
+        if (_registry.TryGetValue(param.GetType(), out var factory))
+            return factory();
+
+        return new TextBlock { Text = $"View not registered: {param.GetType().Name}" };
     }
 
-    public bool Match(object? data)
-    {
-        return data is ViewModelBase;
-    }
+    public bool Match(object? data) => data is ViewModelBase;
 }
