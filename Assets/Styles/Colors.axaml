@@ -1,8 +1,28 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-  <!-- 앱 브랜드 색상 — Phase 3에서 확정 -->
+
+  <!-- ═══ 브랜드 색상 ═══ -->
   <Color x:Key="BrandPrimary">#0078D4</Color>
   <Color x:Key="BrandSecondary">#005A9E</Color>
-  <SolidColorBrush x:Key="BrandPrimaryBrush" Color="{StaticResource BrandPrimary}" />
+  <Color x:Key="BrandAccent">#50E6FF</Color>
+  <SolidColorBrush x:Key="BrandPrimaryBrush"   Color="{StaticResource BrandPrimary}" />
   <SolidColorBrush x:Key="BrandSecondaryBrush" Color="{StaticResource BrandSecondary}" />
+  <SolidColorBrush x:Key="BrandAccentBrush"    Color="{StaticResource BrandAccent}" />
+
+  <!-- ═══ 네비게이션 패널 ═══ -->
+  <Color x:Key="NavBackground">#F3F3F3</Color>
+  <Color x:Key="NavItemHover">#E5E5E5</Color>
+  <Color x:Key="NavItemSelected">#DDEEFF</Color>
+  <Color x:Key="NavItemSelectedBorder">#0078D4</Color>
+  <SolidColorBrush x:Key="NavBackgroundBrush"          Color="{StaticResource NavBackground}" />
+  <SolidColorBrush x:Key="NavItemHoverBrush"           Color="{StaticResource NavItemHover}" />
+  <SolidColorBrush x:Key="NavItemSelectedBrush"        Color="{StaticResource NavItemSelected}" />
+  <SolidColorBrush x:Key="NavItemSelectedBorderBrush"  Color="{StaticResource NavItemSelectedBorder}" />
+
+  <!-- ═══ 콘텐츠 영역 ═══ -->
+  <Color x:Key="ContentBackground">#FFFFFF</Color>
+  <Color x:Key="ContentSeparator">#E0E0E0</Color>
+  <SolidColorBrush x:Key="ContentBackgroundBrush"  Color="{StaticResource ContentBackground}" />
+  <SolidColorBrush x:Key="ContentSeparatorBrush"   Color="{StaticResource ContentSeparator}" />
+
 </ResourceDictionary>

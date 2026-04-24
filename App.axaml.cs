@@ -5,7 +5,9 @@ using SaemDesk.Services;
 using SaemDesk.Services.Platform;
 using SaemDesk.Services.Platform.Windows;
 using SaemDesk.ViewModels;
+using SaemDesk.ViewModels.Pages;
 using SaemDesk.Views;
+using SaemDesk.Views.Pages;
 
 namespace SaemDesk;
 
@@ -50,9 +52,19 @@ public partial class App : Application
         base.OnFrameworkInitializationCompleted();
     }
 
-    // ViewLocator AOT 등록 — 새 페이지 추가 시 여기에 추가
+    // ViewLocator AOT 등록 — 새 ViewModel/View 쌍 추가 시 여기에 등록
     private static void RegisterViews()
     {
+        // Shell
         ViewLocator.Register<MainWindowViewModel>(() => new MainWindow());
+
+        // Pages (Phase 3 placeholder — Phase 5에서 실제 페이지로 교체)
+        ViewLocator.Register<TodayPageVM>    (() => new TodayPage());
+        ViewLocator.Register<StudentsPageVM> (() => new StudentsPage());
+        ViewLocator.Register<LessonsPageVM>  (() => new LessonsPage());
+        ViewLocator.Register<DiaryPageVM>    (() => new DiaryPage());
+        ViewLocator.Register<SchedulerPageVM>(() => new SchedulerPage());
+        ViewLocator.Register<CalendarPageVM> (() => new CalendarPage());
+        ViewLocator.Register<SettingsPageVM> (() => new SettingsPage());
     }
 }

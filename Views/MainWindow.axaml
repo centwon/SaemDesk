@@ -1,20 +1,128 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:SaemDesk.ViewModels"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="SaemDesk.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="SaemDesk">
+        Title="샘Desk"
+        Width="1200" Height="760"
+        MinWidth="900" MinHeight="600">
 
-    <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainWindowViewModel/>
-    </Design.DataContext>
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="220" />
+      <ColumnDefinition Width="Auto" />
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <!-- ══════════════════════════════════════
+         좌측 네비게이션 패널
+         ══════════════════════════════════════ -->
+    <Border Grid.Column="0"
+            Background="{StaticResource NavBackgroundBrush}"
+            BorderThickness="0,0,1,0"
+            BorderBrush="{StaticResource ContentSeparatorBrush}">
+      <DockPanel>
 
+        <!-- 앱 헤더 -->
+        <Border DockPanel.Dock="Top"
+                Padding="16,20,16,12"
+                BorderThickness="0,0,0,1"
+                BorderBrush="{StaticResource ContentSeparatorBrush}">
+          <StackPanel Spacing="2">
+            <TextBlock Text="샘Desk"
+                       FontSize="22" FontWeight="Bold"
+                       Foreground="{StaticResource BrandPrimaryBrush}" />
+            <TextBlock Text="학급 관리 시스템"
+                       FontSize="11"
+                       Foreground="{DynamicResource SystemBaseMediumColor}" />
+          </StackPanel>
+        </Border>
+
+        <!-- 하단 버튼 (설정) -->
+        <ListBox DockPanel.Dock="Bottom"
+                 ItemsSource="{x:Static vm:MainWindowViewModel.BottomNavItems}"
+                 SelectedItem="{Binding SelectedBottomNavItem}"
+                 Background="Transparent"
+                 BorderThickness="0"
+                 Padding="8,4">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:NavItem">
+              <Grid ColumnDefinitions="32,*" Height="38">
+                <TextBlock Grid.Column="0"
+                           Text="{Binding Icon}"
+                           FontSize="14"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1"
+                           Text="{Binding Title}"
+                           FontSize="13"
+                           VerticalAlignment="Center" />
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+          <ListBox.Styles>
+            <Style Selector="ListBoxItem">
+              <Setter Property="Padding" Value="8,2" />
+              <Setter Property="CornerRadius" Value="6" />
+            </Style>
+          </ListBox.Styles>
+        </ListBox>
+
+        <!-- 버전 텍스트 -->
+        <TextBlock DockPanel.Dock="Bottom"
+                   Text="v0.1.0-alpha"
+                   FontSize="10"
+                   Margin="16,0,16,4"
+                   Foreground="{DynamicResource SystemBaseMediumLowColor}" />
+
+        <!-- 상단 네비게이션 항목 -->
+        <ListBox ItemsSource="{x:Static vm:MainWindowViewModel.AllNavItems}"
+                 SelectedItem="{Binding SelectedNavItem}"
+                 Background="Transparent"
+                 BorderThickness="0"
+                 Padding="8,8">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:NavItem">
+              <Grid ColumnDefinitions="32,*" Height="38">
+                <TextBlock Grid.Column="0"
+                           Text="{Binding Icon}"
+                           FontSize="14"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1"
+                           Text="{Binding Title}"
+                           FontSize="13"
+                           VerticalAlignment="Center" />
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+          <ListBox.Styles>
+            <Style Selector="ListBoxItem">
+              <Setter Property="Padding" Value="8,2" />
+              <Setter Property="CornerRadius" Value="6" />
+            </Style>
+            <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+              <Setter Property="Background" Value="{StaticResource NavItemSelectedBrush}" />
+            </Style>
+          </ListBox.Styles>
+        </ListBox>
+
+      </DockPanel>
+    </Border>
+
+    <!-- 구분선 -->
+    <GridSplitter Grid.Column="1"
+                  Width="1"
+                  ResizeBehavior="PreviousAndNext"
+                  ResizeDirection="Columns"
+                  Background="{StaticResource ContentSeparatorBrush}" />
+
+    <!-- ══════════════════════════════════════
+         콘텐츠 영역 — ViewLocator가 CurrentPage VM을 View로 변환
+         ══════════════════════════════════════ -->
+    <TransitioningContentControl Grid.Column="2"
+                                 Content="{Binding CurrentPage}"
+                                 Background="{StaticResource ContentBackgroundBrush}" />
+
+  </Grid>
 </Window>
