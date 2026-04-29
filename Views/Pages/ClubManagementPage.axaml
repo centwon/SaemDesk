@@ -1,0 +1,98 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SaemDesk.ViewModels.Pages"
+             xmlns:models="using:SaemDesk.Models"
+             x:Class="SaemDesk.Views.Pages.ClubManagementPage"
+             x:DataType="vm:ClubManagementPageVM"
+             Classes="page">
+
+  <Grid RowDefinitions="Auto,*" ColumnDefinitions="*,360" Margin="20,16">
+
+    <!-- 헤더 -->
+    <Grid Grid.Row="0" Grid.ColumnSpan="2"
+          ColumnDefinitions="Auto,Auto,Auto,200,Auto,Auto,Auto,Auto,*,Auto"
+          Margin="0,0,0,10">
+      <TextBlock Grid.Column="0" Text="🎭 동아리 관리"
+                 FontSize="22" FontWeight="SemiBold"
+                 VerticalAlignment="Center"/>
+      <TextBlock Grid.Column="1" Text="학년도" Margin="14,0,4,0" VerticalAlignment="Center"/>
+      <NumericUpDown Grid.Column="2" Value="{Binding Year, Mode=TwoWay}"
+                     Minimum="2000" Maximum="2100" Width="100"/>
+      <TextBox Grid.Column="3" Text="{Binding SearchText, Mode=TwoWay}"
+               PlaceholderText="검색" Margin="14,0,4,0"/>
+      <Button Grid.Column="4" Content="조회" Padding="10,6"
+              Command="{Binding ReloadCommand}" Margin="0,0,4,0"/>
+      <Button Grid.Column="5" Content="＋ 새 동아리" Padding="10,6"
+              Command="{Binding NewClubCommand}" Margin="0,0,4,0"/>
+      <Button Grid.Column="6" Content="저장" Classes="accent" Padding="10,6"
+              Command="{Binding SaveCommand}" HotKey="Ctrl+S" Margin="0,0,4,0"/>
+      <Button Grid.Column="7" Content="🗑 삭제" Padding="10,6"
+              Command="{Binding DeleteCommand}"
+              IsEnabled="{Binding HasSelection}"/>
+      <TextBlock Grid.Column="9" Text="{Binding StatusText}"
+                 VerticalAlignment="Center"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+    </Grid>
+
+    <!-- 좌: 목록 -->
+    <Border Grid.Row="1" Grid.Column="0"
+            BorderThickness="1" BorderBrush="{DynamicResource ContentSeparatorBrush}"
+            CornerRadius="6" Margin="0,0,10,0">
+      <ListBox ItemsSource="{Binding Items}"
+               SelectedItem="{Binding Selected, Mode=TwoWay}"
+               Background="Transparent">
+        <ListBox.ItemTemplate>
+          <DataTemplate DataType="models:Club">
+            <Grid ColumnDefinitions="*,Auto" Margin="0,2">
+              <StackPanel>
+                <TextBlock Text="{Binding ClubName}" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding ActivityRoom}" FontSize="11"
+                           Foreground="{DynamicResource SystemBaseMediumColor}"/>
+              </StackPanel>
+              <TextBlock Grid.Column="1" Text="{Binding Year}" FontSize="11"
+                         VerticalAlignment="Center"
+                         Foreground="{DynamicResource SystemBaseMediumColor}"/>
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </Border>
+
+    <!-- 우: 편집 -->
+    <Border Grid.Row="1" Grid.Column="1"
+            BorderThickness="1" BorderBrush="{DynamicResource ContentSeparatorBrush}"
+            CornerRadius="6" Padding="14,10">
+      <StackPanel Spacing="10">
+        <TextBlock Text="동아리 편집" FontWeight="SemiBold" FontSize="14"/>
+
+        <StackPanel Spacing="4">
+          <TextBlock Text="동아리명" FontSize="11"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+          <TextBox Text="{Binding FormName, Mode=TwoWay}" PlaceholderText="예: 과학탐구반"/>
+        </StackPanel>
+
+        <StackPanel Spacing="4">
+          <TextBlock Text="활동실" FontSize="11"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+          <TextBox Text="{Binding FormRoom, Mode=TwoWay}" PlaceholderText="예: 과학실 1"/>
+        </StackPanel>
+
+        <StackPanel Spacing="4">
+          <TextBlock Text="비고" FontSize="11"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+          <TextBox Text="{Binding FormRemark, Mode=TwoWay}"
+                   AcceptsReturn="True"
+                   TextWrapping="Wrap"
+                   MinHeight="80"
+                   PlaceholderText="활동 계획·요일·기타 메모"/>
+        </StackPanel>
+
+        <TextBlock Text="{Binding ErrorText}"
+                   Foreground="#D9372A"
+                   FontSize="11"
+                   IsVisible="{Binding ErrorText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                   TextWrapping="Wrap"/>
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>

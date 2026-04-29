@@ -45,6 +45,14 @@ public partial class MainWindowViewModel : ViewModelBase
             new NavItem("스케줄러",    "◷", () => new SchedulerPageVM()),
         }),
 
+        // ── 동아리 그룹 ──
+        new NavItem("동아리", "🎭", new NavItem[]
+        {
+            new NavItem("동아리홈",     "🏠", () => new ClubHomePageVM()),
+            new NavItem("동아리 관리",  "🎭", () => new ClubManagementPageVM()),
+            new NavItem("동아리 활동",  "✏",  () => new ClubActivityPageVM()),
+        }),
+
         // ── 설정/관리 항목 ──
         new NavItem("학사일정 관리", "◷", () => new SchoolScheduleManagementPageVM()),
         new NavItem("학사일정 보기", "◫", () => new CalendarPageVM()),
