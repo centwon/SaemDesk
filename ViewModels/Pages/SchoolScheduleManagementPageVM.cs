@@ -233,6 +233,28 @@ public partial class SchoolScheduleManagementPageVM : ViewModelBase
         finally { IsBusy = false; }
     }
 
+    // 일괄 학년 적용용 임시 체크박스 상태
+    [ObservableProperty] private bool _bulkG1;
+    [ObservableProperty] private bool _bulkG2;
+    [ObservableProperty] private bool _bulkG3;
+    [ObservableProperty] private bool _bulkG4;
+    [ObservableProperty] private bool _bulkG5;
+    [ObservableProperty] private bool _bulkG6;
+
+    [RelayCommand]
+    private void ApplyGradesToSelected()
+    {
+        var targets = Items.Where(i => i.IsSelected).ToList();
+        if (targets.Count == 0) { StatusText = "선택된 항목이 없습니다."; return; }
+        foreach (var t in targets)
+        {
+            t.G1 = BulkG1; t.G2 = BulkG2; t.G3 = BulkG3;
+            t.G4 = BulkG4; t.G5 = BulkG5; t.G6 = BulkG6;
+            // OnG*Changed 가 IsModified=true 자동 셋
+        }
+        StatusText = $"{targets.Count}건 학년 일괄 적용 — 저장 버튼으로 DB 반영";
+    }
+
     [RelayCommand]
     private void ToggleSelectAll()
     {

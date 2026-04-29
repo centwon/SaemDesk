@@ -68,6 +68,37 @@ public partial class MemoBoard : UserControl
         // 다이얼로그 측에서 직접 저장하므로 별도 처리는 ReloadAsync 에 위임
     }
 
+    private void OnMoveUp(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Control c && c.DataContext is Post p)
+        {
+            int idx = _items.IndexOf(p);
+            if (idx > 0) _items.Move(idx, idx - 1);
+        }
+    }
+
+    private void OnMoveDown(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Control c && c.DataContext is Post p)
+        {
+            int idx = _items.IndexOf(p);
+            if (idx >= 0 && idx < _items.Count - 1) _items.Move(idx, idx + 1);
+        }
+    }
+
+    private async void OnDeleteItem(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Control c || c.DataContext is not Post p) return;
+        try
+        {
+            using var repo = new PostRepository(BoardDatabase.DbPath);
+            await repo.DeleteAsync(p.No);
+            _items.Remove(p);
+            EmptyState.IsVisible = _items.Count == 0;
+        }
+        catch { /* 컨트롤 단위 — 무시 */ }
+    }
+
     private async Task ReloadAsync()
     {
         try

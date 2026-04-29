@@ -61,6 +61,19 @@
           <Button Content="🗓 Google 업로드" Padding="12,6"
                   Command="{Binding UploadToGoogleCommand}"
                   ToolTip.Tip="선택 항목(없으면 전체)을 Google Calendar 종일 이벤트로 등록"/>
+          <Border Width="1" Background="{DynamicResource ContentSeparatorBrush}" Margin="4,0"/>
+          <TextBlock Text="일괄 학년" VerticalAlignment="Center"
+                     FontSize="11"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+          <CheckBox Content="1" IsChecked="{Binding BulkG1, Mode=TwoWay}" MinWidth="0"/>
+          <CheckBox Content="2" IsChecked="{Binding BulkG2, Mode=TwoWay}" MinWidth="0"/>
+          <CheckBox Content="3" IsChecked="{Binding BulkG3, Mode=TwoWay}" MinWidth="0"/>
+          <CheckBox Content="4" IsChecked="{Binding BulkG4, Mode=TwoWay}" MinWidth="0"/>
+          <CheckBox Content="5" IsChecked="{Binding BulkG5, Mode=TwoWay}" MinWidth="0"/>
+          <CheckBox Content="6" IsChecked="{Binding BulkG6, Mode=TwoWay}" MinWidth="0"/>
+          <Button Content="적용" Padding="10,6"
+                  Command="{Binding ApplyGradesToSelectedCommand}"
+                  ToolTip.Tip="선택 항목에 위 체크 학년을 일괄 반영"/>
 
           <ProgressBar Width="120" IsIndeterminate="True"
                        IsVisible="{Binding IsBusy}"

@@ -119,6 +119,30 @@
                                        VerticalAlignment="Center"
                                        FontWeight="Bold"/>
                           </Border>
+                          <Button.ContextFlyout>
+                            <MenuFlyout>
+                              <MenuItem Header="✓ 완료/해제 토글"
+                                        Command="{Binding $parent[ItemsControl].((vm:ProgressMatrixPageVM)DataContext).ToggleCellCommand}"
+                                        CommandParameter="{Binding}"/>
+                              <Separator/>
+                              <MenuItem Header="M 보강"
+                                        Command="{Binding $parent[ItemsControl].((vm:ProgressMatrixPageVM)DataContext).MarkMakeupCommand}"
+                                        CommandParameter="{Binding}"/>
+                              <MenuItem Header="⊕ 병합"
+                                        Command="{Binding $parent[ItemsControl].((vm:ProgressMatrixPageVM)DataContext).MarkMergedCommand}"
+                                        CommandParameter="{Binding}"/>
+                              <MenuItem Header="↪ 건너뜀"
+                                        Command="{Binding $parent[ItemsControl].((vm:ProgressMatrixPageVM)DataContext).MarkSkippedCommand}"
+                                        CommandParameter="{Binding}"/>
+                              <MenuItem Header="✕ 결강"
+                                        Command="{Binding $parent[ItemsControl].((vm:ProgressMatrixPageVM)DataContext).MarkFailedCommand}"
+                                        CommandParameter="{Binding}"/>
+                              <Separator/>
+                              <MenuItem Header="비우기"
+                                        Command="{Binding $parent[ItemsControl].((vm:ProgressMatrixPageVM)DataContext).ClearCellCommand}"
+                                        CommandParameter="{Binding}"/>
+                            </MenuFlyout>
+                          </Button.ContextFlyout>
                         </Button>
                       </DataTemplate>
                     </ItemsControl.ItemTemplate>

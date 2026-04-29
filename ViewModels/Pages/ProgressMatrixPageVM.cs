@@ -202,21 +202,73 @@ public partial class ProgressMatrixPageVM : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task ToggleCellAsync(MatrixCell? cell)
+    private Task ToggleCellAsync(MatrixCell? cell) => ApplyCellAsync(cell, "toggle");
+
+    [RelayCommand]
+    private Task MarkMakeupAsync(MatrixCell? cell) => ApplyCellAsync(cell, "makeup");
+
+    [RelayCommand]
+    private Task MarkSkippedAsync(MatrixCell? cell) => ApplyCellAsync(cell, "skipped");
+
+    [RelayCommand]
+    private Task MarkMergedAsync(MatrixCell? cell) => ApplyCellAsync(cell, "merged");
+
+    [RelayCommand]
+    private Task MarkFailedAsync(MatrixCell? cell) => ApplyCellAsync(cell, "failed");
+
+    [RelayCommand]
+    private Task ClearCellAsync(MatrixCell? cell) => ApplyCellAsync(cell, "clear");
+
+    private async Task ApplyCellAsync(MatrixCell? cell, string action)
     {
         if (cell is null || SelectedCourse is null) return;
         try
         {
             using var repo = new LessonProgressRepository(SchoolDatabase.DbPath);
-            if (cell.IsDone)
+            switch (action)
             {
-                await repo.MarkAsIncompleteAsync(cell.SectionId, cell.Room);
-                cell.State = CellState.Empty;
-            }
-            else
-            {
-                await repo.MarkAsCompletedAsync(cell.SectionId, cell.Room);
-                cell.State = CellState.Done;
+                case "toggle":
+                    if (cell.IsDone)
+                    {
+                        await repo.MarkAsIncompleteAsync(cell.SectionId, cell.Room);
+                        cell.State = CellState.Empty;
+                    }
+                    else
+                    {
+                        await repo.MarkAsCompletedAsync(cell.SectionId, cell.Room);
+                        cell.State = CellState.Done;
+                    }
+                    break;
+                case "makeup":
+                    await repo.MarkAsMakeupAsync(cell.SectionId, cell.Room, DateTime.Today);
+                    cell.State = CellState.Makeup;
+                    break;
+                case "skipped":
+                    await repo.MarkAsSkippedAsync(cell.SectionId, cell.Room);
+                    cell.State = CellState.Skipped;
+                    break;
+                case "merged":
+                    // 병합: Completed + ProgressType = Merged
+                    var p = await repo.GetOrCreateAsync(cell.SectionId, cell.Room);
+                    p.IsCompleted = true;
+                    p.ProgressType = ProgressType.Merged;
+                    p.CompletedDate = DateTime.Today;
+                    p.UpdatedAt = DateTime.Now;
+                    await repo.UpdateAsync(p);
+                    cell.State = CellState.Merged;
+                    break;
+                case "failed":
+                    var f = await repo.GetOrCreateAsync(cell.SectionId, cell.Room);
+                    f.IsCompleted = false;
+                    f.ProgressType = ProgressType.Normal;
+                    f.UpdatedAt = DateTime.Now;
+                    await repo.UpdateAsync(f);
+                    cell.State = CellState.Failed;
+                    break;
+                case "clear":
+                    await repo.MarkAsIncompleteAsync(cell.SectionId, cell.Room);
+                    cell.State = CellState.Empty;
+                    break;
             }
             ComputeStats();
             OnPropertyChanged(nameof(LeadingRoom));
