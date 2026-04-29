@@ -1,28 +1,51 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-  <!-- ═══ 브랜드 색상 ═══ -->
+  <!-- ═══════════════════════════════════════════════════════
+       브랜드 색상 — 라이트/다크 공통
+       ═══════════════════════════════════════════════════════ -->
   <Color x:Key="BrandPrimary">#0078D4</Color>
   <Color x:Key="BrandSecondary">#005A9E</Color>
   <Color x:Key="BrandAccent">#50E6FF</Color>
-  <SolidColorBrush x:Key="BrandPrimaryBrush"   Color="{StaticResource BrandPrimary}" />
-  <SolidColorBrush x:Key="BrandSecondaryBrush" Color="{StaticResource BrandSecondary}" />
-  <SolidColorBrush x:Key="BrandAccentBrush"    Color="{StaticResource BrandAccent}" />
 
-  <!-- ═══ 네비게이션 패널 ═══ -->
-  <Color x:Key="NavBackground">#F3F3F3</Color>
-  <Color x:Key="NavItemHover">#E5E5E5</Color>
-  <Color x:Key="NavItemSelected">#DDEEFF</Color>
-  <Color x:Key="NavItemSelectedBorder">#0078D4</Color>
-  <SolidColorBrush x:Key="NavBackgroundBrush"          Color="{StaticResource NavBackground}" />
-  <SolidColorBrush x:Key="NavItemHoverBrush"           Color="{StaticResource NavItemHover}" />
-  <SolidColorBrush x:Key="NavItemSelectedBrush"        Color="{StaticResource NavItemSelected}" />
-  <SolidColorBrush x:Key="NavItemSelectedBorderBrush"  Color="{StaticResource NavItemSelectedBorder}" />
+  <SolidColorBrush x:Key="BrandPrimaryBrush"         Color="{StaticResource BrandPrimary}" />
+  <SolidColorBrush x:Key="BrandSecondaryBrush"        Color="{StaticResource BrandSecondary}" />
+  <SolidColorBrush x:Key="BrandAccentBrush"           Color="{StaticResource BrandAccent}" />
+  <SolidColorBrush x:Key="NavItemSelectedBorderBrush" Color="{StaticResource BrandPrimary}" />
 
-  <!-- ═══ 콘텐츠 영역 ═══ -->
-  <Color x:Key="ContentBackground">#FFFFFF</Color>
-  <Color x:Key="ContentSeparator">#E0E0E0</Color>
-  <SolidColorBrush x:Key="ContentBackgroundBrush"  Color="{StaticResource ContentBackground}" />
-  <SolidColorBrush x:Key="ContentSeparatorBrush"   Color="{StaticResource ContentSeparator}" />
+  <!-- ═══════════════════════════════════════════════════════
+       테마별 색상
+       ═══════════════════════════════════════════════════════ -->
+  <ResourceDictionary.ThemeDictionaries>
+
+    <!-- ─── 라이트 모드 ─────────────────────────────────── -->
+    <ResourceDictionary x:Key="Light">
+
+      <!-- 네비게이션 패널 -->
+      <SolidColorBrush x:Key="NavBackgroundBrush"    Color="#F3F3F3" />
+      <SolidColorBrush x:Key="NavItemHoverBrush"     Color="#E5E5E5" />
+      <SolidColorBrush x:Key="NavItemSelectedBrush"  Color="#DDEEFF" />
+
+      <!-- 콘텐츠 영역 -->
+      <SolidColorBrush x:Key="ContentBackgroundBrush"  Color="#FFFFFF" />
+      <SolidColorBrush x:Key="ContentSeparatorBrush"   Color="#E0E0E0" />
+
+    </ResourceDictionary>
+
+    <!-- ─── 다크 모드 ──────────────────────────────────── -->
+    <ResourceDictionary x:Key="Dark">
+
+      <!-- 네비게이션 패널 -->
+      <SolidColorBrush x:Key="NavBackgroundBrush"    Color="#1E1E1E" />
+      <SolidColorBrush x:Key="NavItemHoverBrush"     Color="#2D2D2D" />
+      <SolidColorBrush x:Key="NavItemSelectedBrush"  Color="#1B3D5A" />
+
+      <!-- 콘텐츠 영역 -->
+      <SolidColorBrush x:Key="ContentBackgroundBrush"  Color="#141414" />
+      <SolidColorBrush x:Key="ContentSeparatorBrush"   Color="#3A3A3A" />
+
+    </ResourceDictionary>
+
+  </ResourceDictionary.ThemeDictionaries>
 
 </ResourceDictionary>

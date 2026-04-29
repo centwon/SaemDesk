@@ -1,0 +1,71 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sched="using:SaemDesk.Scheduler"
+             x:Class="SaemDesk.Views.Controls.DayCell">
+
+  <Border x:Name="BrdBase"
+          BorderBrush="{DynamicResource ContentSeparatorBrush}"
+          BorderThickness="0,0,0.5,0.5"
+          Background="{DynamicResource ContentBackgroundBrush}"
+          PointerEntered="OnPointerEntered"
+          PointerExited="OnPointerExited"
+          PointerPressed="OnPointerPressed">
+
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+      <!-- 호버 / 오늘 강조 레이어 -->
+      <Border x:Name="HoverHighlight"
+              Grid.RowSpan="2"
+              Background="{DynamicResource NavItemHoverBrush}"
+              IsHitTestVisible="False"
+              Opacity="0"/>
+      <Border x:Name="TodayHighlight"
+              Grid.RowSpan="2"
+              Background="#1A4285F4"
+              BorderBrush="#4285F4"
+              BorderThickness="1.5"
+              CornerRadius="3"
+              IsHitTestVisible="False"
+              IsVisible="False"/>
+
+      <!-- 헤더: 날짜 + 학사일정 이름 + 작업 개수 -->
+      <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Margin="6,4,6,2">
+        <TextBlock Grid.Column="0"
+                   x:Name="LbDate"
+                   FontWeight="SemiBold"
+                   FontSize="12"
+                   VerticalAlignment="Center"/>
+        <TextBlock Grid.Column="1"
+                   x:Name="TbDateName"
+                   FontSize="9"
+                   Margin="6,0,4,0"
+                   Opacity="0.85"
+                   TextTrimming="CharacterEllipsis"
+                   VerticalAlignment="Center"/>
+        <Border Grid.Column="2"
+                x:Name="TaskCountBadge"
+                Background="#E6F4FF"
+                CornerRadius="8"
+                Padding="6,1"
+                IsVisible="False">
+          <TextBlock x:Name="TaskCountText"
+                     FontSize="10"
+                     FontWeight="SemiBold"
+                     Foreground="#1E66BF"/>
+        </Border>
+      </Grid>
+
+      <!-- 본문: 일정/할일 -->
+      <ScrollViewer Grid.Row="1"
+                    HorizontalScrollBarVisibility="Disabled"
+                    VerticalScrollBarVisibility="Auto"
+                    Padding="2,0,2,2">
+        <StackPanel x:Name="ItemsPanel" Spacing="2"/>
+      </ScrollViewer>
+    </Grid>
+  </Border>
+</UserControl>

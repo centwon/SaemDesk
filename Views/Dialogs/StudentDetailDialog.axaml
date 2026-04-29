@@ -1,0 +1,289 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:models="using:SaemDesk.Models"
+        x:Class="SaemDesk.Views.Dialogs.StudentDetailDialog"
+        Title="학생 상세"
+        Width="720" Height="640"
+        MinWidth="600" MinHeight="500"
+        WindowStartupLocation="CenterOwner"
+        CanResize="True"
+        ShowInTaskbar="False">
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="20">
+
+    <!-- 헤더 -->
+    <StackPanel Grid.Row="0" Margin="0,0,0,12" Spacing="2">
+      <TextBlock x:Name="TitleText" FontSize="20" FontWeight="SemiBold"/>
+      <TextBlock x:Name="SubTitleText" FontSize="13"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+    </StackPanel>
+
+    <!-- 탭 -->
+    <TabControl Grid.Row="1">
+
+      <!-- ── 상세 정보 ─────────────────────────────────── -->
+      <TabItem Header="상세 정보">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,4">
+          <StackPanel Spacing="14">
+
+            <!-- 보호자 -->
+            <TextBlock Text="보호자" FontSize="14" FontWeight="SemiBold"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"/>
+            <Grid ColumnDefinitions="80,*,12,80,*,12,80,*"
+                  RowDefinitions="Auto,Auto,Auto">
+              <Grid.Styles>
+                <Style Selector="TextBlock.lbl">
+                  <Setter Property="VerticalAlignment" Value="Center"/>
+                  <Setter Property="Margin" Value="0,0,8,8"/>
+                  <Setter Property="FontSize" Value="13"/>
+                </Style>
+                <Style Selector="TextBox">
+                  <Setter Property="Margin" Value="0,0,0,8"/>
+                  <Setter Property="FontSize" Value="13"/>
+                </Style>
+              </Grid.Styles>
+
+              <!-- 부 -->
+              <TextBlock Grid.Row="0" Grid.Column="0" Text="부 성함" Classes="lbl"/>
+              <TextBox   Grid.Row="0" Grid.Column="1" x:Name="FatherNameBox"/>
+              <TextBlock Grid.Row="0" Grid.Column="3" Text="부 연락처" Classes="lbl"/>
+              <TextBox   Grid.Row="0" Grid.Column="4" x:Name="FatherPhoneBox"/>
+              <TextBlock Grid.Row="0" Grid.Column="6" Text="부 직업" Classes="lbl"/>
+              <TextBox   Grid.Row="0" Grid.Column="7" x:Name="FatherJobBox"/>
+
+              <!-- 모 -->
+              <TextBlock Grid.Row="1" Grid.Column="0" Text="모 성함" Classes="lbl"/>
+              <TextBox   Grid.Row="1" Grid.Column="1" x:Name="MotherNameBox"/>
+              <TextBlock Grid.Row="1" Grid.Column="3" Text="모 연락처" Classes="lbl"/>
+              <TextBox   Grid.Row="1" Grid.Column="4" x:Name="MotherPhoneBox"/>
+              <TextBlock Grid.Row="1" Grid.Column="6" Text="모 직업" Classes="lbl"/>
+              <TextBox   Grid.Row="1" Grid.Column="7" x:Name="MotherJobBox"/>
+
+              <!-- 보호자 (대체) -->
+              <TextBlock Grid.Row="2" Grid.Column="0" Text="보호자" Classes="lbl"/>
+              <TextBox   Grid.Row="2" Grid.Column="1" x:Name="GuardianNameBox"/>
+              <TextBlock Grid.Row="2" Grid.Column="3" Text="연락처" Classes="lbl"/>
+              <TextBox   Grid.Row="2" Grid.Column="4" x:Name="GuardianPhoneBox"/>
+              <TextBlock Grid.Row="2" Grid.Column="6" Text="관계" Classes="lbl"/>
+              <TextBox   Grid.Row="2" Grid.Column="7" x:Name="GuardianRelationBox"
+                         PlaceholderText="조부모, 친척 등"/>
+            </Grid>
+
+            <!-- 가정/교우 -->
+            <TextBlock Text="가정 환경 / 교우관계" FontSize="14" FontWeight="SemiBold"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"/>
+            <Grid ColumnDefinitions="80,*" RowDefinitions="Auto,Auto">
+              <Grid.Styles>
+                <Style Selector="TextBlock.lbl">
+                  <Setter Property="VerticalAlignment" Value="Top"/>
+                  <Setter Property="Margin" Value="0,8,8,8"/>
+                  <Setter Property="FontSize" Value="13"/>
+                </Style>
+                <Style Selector="TextBox">
+                  <Setter Property="Margin" Value="0,0,0,8"/>
+                  <Setter Property="FontSize" Value="13"/>
+                  <Setter Property="AcceptsReturn" Value="True"/>
+                  <Setter Property="TextWrapping" Value="Wrap"/>
+                  <Setter Property="MinHeight" Value="50"/>
+                </Style>
+              </Grid.Styles>
+
+              <TextBlock Grid.Row="0" Grid.Column="0" Text="가족" Classes="lbl"/>
+              <TextBox   Grid.Row="0" Grid.Column="1" x:Name="FamilyBox"/>
+
+              <TextBlock Grid.Row="1" Grid.Column="0" Text="친구" Classes="lbl"/>
+              <TextBox   Grid.Row="1" Grid.Column="1" x:Name="FriendsBox"/>
+            </Grid>
+
+            <!-- 학생 특성 -->
+            <TextBlock Text="학생 특성" FontSize="14" FontWeight="SemiBold"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"/>
+            <Grid ColumnDefinitions="80,*" RowDefinitions="Auto,Auto,Auto">
+              <Grid.Styles>
+                <Style Selector="TextBlock.lbl">
+                  <Setter Property="VerticalAlignment" Value="Center"/>
+                  <Setter Property="Margin" Value="0,0,8,8"/>
+                  <Setter Property="FontSize" Value="13"/>
+                </Style>
+                <Style Selector="TextBox">
+                  <Setter Property="Margin" Value="0,0,0,8"/>
+                  <Setter Property="FontSize" Value="13"/>
+                </Style>
+              </Grid.Styles>
+
+              <TextBlock Grid.Row="0" Grid.Column="0" Text="관심사" Classes="lbl"/>
+              <TextBox   Grid.Row="0" Grid.Column="1" x:Name="InterestsBox"/>
+
+              <TextBlock Grid.Row="1" Grid.Column="0" Text="특기" Classes="lbl"/>
+              <TextBox   Grid.Row="1" Grid.Column="1" x:Name="TalentsBox"/>
+
+              <TextBlock Grid.Row="2" Grid.Column="0" Text="진로 희망" Classes="lbl"/>
+              <TextBox   Grid.Row="2" Grid.Column="1" x:Name="CareerBox"/>
+            </Grid>
+
+            <!-- 건강 -->
+            <TextBlock Text="건강" FontSize="14" FontWeight="SemiBold"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"/>
+            <Grid ColumnDefinitions="80,*" RowDefinitions="Auto,Auto,Auto">
+              <Grid.Styles>
+                <Style Selector="TextBlock.lbl">
+                  <Setter Property="VerticalAlignment" Value="Top"/>
+                  <Setter Property="Margin" Value="0,8,8,8"/>
+                  <Setter Property="FontSize" Value="13"/>
+                </Style>
+                <Style Selector="TextBox">
+                  <Setter Property="Margin" Value="0,0,0,8"/>
+                  <Setter Property="FontSize" Value="13"/>
+                  <Setter Property="AcceptsReturn" Value="True"/>
+                  <Setter Property="TextWrapping" Value="Wrap"/>
+                  <Setter Property="MinHeight" Value="50"/>
+                </Style>
+              </Grid.Styles>
+
+              <TextBlock Grid.Row="0" Grid.Column="0" Text="건강상태" Classes="lbl"/>
+              <TextBox   Grid.Row="0" Grid.Column="1" x:Name="HealthBox"/>
+
+              <TextBlock Grid.Row="1" Grid.Column="0" Text="알레르기" Classes="lbl"/>
+              <TextBox   Grid.Row="1" Grid.Column="1" x:Name="AllergyBox"/>
+
+              <TextBlock Grid.Row="2" Grid.Column="0" Text="특수교육" Classes="lbl"/>
+              <TextBox   Grid.Row="2" Grid.Column="1" x:Name="SpecialNeedsBox"/>
+            </Grid>
+
+            <!-- 메모 -->
+            <TextBlock Text="기타 메모" FontSize="14" FontWeight="SemiBold"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"/>
+            <TextBox x:Name="MemoBox"
+                     AcceptsReturn="True" TextWrapping="Wrap"
+                     MinHeight="80"
+                     PlaceholderText="기타 상세 사항"/>
+
+            <!-- 저장 안내 -->
+            <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
+              <TextBlock Grid.Column="0"
+                         x:Name="DetailStatusText"
+                         FontSize="12"
+                         Foreground="{DynamicResource SystemBaseMediumColor}"
+                         VerticalAlignment="Center"/>
+              <Button Grid.Column="1"
+                      Content="상세 저장"
+                      Classes="accent"
+                      Padding="14,6"
+                      Click="OnSaveDetail"/>
+            </Grid>
+
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <!-- ── 활동 기록 ─────────────────────────────────── -->
+      <TabItem Header="활동 기록">
+        <Grid RowDefinitions="Auto,Auto,*" Margin="4,8,4,4">
+
+          <!-- 툴바 -->
+          <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="6"
+                      Margin="0,0,0,8">
+            <Button Content="기록 추가" Classes="accent" Padding="12,6"
+                    Click="OnAddLog"/>
+            <Button x:Name="EditLogButton" Content="수정" Padding="12,6"
+                    Click="OnEditLog" IsEnabled="False"/>
+            <Button x:Name="DeleteLogButton" Content="삭제" Padding="12,6"
+                    Click="OnDeleteLog" IsEnabled="False"/>
+            <Button Content="새로고침" Padding="12,6" Click="OnRefreshLogs"/>
+            <TextBlock x:Name="LogCountText" FontSize="12"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                       VerticalAlignment="Center" Margin="8,0,0,0"/>
+          </StackPanel>
+
+          <!-- 빈 상태 -->
+          <TextBlock Grid.Row="1"
+                     x:Name="LogEmptyText"
+                     IsVisible="False"
+                     Text="작성된 활동 기록이 없습니다."
+                     FontSize="13"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"
+                     HorizontalAlignment="Center"
+                     Margin="0,40,0,0"/>
+
+          <!-- 리스트 -->
+          <ListBox Grid.Row="2"
+                   x:Name="LogListBox"
+                   Background="Transparent"
+                   BorderThickness="0"
+                   SelectionChanged="OnLogSelectionChanged">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="models:StudentLog">
+                <Grid ColumnDefinitions="80,*,Auto">
+                  <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="2">
+                    <TextBlock Text="{Binding Category}" FontSize="12"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource BrandPrimaryBrush}"/>
+                    <TextBlock Text="{Binding Date, StringFormat={}{0:yyyy-MM-dd}}"
+                               FontSize="11"
+                               Foreground="{DynamicResource SystemBaseMediumColor}"/>
+                  </StackPanel>
+                  <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2"
+                              Margin="12,0,8,0">
+                    <TextBlock Text="{Binding ActivityName}"
+                               FontSize="13" FontWeight="SemiBold"
+                               IsVisible="{Binding ActivityName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                    <TextBlock Text="{Binding Topic}"
+                               FontSize="12"
+                               Foreground="{DynamicResource SystemBaseMediumColor}"
+                               IsVisible="{Binding Topic, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                    <TextBlock Text="{Binding Log}"
+                               FontSize="12"
+                               MaxLines="1"
+                               TextTrimming="CharacterEllipsis"
+                               IsVisible="{Binding Log, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                  </StackPanel>
+                  <Border Grid.Column="2"
+                          IsVisible="{Binding IsImportant}"
+                          Background="#FFEEEE"
+                          CornerRadius="4" Padding="6,2"
+                          VerticalAlignment="Center">
+                    <TextBlock Text="중요" FontSize="11"
+                               Foreground="{DynamicResource SystemErrorTextColor}"/>
+                  </Border>
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+            <ListBox.ItemContainerTheme>
+              <ControlTheme TargetType="ListBoxItem">
+                <Setter Property="Padding" Value="12,8"/>
+                <Setter Property="Margin" Value="0,2"/>
+                <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}"/>
+                <Setter Property="CornerRadius" Value="6"/>
+                <Setter Property="Template">
+                  <ControlTemplate>
+                    <Border Background="{TemplateBinding Background}"
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            Padding="{TemplateBinding Padding}"
+                            BoxShadow="0 1 3 0 #15000000">
+                      <ContentPresenter Content="{TemplateBinding Content}"
+                                        ContentTemplate="{TemplateBinding ContentTemplate}"/>
+                    </Border>
+                  </ControlTemplate>
+                </Setter>
+                <Style Selector="^:selected /template/ Border">
+                  <Setter Property="Background" Value="{DynamicResource SystemListLowColor}"/>
+                </Style>
+                <Style Selector="^:pointerover /template/ Border">
+                  <Setter Property="Background" Value="{DynamicResource SystemListMediumColor}"/>
+                </Style>
+              </ControlTheme>
+            </ListBox.ItemContainerTheme>
+          </ListBox>
+        </Grid>
+      </TabItem>
+
+    </TabControl>
+
+    <!-- 닫기 -->
+    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right"
+                Spacing="8" Margin="0,12,0,0">
+      <Button Content="닫기" Padding="16,8" Click="OnClose"/>
+    </StackPanel>
+
+  </Grid>
+</Window>

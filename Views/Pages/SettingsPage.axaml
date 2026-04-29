@@ -1,14 +1,202 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:SaemDesk.ViewModels.Pages"
+             xmlns:ctrl="using:SaemDesk.Views.Controls"
              x:Class="SaemDesk.Views.Pages.SettingsPage"
              x:DataType="vm:SettingsPageVM"
              Classes="page">
-  <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
-    <TextBlock Text="설정" FontSize="28" FontWeight="Bold"
-               HorizontalAlignment="Center" />
-    <TextBlock Text="Phase 5 구현 예정 — "
-               Foreground="{DynamicResource SystemBaseMediumColor}"
-               HorizontalAlignment="Center" />
-  </StackPanel>
+
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                VerticalScrollBarVisibility="Auto">
+    <StackPanel Margin="24,16" Spacing="12" MaxWidth="640">
+
+      <!-- 페이지 제목 -->
+      <TextBlock Text="설정" FontSize="22" FontWeight="SemiBold" Margin="0,0,0,4" />
+
+      <!-- ────────── 사용자 / 담임 정보 ────────── -->
+      <Expander Header="사용자 및 담임 정보" IsExpanded="True">
+        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto"
+              Margin="0,8,0,4" HorizontalAlignment="Stretch">
+          <Grid.Styles>
+            <Style Selector="TextBlock.label">
+              <Setter Property="VerticalAlignment" Value="Center"/>
+              <Setter Property="Width" Value="120"/>
+              <Setter Property="Margin" Value="0,0,12,8"/>
+            </Style>
+            <Style Selector="TextBox, NumericUpDown">
+              <Setter Property="Margin" Value="0,0,0,8"/>
+            </Style>
+          </Grid.Styles>
+
+          <TextBlock Grid.Row="0" Grid.Column="0" Text="이름" Classes="label"/>
+          <TextBox   Grid.Row="0" Grid.Column="1" Text="{Binding UserName, Mode=TwoWay}"
+                     PlaceholderText="예) 홍길동 선생님" />
+
+          <TextBlock Grid.Row="1" Grid.Column="0" Text="담임 학년" Classes="label"/>
+          <NumericUpDown Grid.Row="1" Grid.Column="1"
+                         Value="{Binding HomeGrade, Mode=TwoWay}"
+                         Minimum="0" Maximum="6" Increment="1"
+                         FormatString="{}{0}학년" />
+
+          <TextBlock Grid.Row="2" Grid.Column="0" Text="담임 반" Classes="label"/>
+          <NumericUpDown Grid.Row="2" Grid.Column="1"
+                         Value="{Binding HomeRoom, Mode=TwoWay}"
+                         Minimum="0" Maximum="30" Increment="1"
+                         FormatString="{}{0}반" />
+        </Grid>
+      </Expander>
+
+      <!-- ────────── 학교 정보 ────────── -->
+      <Expander Header="학교 정보" IsExpanded="True">
+        <StackPanel Margin="0,8,0,4" Spacing="8">
+
+          <!-- 학교 검색 버튼 -->
+          <Button Content="학교 검색 (NEIS)"
+                  Command="{Binding SearchSchoolCommand}"
+                  Classes="accent"
+                  HorizontalAlignment="Left"
+                  Padding="14,6"/>
+
+          <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+            <Grid.Styles>
+              <Style Selector="TextBlock.label">
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="Width" Value="120"/>
+                <Setter Property="Margin" Value="0,0,12,8"/>
+              </Style>
+              <Style Selector="TextBox">
+                <Setter Property="Margin" Value="0,0,0,8"/>
+                <Setter Property="IsReadOnly" Value="True"/>
+                <Setter Property="Foreground" Value="{DynamicResource SystemBaseMediumColor}"/>
+              </Style>
+            </Grid.Styles>
+
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="학교명" Classes="label"/>
+            <TextBox   Grid.Row="0" Grid.Column="1" Text="{Binding SchoolName}" PlaceholderText="학교 검색으로 설정" />
+
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="시도교육청" Classes="label"/>
+            <TextBox   Grid.Row="1" Grid.Column="1" Text="{Binding ProvinceName}" />
+
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="주소" Classes="label"/>
+            <TextBox   Grid.Row="2" Grid.Column="1" Text="{Binding SchoolAddress}" />
+
+            <TextBlock Grid.Row="3" Grid.Column="0" Text="시도 코드" Classes="label"/>
+            <TextBox   Grid.Row="3" Grid.Column="1" Text="{Binding ProvinceCode}" />
+
+            <TextBlock Grid.Row="4" Grid.Column="0" Text="학교 코드" Classes="label"/>
+            <TextBox   Grid.Row="4" Grid.Column="1" Text="{Binding SchoolCode}" />
+          </Grid>
+        </StackPanel>
+      </Expander>
+
+      <!-- ────────── 학년도 / 학기 ────────── -->
+      <Expander Header="학년도 및 학기" IsExpanded="True">
+        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto"
+              Margin="0,8,0,4">
+          <Grid.Styles>
+            <Style Selector="TextBlock.label">
+              <Setter Property="VerticalAlignment" Value="Center"/>
+              <Setter Property="Width" Value="120"/>
+              <Setter Property="Margin" Value="0,0,12,8"/>
+            </Style>
+          </Grid.Styles>
+
+          <TextBlock Grid.Row="0" Grid.Column="0" Text="학년도" Classes="label"/>
+          <NumericUpDown Grid.Row="0" Grid.Column="1"
+                         Value="{Binding WorkYear, Mode=TwoWay}"
+                         Minimum="2000" Maximum="2100" Increment="1"
+                         Margin="0,0,0,8"/>
+
+          <TextBlock Grid.Row="1" Grid.Column="0" Text="학기" Classes="label"/>
+          <ComboBox  Grid.Row="1" Grid.Column="1"
+                     SelectedIndex="{Binding WorkSemesterIndex, Mode=TwoWay}"
+                     HorizontalAlignment="Stretch">
+            <ComboBoxItem Content="1학기" />
+            <ComboBoxItem Content="2학기" />
+          </ComboBox>
+        </Grid>
+      </Expander>
+
+      <!-- ────────── 수업 시간 ────────── -->
+      <Expander Header="수업 시간 설정">
+        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+              Margin="0,8,0,4">
+          <Grid.Styles>
+            <Style Selector="TextBlock.label">
+              <Setter Property="VerticalAlignment" Value="Center"/>
+              <Setter Property="Width" Value="140"/>
+              <Setter Property="Margin" Value="0,0,12,8"/>
+            </Style>
+          </Grid.Styles>
+
+          <TextBlock Grid.Row="0" Grid.Column="0" Text="등교 시각" Classes="label"/>
+          <ctrl:CompactTimePicker Grid.Row="0" Grid.Column="1"
+                                  Time="{Binding DayStarting, Mode=TwoWay}"
+                                  Margin="0,0,0,8"/>
+
+          <TextBlock Grid.Row="1" Grid.Column="0" Text="조회 시간" Classes="label"/>
+          <ctrl:CompactTimePicker Grid.Row="1" Grid.Column="1"
+                                  Time="{Binding AssemblyTime, Mode=TwoWay}"
+                                  Margin="0,0,0,8"/>
+
+          <TextBlock Grid.Row="2" Grid.Column="0" Text="1교시 (분)" Classes="label"/>
+          <NumericUpDown Grid.Row="2" Grid.Column="1"
+                         Value="{Binding OnePeriodMinutes, Mode=TwoWay}"
+                         Minimum="10" Maximum="120" Increment="5"
+                         Margin="0,0,0,8"/>
+
+          <TextBlock Grid.Row="3" Grid.Column="0" Text="쉬는 시간 (분)" Classes="label"/>
+          <NumericUpDown Grid.Row="3" Grid.Column="1"
+                         Value="{Binding BreakTimeMinutes, Mode=TwoWay}"
+                         Minimum="0" Maximum="60" Increment="5"
+                         Margin="0,0,0,8"/>
+
+          <TextBlock Grid.Row="4" Grid.Column="0" Text="점심 시간 (분)" Classes="label"/>
+          <NumericUpDown Grid.Row="4" Grid.Column="1"
+                         Value="{Binding LunchTimeMinutes, Mode=TwoWay}"
+                         Minimum="0" Maximum="120" Increment="5"
+                         Margin="0,0,0,8"/>
+        </Grid>
+      </Expander>
+
+      <!-- ────────── 일정 / Google Calendar 설정 ────────── -->
+      <Expander Header="일정 · Google Calendar 설정">
+        <StackPanel Margin="0,8,0,4" Spacing="10">
+          <TextBlock Text="달력 표시 옵션, Google Calendar 연동, 학사일정 일괄 등록을 한 화면에서 관리합니다."
+                     TextWrapping="Wrap" FontSize="12"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+          <Button Content="일정 설정 열기…"
+                  Command="{Binding OpenCalendarSettingsCommand}"
+                  Classes="accent"
+                  HorizontalAlignment="Left"
+                  Padding="14,6"/>
+        </StackPanel>
+      </Expander>
+
+      <!-- ────────── 앱 옵션 ────────── -->
+      <Expander Header="앱 옵션">
+        <StackPanel Margin="0,8,0,4" Spacing="10">
+          <CheckBox Content="Windows 시작 시 자동 실행"
+                    IsChecked="{Binding StartWithWindows, Mode=TwoWay}" />
+          <CheckBox Content="자동 백업 활성화"
+                    IsChecked="{Binding AutoBackup, Mode=TwoWay}" />
+        </StackPanel>
+      </Expander>
+
+      <!-- ────────── 상태 메시지 ────────── -->
+      <ctrl:InfoBar IsOpen="{Binding IsStatusVisible}"
+                    Message="{Binding StatusMessage}"
+                    Severity="Success"
+                    IsVisible="{Binding IsStatusVisible}" />
+
+      <!-- ────────── 버전 정보 ────────── -->
+      <TextBlock Text="{Binding AppVersion}"
+                 FontSize="11"
+                 Foreground="{DynamicResource SystemBaseMediumLowColor}"
+                 HorizontalAlignment="Right"
+                 Margin="0,8,0,16"/>
+
+    </StackPanel>
+  </ScrollViewer>
+
 </UserControl>

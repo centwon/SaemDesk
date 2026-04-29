@@ -1,0 +1,84 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="SaemDesk.Views.Controls.MonthPicker">
+
+  <StackPanel>
+
+    <!-- 월 선택 버튼 -->
+    <Button x:Name="BtnMonth"
+            HorizontalAlignment="Stretch"
+            HorizontalContentAlignment="Center"
+            Click="BtnMonth_Click" />
+
+    <!-- 팝업 패널 -->
+    <Popup x:Name="MonthPopup"
+           Placement="Bottom"
+           PlacementTarget="{Binding ElementName=BtnMonth}"
+           IsLightDismissEnabled="True">
+
+      <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+              BorderBrush="{DynamicResource SystemBaseLowColor}"
+              BorderThickness="1"
+              CornerRadius="8"
+              Padding="12"
+              BoxShadow="0 4 16 0 #28000000"
+              Width="260">
+
+        <StackPanel Spacing="8">
+
+          <!-- 년도 헤더 -->
+          <Grid ColumnDefinitions="Auto,*,Auto">
+            <Button Grid.Column="0"
+                    Content="◀"
+                    Padding="8,4"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Click="BtnPrev_Click" />
+            <TextBlock Grid.Column="1"
+                       x:Name="YearLabel"
+                       FontSize="15" FontWeight="SemiBold"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center" />
+            <Button Grid.Column="2"
+                    Content="▶"
+                    Padding="8,4"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Click="BtnNext_Click" />
+          </Grid>
+
+          <!-- 월 그리드 (3×4) -->
+          <UniformGrid x:Name="MonthGrid" Columns="3" Rows="4">
+            <Button x:Name="M1"  Tag="1"  Content="1월"  Classes="month-btn" Click="MonthBtn_Click" />
+            <Button x:Name="M2"  Tag="2"  Content="2월"  Classes="month-btn" Click="MonthBtn_Click" />
+            <Button x:Name="M3"  Tag="3"  Content="3월"  Classes="month-btn" Click="MonthBtn_Click" />
+            <Button x:Name="M4"  Tag="4"  Content="4월"  Classes="month-btn" Click="MonthBtn_Click" />
+            <Button x:Name="M5"  Tag="5"  Content="5월"  Classes="month-btn" Click="MonthBtn_Click" />
+            <Button x:Name="M6"  Tag="6"  Content="6월"  Classes="month-btn" Click="MonthBtn_Click" />
+            <Button x:Name="M7"  Tag="7"  Content="7월"  Classes="month-btn" Click="MonthBtn_Click" />
+            <Button x:Name="M8"  Tag="8"  Content="8월"  Classes="month-btn" Click="MonthBtn_Click" />
+            <Button x:Name="M9"  Tag="9"  Content="9월"  Classes="month-btn" Click="MonthBtn_Click" />
+            <Button x:Name="M10" Tag="10" Content="10월" Classes="month-btn" Click="MonthBtn_Click" />
+            <Button x:Name="M11" Tag="11" Content="11월" Classes="month-btn" Click="MonthBtn_Click" />
+            <Button x:Name="M12" Tag="12" Content="12월" Classes="month-btn" Click="MonthBtn_Click" />
+          </UniformGrid>
+
+        </StackPanel>
+      </Border>
+    </Popup>
+
+  </StackPanel>
+
+  <UserControl.Styles>
+    <Style Selector="Button.month-btn">
+      <Setter Property="Padding" Value="4,8" />
+      <Setter Property="Margin" Value="2" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+  </UserControl.Styles>
+
+</UserControl>

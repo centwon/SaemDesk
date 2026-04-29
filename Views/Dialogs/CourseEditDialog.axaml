@@ -1,0 +1,99 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SaemDesk.Views.Dialogs.CourseEditDialog"
+        Title="수업 정보"
+        Width="520" Height="640"
+        MinWidth="460" MinHeight="560"
+        WindowStartupLocation="CenterOwner"
+        CanResize="True"
+        ShowInTaskbar="False">
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="20">
+
+    <!-- 헤더 -->
+    <StackPanel Grid.Row="0" Margin="0,0,0,12" Spacing="2">
+      <TextBlock x:Name="HeaderText"
+                 Text="수업 추가"
+                 FontSize="18"
+                 FontWeight="SemiBold"/>
+      <TextBlock Text="과목명·학년·단위·유형·강의실·비고를 입력하세요. ‘*’ 는 필수."
+                 FontSize="12"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+    </StackPanel>
+
+    <!-- 본문 -->
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+      <StackPanel Spacing="12">
+
+        <!-- 과목명 -->
+        <StackPanel Spacing="4">
+          <TextBlock Text="과목명 *" FontWeight="SemiBold" FontSize="13"/>
+          <TextBox x:Name="TxtSubject" PlaceholderText="예) 국어 / 수학 / 과학"/>
+        </StackPanel>
+
+        <!-- 대상 학년 -->
+        <StackPanel Spacing="4">
+          <TextBlock Text="대상 학년 *" FontWeight="SemiBold" FontSize="13"/>
+          <ComboBox x:Name="CBoxGrade" HorizontalAlignment="Stretch" SelectedIndex="0">
+            <ComboBoxItem Tag="1">1학년</ComboBoxItem>
+            <ComboBoxItem Tag="2">2학년</ComboBoxItem>
+            <ComboBoxItem Tag="3">3학년</ComboBoxItem>
+          </ComboBox>
+        </StackPanel>
+
+        <!-- 주당 시수 -->
+        <StackPanel Spacing="4">
+          <TextBlock Text="주당 시수 (단위)" FontWeight="SemiBold" FontSize="13"/>
+          <NumericUpDown x:Name="NumUnit"
+                         Minimum="0" Maximum="20" Increment="1"
+                         Value="0"
+                         FormatString="0"/>
+        </StackPanel>
+
+        <!-- 유형 -->
+        <StackPanel Spacing="4">
+          <TextBlock Text="수업 유형" FontWeight="SemiBold" FontSize="13"/>
+          <ComboBox x:Name="CBoxType" HorizontalAlignment="Stretch" SelectedIndex="0">
+            <ComboBoxItem Tag="Class">학급 공통</ComboBoxItem>
+            <ComboBoxItem Tag="Selective">선택 과목</ComboBoxItem>
+            <ComboBoxItem Tag="Club">동아리</ComboBoxItem>
+          </ComboBox>
+        </StackPanel>
+
+        <!-- 강의실 -->
+        <StackPanel Spacing="6">
+          <TextBlock Text="강의실 *" FontWeight="SemiBold" FontSize="13"/>
+          <TextBox x:Name="TxtRooms"
+                   PlaceholderText="예) 1반-5반 / 1반,3반,5반 / A,B,C / 미술실, 음악실"/>
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <Button Content="1반-5반" Padding="10,4" Click="OnPresetClass15"/>
+            <Button Content="1,3,5,7반" Padding="10,4" Click="OnPresetOdd"/>
+            <Button Content="A,B,C반"  Padding="10,4" Click="OnPresetABC"/>
+            <Button Content="특별실"   Padding="10,4" Click="OnPresetSpecial"/>
+          </StackPanel>
+        </StackPanel>
+
+        <!-- 비고 -->
+        <StackPanel Spacing="4">
+          <TextBlock Text="비고" FontWeight="SemiBold" FontSize="13"/>
+          <TextBox x:Name="TxtRemark"
+                   PlaceholderText="메모"
+                   AcceptsReturn="True"
+                   TextWrapping="Wrap"
+                   Height="80"/>
+        </StackPanel>
+
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- 푸터 -->
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0">
+      <TextBlock Grid.Column="0" x:Name="StatusText"
+                 FontSize="11" Foreground="#D9372A"
+                 VerticalAlignment="Center"
+                 TextWrapping="Wrap"/>
+      <Button Grid.Column="1" Content="취소" Padding="14,6" Margin="0,0,6,0" Click="OnCancel"/>
+      <Button Grid.Column="2" Content="저장" Padding="14,6" Classes="accent" Click="OnSave"/>
+    </Grid>
+  </Grid>
+</Window>

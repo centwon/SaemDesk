@@ -1,0 +1,104 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:models="using:SaemDesk.Models"
+        x:Class="SaemDesk.Views.Dialogs.SchoolSearchDialog"
+        Title="학교 검색"
+        Width="640" Height="520"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        ShowInTaskbar="False">
+
+  <Border Padding="20" Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+      <!-- ── 검색창 ───────────────────────────────────── -->
+      <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,8">
+        <TextBox Grid.Column="0"
+                 x:Name="SearchBox"
+                 PlaceholderText="학교명을 입력하세요 (예: 서울초등학교)"
+                 KeyDown="OnSearchKeyDown"/>
+        <Button Grid.Column="1"
+                x:Name="SearchButton"
+                Content="검색"
+                Margin="8,0,0,0"
+                Padding="14,6"
+                Classes="accent"
+                Click="OnSearch"/>
+        <ProgressBar Grid.Column="2"
+                     x:Name="Loading"
+                     IsIndeterminate="True"
+                     IsVisible="False"
+                     Width="20" Height="20"
+                     Margin="8,0,0,0"/>
+      </Grid>
+
+      <!-- ── 상태 텍스트 ─────────────────────────────── -->
+      <TextBlock Grid.Row="1"
+                 x:Name="StatusText"
+                 FontSize="12"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"
+                 Margin="0,0,0,6"/>
+
+      <!-- ── 결과 목록 ─────────────────────────────── -->
+      <ListBox Grid.Row="2"
+               x:Name="ResultsList"
+               BorderThickness="1"
+               BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="models:School">
+            <Grid ColumnDefinitions="80,140,*" Margin="0,4">
+              <!-- 학교코드 -->
+              <TextBlock Grid.Column="0"
+                         Text="{Binding SchoolCode}"
+                         FontSize="12"
+                         Foreground="{DynamicResource SystemBaseMediumColor}"
+                         VerticalAlignment="Center"/>
+              <!-- 교육청 -->
+              <TextBlock Grid.Column="1"
+                         Text="{Binding ATPT_OFCDC_SC_NAME}"
+                         FontSize="12"
+                         Foreground="{DynamicResource SystemBaseMediumColor}"
+                         TextTrimming="CharacterEllipsis"
+                         VerticalAlignment="Center"
+                         Margin="8,0"/>
+              <!-- 학교명 + 주소 -->
+              <StackPanel Grid.Column="2" Spacing="2" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <TextBlock Text="{Binding SchoolName}"
+                             FontSize="14"
+                             FontWeight="SemiBold"/>
+                  <TextBlock Text="{Binding SchoolType}"
+                             FontSize="11"
+                             Foreground="{DynamicResource SystemBaseMediumColor}"
+                             VerticalAlignment="Center"/>
+                </StackPanel>
+                <TextBlock Text="{Binding Address}"
+                           FontSize="11"
+                           Foreground="{DynamicResource SystemBaseMediumLowColor}"
+                           TextTrimming="CharacterEllipsis"/>
+              </StackPanel>
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <!-- ── 버튼 영역 ──────────────────────────────── -->
+      <StackPanel Grid.Row="3"
+                  Orientation="Horizontal"
+                  HorizontalAlignment="Right"
+                  Margin="0,12,0,0"
+                  Spacing="8">
+        <Button Content="취소"
+                MinWidth="80"
+                Click="OnCancel"/>
+        <Button Content="선택"
+                x:Name="SelectButton"
+                MinWidth="80"
+                Classes="accent"
+                IsEnabled="False"
+                Click="OnSelect"/>
+      </StackPanel>
+
+    </Grid>
+  </Border>
+</Window>

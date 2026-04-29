@@ -1,0 +1,137 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SaemDesk.ViewModels.Pages"
+             x:Class="SaemDesk.Views.Pages.SeatsPage"
+             x:DataType="vm:SeatsPageVM"
+             Classes="page">
+
+  <Grid ColumnDefinitions="220,*" RowDefinitions="Auto,*">
+
+    <!-- ── 헤더 (양 컬럼 폭 전체) ─────────────────────── -->
+    <Grid Grid.Row="0" Grid.ColumnSpan="2"
+          Margin="20,18,20,8"
+          ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+      <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+        <TextBlock Text="●" FontSize="20"
+                   Foreground="{StaticResource BrandPrimaryBrush}"/>
+        <TextBlock Text="자리 배정" FontSize="22" FontWeight="SemiBold"/>
+        <TextBlock Text="{Binding ClassHeaderText}"
+                   FontSize="13"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                   VerticalAlignment="Center"
+                   Margin="6,0,0,0"/>
+      </StackPanel>
+
+      <!-- 줄 / 짝 -->
+      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Margin="12,0">
+        <TextBlock Text="줄" VerticalAlignment="Center"/>
+        <NumericUpDown Value="{Binding Jul, Mode=TwoWay}"
+                       Minimum="2" Maximum="8" Increment="1"
+                       Width="100"/>
+        <CheckBox Content="짝" IsChecked="{Binding Jjak, Mode=TwoWay}"/>
+      </StackPanel>
+
+      <Button Grid.Column="3" Content="자동배정"
+              Classes="accent"
+              Padding="12,6"
+              Command="{Binding SmartArrangeCommand}"
+              ToolTip.Tip="최근 짝/위치 이력을 회피해 자동 배정"
+              Margin="0,0,6,0"/>
+      <Button Grid.Column="4" Content="초기화"
+              Padding="12,6"
+              Command="{Binding ClearCommand}"
+              Margin="0,0,6,0"/>
+      <Button Grid.Column="5" Content="저장"
+              Padding="12,6"
+              Command="{Binding SaveCommand}"
+              Margin="0,0,6,0"/>
+      <ToggleButton Grid.Column="6" Content="🔒 잠금"
+                    IsChecked="{Binding IsLocked, Mode=TwoWay}"
+                    Padding="12,6"
+                    Margin="0,0,6,0"/>
+      <Button Grid.Column="7" Content="새로고침"
+              Padding="12,6"
+              Command="{Binding LoadCommand}"/>
+    </Grid>
+
+    <!-- ── 좌측: 학생 명렬 ─────────────────────────────── -->
+    <Border Grid.Row="1" Grid.Column="0"
+            Margin="20,0,8,20"
+            BorderThickness="1"
+            BorderBrush="{DynamicResource ContentSeparatorBrush}">
+      <Grid RowDefinitions="Auto,*">
+        <Border Grid.Row="0"
+                Background="#F0F4FF"
+                Padding="8,6"
+                BorderThickness="0,0,0,1"
+                BorderBrush="{DynamicResource ContentSeparatorBrush}">
+          <TextBlock Text="학생 명렬 (선택 후 좌석 클릭)"
+                     FontSize="11" FontWeight="SemiBold"
+                     Foreground="#3F51B5"/>
+        </Border>
+        <ListBox Grid.Row="1"
+                 x:Name="RosterListBox"
+                 ItemsSource="{Binding Roster}"
+                 SelectionMode="Single"
+                 Background="Transparent"
+                 BorderThickness="0">
+          <ListBox.ItemTemplate>
+            <DataTemplate DataType="vm:RosterEntry">
+              <Grid ColumnDefinitions="32,*" Margin="2,2">
+                <TextBlock Grid.Column="0"
+                           Text="{Binding Number}"
+                           FontSize="12"
+                           Foreground="{DynamicResource SystemBaseMediumColor}"
+                           HorizontalAlignment="Right"
+                           Margin="0,0,6,0"
+                           VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1"
+                           Text="{Binding Name}"
+                           FontSize="13"
+                           VerticalAlignment="Center"/>
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </Grid>
+    </Border>
+
+    <!-- ── 우측: 좌석 격자 ─────────────────────────────── -->
+    <Border Grid.Row="1" Grid.Column="1"
+            Margin="0,0,20,20"
+            BorderThickness="1"
+            BorderBrush="{DynamicResource ContentSeparatorBrush}"
+            Background="{DynamicResource ContentBackgroundBrush}">
+      <Grid RowDefinitions="*,48" Margin="12">
+        <!-- 좌석 (CodeBehind 가 동적 생성) -->
+        <Grid Grid.Row="0" x:Name="SeatsHost"/>
+
+        <!-- 교탁 -->
+        <Border Grid.Row="1"
+                Background="{StaticResource BrandPrimaryBrush}"
+                CornerRadius="4"
+                Padding="16,8"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                Margin="0,8,0,0">
+          <TextBlock Text="교탁" FontSize="14" FontWeight="Bold" Foreground="White"/>
+        </Border>
+      </Grid>
+    </Border>
+
+    <!-- ── 상태 메시지 ─────────────────────────────────── -->
+    <Grid Grid.Row="1" Grid.ColumnSpan="2"
+          VerticalAlignment="Top"
+          HorizontalAlignment="Stretch"
+          Margin="20,2,20,0"
+          ColumnDefinitions="*,Auto"
+          IsHitTestVisible="False">
+      <TextBlock Grid.Column="0" Text="{Binding StatusText}"
+                 FontSize="11"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+      <TextBlock Grid.Column="1" Text="{Binding ErrorText}"
+                 FontSize="11"
+                 Foreground="#D9372A"/>
+    </Grid>
+  </Grid>
+</UserControl>

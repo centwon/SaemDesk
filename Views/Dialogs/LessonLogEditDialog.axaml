@@ -1,0 +1,121 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SaemDesk.Views.Dialogs.LessonLogEditDialog"
+        Title="수업 기록"
+        Width="560" Height="660"
+        MinWidth="500" MinHeight="580"
+        WindowStartupLocation="CenterOwner"
+        CanResize="True"
+        ShowInTaskbar="False">
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="20">
+
+    <!-- 헤더 -->
+    <StackPanel Grid.Row="0" Margin="0,0,0,12" Spacing="2">
+      <TextBlock x:Name="HeaderText"
+                 Text="수업 기록 추가"
+                 FontSize="18" FontWeight="SemiBold"/>
+      <TextBlock Text="차시별 수업 내용을 기록합니다. ‘*’ 는 필수."
+                 FontSize="12"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+    </StackPanel>
+
+    <!-- 본문 -->
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+      <StackPanel Spacing="12">
+
+        <!-- 날짜 / 교시 -->
+        <Grid ColumnDefinitions="*,12,120">
+          <StackPanel Grid.Column="0" Spacing="4">
+            <TextBlock Text="날짜 *" FontWeight="SemiBold" FontSize="13"/>
+            <DatePicker x:Name="LogDatePicker"/>
+          </StackPanel>
+          <StackPanel Grid.Column="2" Spacing="4">
+            <TextBlock Text="교시 *" FontWeight="SemiBold" FontSize="13"/>
+            <ComboBox x:Name="CBoxPeriod" HorizontalAlignment="Stretch" SelectedIndex="0">
+              <ComboBoxItem Tag="1">1교시</ComboBoxItem>
+              <ComboBoxItem Tag="2">2교시</ComboBoxItem>
+              <ComboBoxItem Tag="3">3교시</ComboBoxItem>
+              <ComboBoxItem Tag="4">4교시</ComboBoxItem>
+              <ComboBoxItem Tag="5">5교시</ComboBoxItem>
+              <ComboBoxItem Tag="6">6교시</ComboBoxItem>
+              <ComboBoxItem Tag="7">7교시</ComboBoxItem>
+            </ComboBox>
+          </StackPanel>
+        </Grid>
+
+        <!-- 과목 / 학년 / 반 / 강의실 -->
+        <Grid ColumnDefinitions="*,12,80,12,80,12,140">
+          <StackPanel Grid.Column="0" Spacing="4">
+            <TextBlock Text="과목 *" FontWeight="SemiBold" FontSize="13"/>
+            <TextBox x:Name="TxtSubject" PlaceholderText="과목명"/>
+          </StackPanel>
+          <StackPanel Grid.Column="2" Spacing="4">
+            <TextBlock Text="학년" FontWeight="SemiBold" FontSize="13"/>
+            <NumericUpDown x:Name="NumGrade"
+                           Minimum="0" Maximum="6" Increment="1"
+                           Value="0" FormatString="0"/>
+          </StackPanel>
+          <StackPanel Grid.Column="4" Spacing="4">
+            <TextBlock Text="반" FontWeight="SemiBold" FontSize="13"/>
+            <NumericUpDown x:Name="NumClass"
+                           Minimum="0" Maximum="50" Increment="1"
+                           Value="0" FormatString="0"/>
+          </StackPanel>
+          <StackPanel Grid.Column="6" Spacing="4">
+            <TextBlock Text="강의실" FontWeight="SemiBold" FontSize="13"/>
+            <TextBox x:Name="TxtRoom" PlaceholderText="예) 과학실"/>
+          </StackPanel>
+        </Grid>
+
+        <!-- 단원명 (간단 텍스트) -->
+        <StackPanel Spacing="4">
+          <TextBlock Text="단원명 (선택)" FontWeight="SemiBold" FontSize="13"/>
+          <TextBox x:Name="TxtSectionName" PlaceholderText="예) 1단원 - 빛과 그림자"/>
+        </StackPanel>
+
+        <!-- 주제 -->
+        <StackPanel Spacing="4">
+          <TextBlock Text="주제 *" FontWeight="SemiBold" FontSize="13"/>
+          <TextBox x:Name="TxtTopic" PlaceholderText="수업 주제"/>
+        </StackPanel>
+
+        <!-- 내용 -->
+        <StackPanel Spacing="4">
+          <TextBlock Text="내용" FontWeight="SemiBold" FontSize="13"/>
+          <TextBox x:Name="TxtContent"
+                   PlaceholderText="수업 진행 내용 / 활동"
+                   AcceptsReturn="True"
+                   TextWrapping="Wrap"
+                   Height="120"/>
+        </StackPanel>
+
+        <!-- 메모 -->
+        <StackPanel Spacing="4">
+          <TextBlock Text="메모 (교사 노트)" FontWeight="SemiBold" FontSize="13"/>
+          <TextBox x:Name="TxtNote"
+                   PlaceholderText="수업 반성·개선점 등"
+                   AcceptsReturn="True"
+                   TextWrapping="Wrap"
+                   Height="80"/>
+        </StackPanel>
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- 푸터 -->
+    <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,12,0,0">
+      <Button Grid.Column="0" x:Name="BtnDelete"
+              Content="삭제"
+              Padding="14,6"
+              Foreground="#D9372A"
+              IsVisible="False"
+              Click="OnDelete"/>
+      <TextBlock Grid.Column="1" x:Name="StatusText"
+                 FontSize="11" Foreground="#D9372A"
+                 VerticalAlignment="Center" Margin="12,0,0,0"
+                 TextWrapping="Wrap"/>
+      <Button Grid.Column="2" Content="취소" Padding="14,6" Margin="0,0,6,0" Click="OnCancel"/>
+      <Button Grid.Column="3" Content="저장" Padding="14,6" Classes="accent" Click="OnSave"/>
+    </Grid>
+  </Grid>
+</Window>

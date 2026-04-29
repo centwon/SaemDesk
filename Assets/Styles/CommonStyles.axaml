@@ -1,9 +1,9 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-  <!-- 페이지 기본 여백 -->
+  <!-- 페이지 기본 여백 — 각 페이지가 내부 Margin으로 직접 관리 -->
   <Style Selector="UserControl.page">
-    <Setter Property="Padding" Value="24" />
+    <Setter Property="Padding" Value="0" />
   </Style>
 
   <!-- 섹션 헤더 -->
@@ -18,7 +18,7 @@
     <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
     <Setter Property="CornerRadius" Value="8" />
     <Setter Property="Padding" Value="16" />
-    <Setter Property="BoxShadow" Value="0 2 8 0 #20000000" />
+    <Setter Property="BoxShadow" Value="0 1 4 0 #18000000" />
   </Style>
 
 </Styles>

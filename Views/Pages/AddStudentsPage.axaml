@@ -1,0 +1,199 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SaemDesk.ViewModels.Pages"
+             x:Class="SaemDesk.Views.Pages.AddStudentsPage"
+             x:DataType="vm:AddStudentsPageVM"
+             Classes="page">
+
+  <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="20,18,20,16">
+
+    <!-- ── 헤더 ──────────────────────────────────────────── -->
+    <StackPanel Grid.Row="0" Spacing="2" Margin="0,0,0,12">
+      <TextBlock Text="학생 추가 (학급 명렬 일괄 입력)"
+                 FontSize="22" FontWeight="SemiBold"/>
+      <TextBlock Text="학년도 / 학년 / 반 / 번호 / 이름을 입력하고 ‘추가’를 눌러 목록에 누적한 뒤 한번에 저장합니다."
+                 FontSize="12"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+    </StackPanel>
+
+    <!-- ── 입력 영역 ─────────────────────────────────────── -->
+    <Border Grid.Row="1"
+            Padding="14,12"
+            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+            BorderBrush="{DynamicResource ContentSeparatorBrush}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Margin="0,0,0,12">
+      <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,*,Auto">
+        <TextBlock Grid.Column="0" Text="학년도" VerticalAlignment="Center" Margin="0,0,6,0"/>
+        <NumericUpDown Grid.Column="1"
+                       Value="{Binding Year, Mode=TwoWay}"
+                       Minimum="2000" Maximum="2100" Increment="1"
+                       Width="100" Margin="0,0,12,0"/>
+
+        <TextBlock Grid.Column="2" Text="학년" VerticalAlignment="Center" Margin="0,0,6,0"/>
+        <NumericUpDown Grid.Column="3"
+                       Value="{Binding Grade, Mode=TwoWay}"
+                       Minimum="1" Maximum="6" Increment="1"
+                       Width="80" Margin="0,0,12,0"/>
+
+        <TextBlock Grid.Column="4" Text="반" VerticalAlignment="Center" Margin="0,0,6,0"/>
+        <NumericUpDown Grid.Column="5"
+                       Value="{Binding ClassNo, Mode=TwoWay}"
+                       Minimum="1" Maximum="50" Increment="1"
+                       Width="80" Margin="0,0,12,0"/>
+
+        <TextBlock Grid.Column="6" Text="번호" VerticalAlignment="Center" Margin="0,0,6,0"/>
+        <NumericUpDown Grid.Column="7"
+                       Value="{Binding Number, Mode=TwoWay}"
+                       Minimum="1" Maximum="99" Increment="1"
+                       Width="80" Margin="0,0,12,0"/>
+
+        <TextBlock Grid.Column="8" Text="이름" VerticalAlignment="Center" Margin="0,0,6,0"/>
+        <TextBox Grid.Column="9"
+                 Text="{Binding Name, Mode=TwoWay}"
+                 PlaceholderText="이름 입력"
+                 MinWidth="160"
+                 Margin="0,0,12,0"/>
+
+        <Button Grid.Column="10"
+                Content="추가"
+                Classes="accent"
+                Command="{Binding AddOneCommand}"
+                Padding="14,6"/>
+      </Grid>
+    </Border>
+
+    <!-- ── 임시 목록 ─────────────────────────────────────── -->
+    <Border Grid.Row="2"
+            BorderThickness="1"
+            BorderBrush="{DynamicResource ContentSeparatorBrush}">
+      <Grid RowDefinitions="Auto,*">
+        <Grid Grid.Row="0"
+              ColumnDefinitions="32,140,80,60,60,60,180,*,40"
+              Margin="10,8"
+              Background="Transparent">
+          <TextBlock Grid.Column="0" Text="" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="1" Text="학생 ID(임시)"  FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="2" Text="학년도"        FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="3" Text="학년"          FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="4" Text="반"            FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="5" Text="번호"          FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="6" Text="이름"          FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="7" Text="학급 정보"      FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="8" Text=""              FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center"/>
+        </Grid>
+        <Border Grid.Row="0" Height="1" VerticalAlignment="Bottom"
+                Background="{DynamicResource ContentSeparatorBrush}"/>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+          <ItemsControl ItemsSource="{Binding Pending}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate DataType="vm:PendingStudent">
+                <Border BorderThickness="0,0,0,1"
+                        BorderBrush="{DynamicResource ContentSeparatorBrush}"
+                        Padding="10,6">
+                  <Grid ColumnDefinitions="32,140,80,60,60,60,180,*,40">
+                    <CheckBox Grid.Column="0"
+                              IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                              VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1" Text="{Binding TempId}"
+                               FontFamily="Consolas" FontSize="12"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="2" Text="{Binding Year}"   VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="3" Text="{Binding Grade}"  VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="4" Text="{Binding Class}"  VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="5" Text="{Binding Number}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="6" Text="{Binding Name}"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="7" Text="{Binding ClassInfo}"
+                               FontSize="12"
+                               Foreground="{DynamicResource SystemBaseMediumColor}"
+                               VerticalAlignment="Center"/>
+                    <Button   Grid.Column="8"
+                              Content="🗑"
+                              Padding="4,2"
+                              Background="Transparent"
+                              ToolTip.Tip="이 행 삭제"
+                              Command="{Binding $parent[ItemsControl].((vm:AddStudentsPageVM)DataContext).RemoveOneCommand}"
+                              CommandParameter="{Binding}"/>
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+
+        <TextBlock Grid.Row="1"
+                   Text="추가된 학생이 없습니다. 위에서 항목을 입력하고 ‘추가’ 버튼을 눌러 목록을 만든 뒤 저장하세요."
+                   IsVisible="{Binding IsEmpty}"
+                   FontSize="13"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   TextAlignment="Center"
+                   TextWrapping="Wrap"
+                   MaxWidth="480"/>
+      </Grid>
+    </Border>
+
+    <!-- ── 하단 버튼 ─────────────────────────────────────── -->
+    <Grid Grid.Row="3" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,Auto" Margin="0,12,0,0">
+      <Button Grid.Column="0" Content="📂 Excel 가져오기"
+              Padding="12,6"
+              Command="{Binding ImportFromExcelCommand}"
+              ToolTip.Tip="xlsx 명렬 파일에서 일괄 가져오기"
+              Margin="0,0,6,0"/>
+      <Button Grid.Column="1" Content="📑 템플릿 저장"
+              Padding="12,6"
+              Command="{Binding DownloadTemplateCommand}"
+              ToolTip.Tip="입력용 xlsx 템플릿 저장"
+              Margin="0,0,12,0"/>
+
+      <Button Grid.Column="2" Content="선택 삭제"
+              Padding="12,6"
+              Command="{Binding RemoveSelectedCommand}"
+              Margin="0,0,6,0"/>
+      <Button Grid.Column="3" Content="모두 비우기"
+              Padding="12,6"
+              Command="{Binding ClearCommand}"
+              Margin="0,0,6,0"/>
+      <TextBlock Grid.Column="4"
+                 Text="{Binding PendingCount, StringFormat=총 {0}명}"
+                 VerticalAlignment="Center"
+                 FontSize="12"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"
+                 Margin="6,0,0,0"/>
+
+      <TextBlock Grid.Column="5"
+                 Text="{Binding StatusText}"
+                 FontSize="11"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"
+                 VerticalAlignment="Center"
+                 Margin="12,0"/>
+
+      <ProgressBar Grid.Column="6"
+                   Width="120" IsIndeterminate="True"
+                   IsVisible="{Binding IsSaving}"
+                   VerticalAlignment="Center"
+                   Margin="0,0,6,0"/>
+      <Button Grid.Column="7" Content="데이터베이스에 저장"
+              Classes="accent"
+              Padding="14,6"
+              IsEnabled="{Binding CanSave}"
+              Command="{Binding SaveCommand}"/>
+    </Grid>
+
+    <!-- ── 오류 메시지 ───────────────────────────────────── -->
+    <TextBlock Grid.Row="3"
+               Text="{Binding ErrorText}"
+               FontSize="11"
+               Foreground="#D9372A"
+               VerticalAlignment="Bottom"
+               HorizontalAlignment="Left"
+               TextWrapping="Wrap"
+               Margin="0,40,0,0"
+               IsVisible="{Binding ErrorText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+  </Grid>
+</UserControl>

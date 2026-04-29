@@ -11,10 +11,28 @@
     <InvariantGlobalization>false</InvariantGlobalization>
     <!-- 코드로만 생성하는 다이얼로그의 무매개변수 생성자 경고 억제 -->
     <NoWarn>$(NoWarn);AVLN3001</NoWarn>
+
+    <!-- 앱 메타데이터 -->
+    <Version>0.1.0-alpha</Version>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <FileVersion>0.1.0.0</FileVersion>
+    <Product>SaemDesk</Product>
+    <Company>Centwons</Company>
+    <Description>학교 업무 통합 데스크탑 — 학생·수업·학급일지·게시판·스케줄러·NEIS·Google Calendar.</Description>
+    <Copyright>© 2026 Centwons</Copyright>
+    <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- secrets.json 이 존재할 때만 출력 디렉터리에 복사 (git 제외) -->
+    <Content Include="secrets.json" Condition="Exists('secrets.json')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="secrets.template.json" />
   </ItemGroup>
 
   <ItemGroup>

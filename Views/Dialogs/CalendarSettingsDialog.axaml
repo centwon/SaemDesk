@@ -1,0 +1,213 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:models="using:SaemDesk.Models"
+        x:Class="SaemDesk.Views.Dialogs.CalendarSettingsDialog"
+        Title="일정 설정"
+        Width="560" Height="720"
+        MinWidth="520" MinHeight="640"
+        WindowStartupLocation="CenterOwner"
+        CanResize="True"
+        ShowInTaskbar="False">
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="20">
+
+    <!-- 헤더 -->
+    <StackPanel Grid.Row="0" Margin="0,0,0,12" Spacing="2">
+      <TextBlock Text="일정 설정"
+                 FontSize="18"
+                 FontWeight="SemiBold"/>
+      <TextBlock Text="학사일정 표시·Google Calendar 연동·일괄 등록"
+                 FontSize="12"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+    </StackPanel>
+
+    <!-- 본문 -->
+    <ScrollViewer Grid.Row="1"
+                  HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
+      <StackPanel Spacing="10">
+
+        <!-- ══════════ 1. 일정 표시 ══════════ -->
+        <Expander Header="일정 표시" IsExpanded="True">
+          <StackPanel Margin="0,8,0,4" Spacing="10">
+            <CheckBox x:Name="ShowEventsToggle" Content="달력에 일정(이벤트) 표시"/>
+            <CheckBox x:Name="ShowTasksToggle"  Content="달력에 할일(태스크) 표시"/>
+
+            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
+              <Grid.Styles>
+                <Style Selector="TextBlock.label">
+                  <Setter Property="VerticalAlignment" Value="Center"/>
+                  <Setter Property="Width" Value="160"/>
+                  <Setter Property="Margin" Value="0,0,12,8"/>
+                </Style>
+              </Grid.Styles>
+              <TextBlock Grid.Row="0" Grid.Column="0" Text="이벤트 폰트 크기" Classes="label"/>
+              <NumericUpDown Grid.Row="0" Grid.Column="1"
+                             x:Name="EventFontSizeBox"
+                             Minimum="8" Maximum="20" Increment="0.5"
+                             FormatString="0.0"
+                             Margin="0,0,0,8"/>
+              <TextBlock Grid.Row="1" Grid.Column="0" Text="할일 폰트 크기" Classes="label"/>
+              <NumericUpDown Grid.Row="1" Grid.Column="1"
+                             x:Name="TaskFontSizeBox"
+                             Minimum="8" Maximum="20" Increment="0.5"
+                             FormatString="0.0"
+                             Margin="0,0,0,8"/>
+            </Grid>
+          </StackPanel>
+        </Expander>
+
+        <!-- ══════════ 2. Google 캘린더 연동 ══════════ -->
+        <Expander Header="Google 캘린더 연동" IsExpanded="True">
+          <StackPanel Margin="0,8,0,4" Spacing="10">
+            <CheckBox x:Name="UseGoogleToggle" Content="Google Calendar 사용"/>
+
+            <Border Padding="10,8"
+                    CornerRadius="6"
+                    Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+              <StackPanel Spacing="2">
+                <TextBlock x:Name="GoogleAuthStatusText"
+                           Text="연결되지 않음"
+                           FontSize="13"
+                           FontWeight="SemiBold"/>
+                <TextBlock x:Name="GoogleAuthHintText"
+                           Text="연결 버튼을 눌러 Google 계정에 로그인하세요."
+                           FontSize="11"
+                           Foreground="{DynamicResource SystemBaseMediumColor}"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+            </Border>
+
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <Button x:Name="GoogleAuthButton"
+                      Content="연결"
+                      Classes="accent"
+                      Padding="14,6"
+                      Click="OnGoogleAuthClicked"/>
+              <Button x:Name="GoogleSignOutButton"
+                      Content="연결 해제"
+                      Padding="14,6"
+                      IsEnabled="False"
+                      Click="OnGoogleSignOutClicked"/>
+            </StackPanel>
+
+            <TextBlock Text="동기화할 캘린더 (체크하면 양방향 동기화)"
+                       FontSize="12"
+                       FontWeight="SemiBold"
+                       Margin="0,4,0,0"/>
+            <Border BorderBrush="{DynamicResource SystemBaseLowColor}"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    MinHeight="120"
+                    Padding="6">
+              <ListBox x:Name="GoogleCalendarListView"
+                       SelectionMode="Single"
+                       Background="Transparent"
+                       BorderThickness="0">
+                <ListBox.ItemTemplate>
+                  <DataTemplate DataType="models:GoogleCalendarCheckItem">
+                    <Grid ColumnDefinitions="Auto,*,Auto" Margin="2,3">
+                      <CheckBox Grid.Column="0"
+                                IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                VerticalAlignment="Center"
+                                Margin="0,0,8,0"/>
+                      <TextBlock Grid.Column="1"
+                                 Text="{Binding Title}"
+                                 VerticalAlignment="Center"/>
+                      <TextBlock Grid.Column="2"
+                                 Text="{Binding GoogleId}"
+                                 FontSize="10"
+                                 Foreground="{DynamicResource SystemBaseMediumLowColor}"
+                                 VerticalAlignment="Center"
+                                 TextTrimming="CharacterEllipsis"
+                                 MaxWidth="180"/>
+                    </Grid>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+            </Border>
+            <Button x:Name="GoogleCalendarSaveButton"
+                    Content="동기화 캘린더 저장"
+                    HorizontalAlignment="Right"
+                    Padding="12,6"
+                    IsEnabled="False"
+                    Click="OnGoogleCalendarSaveClicked"/>
+          </StackPanel>
+        </Expander>
+
+        <!-- ══════════ 3. 동기화 ══════════ -->
+        <Expander Header="동기화" IsExpanded="True">
+          <StackPanel Margin="0,8,0,4" Spacing="10">
+            <CheckBox x:Name="GoogleAutoSyncToggle"
+                      Content="주기적으로 자동 동기화"/>
+            <Grid ColumnDefinitions="Auto,*">
+              <TextBlock Grid.Column="0"
+                         Text="동기화 간격(분)"
+                         VerticalAlignment="Center"
+                         Width="160"
+                         Margin="0,0,12,8"/>
+              <NumericUpDown Grid.Column="1"
+                             x:Name="GoogleSyncIntervalBox"
+                             Minimum="5" Maximum="120" Increment="5"
+                             FormatString="0"
+                             Margin="0,0,0,8"/>
+            </Grid>
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <Button x:Name="GoogleSyncNowButton"
+                      Content="지금 동기화"
+                      Classes="accent"
+                      Padding="14,6"
+                      IsEnabled="False"
+                      Click="OnGoogleSyncNowClicked"/>
+              <ProgressBar x:Name="GoogleSyncProgressRing"
+                           Width="120"
+                           IsIndeterminate="True"
+                           IsVisible="False"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+            <TextBlock x:Name="GoogleSyncStatusText"
+                       FontSize="11"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                       TextWrapping="Wrap"/>
+          </StackPanel>
+        </Expander>
+
+        <!-- ══════════ 4. 학사일정 일괄 등록 ══════════ -->
+        <Expander Header="학사일정 일괄 등록">
+          <StackPanel Margin="0,8,0,4" Spacing="10">
+            <TextBlock Text="현재 학년도(설정값)의 NEIS 학사일정을 학교 캘린더에 종일 이벤트로 일괄 등록합니다. 연속 일정은 자동 그룹핑됩니다."
+                       FontSize="12"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                       TextWrapping="Wrap"/>
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <Button x:Name="UploadSchoolScheduleButton"
+                      Content="학사일정 업로드"
+                      Padding="14,6"
+                      IsEnabled="False"
+                      Click="OnUploadSchoolScheduleClicked"/>
+              <ProgressBar x:Name="UploadScheduleProgressRing"
+                           Width="120"
+                           IsIndeterminate="True"
+                           IsVisible="False"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+            <TextBlock x:Name="UploadScheduleStatusText"
+                       FontSize="11"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                       TextWrapping="Wrap"/>
+          </StackPanel>
+        </Expander>
+
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- 푸터 -->
+    <StackPanel Grid.Row="2"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                Margin="0,12,0,0"
+                Spacing="6">
+      <Button Content="닫기" Padding="14,6" Click="OnClose"/>
+    </StackPanel>
+  </Grid>
+</Window>

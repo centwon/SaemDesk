@@ -1,14 +1,171 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:SaemDesk.ViewModels.Pages"
+             xmlns:models="using:SaemDesk.Models"
              x:Class="SaemDesk.Views.Pages.SchedulerPage"
              x:DataType="vm:SchedulerPageVM"
              Classes="page">
-  <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
-    <TextBlock Text="스케줄러" FontSize="28" FontWeight="Bold"
-               HorizontalAlignment="Center" />
-    <TextBlock Text="Phase 5 구현 예정 — SchedulerService 연동"
-               Foreground="{DynamicResource SystemBaseMediumColor}"
-               HorizontalAlignment="Center" />
-  </StackPanel>
+
+  <Grid RowDefinitions="Auto,Auto,*">
+
+    <!-- ── 헤더 ──────────────────────────────────────────── -->
+    <StackPanel Grid.Row="0" Margin="20,20,20,0" Spacing="4">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <TextBlock Text="◷"
+                   FontSize="22"
+                   Foreground="{StaticResource BrandPrimaryBrush}"
+                   VerticalAlignment="Center"/>
+        <TextBlock Text="주간 시간표"
+                   FontSize="22"
+                   FontWeight="SemiBold"
+                   VerticalAlignment="Center"/>
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <TextBlock Text="{Binding WeekRangeText}"
+                   FontSize="13"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"/>
+        <TextBlock Text="·"
+                   FontSize="13"
+                   Foreground="{DynamicResource SystemBaseMediumLowColor}"/>
+        <TextBlock Text="{Binding ClassHeaderText}"
+                   FontSize="13"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"/>
+      </StackPanel>
+    </StackPanel>
+
+    <!-- ── 새로고침 ──────────────────────────────────────── -->
+    <StackPanel Grid.Row="1"
+                Orientation="Horizontal"
+                Margin="20,12,20,0">
+      <Button Content="새로고침"
+              Command="{Binding LoadWeeklyCommand}"
+              Padding="12,6"/>
+    </StackPanel>
+
+    <!-- ── 본문 ──────────────────────────────────────────── -->
+    <Panel Grid.Row="2">
+
+      <!-- 로딩 중 -->
+      <ProgressBar IsVisible="{Binding IsLoading}"
+                   IsIndeterminate="True"
+                   VerticalAlignment="Top"
+                   Margin="20,8,20,0"/>
+
+      <!-- 오류 -->
+      <TextBlock IsVisible="{Binding ErrorText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                 Text="{Binding ErrorText}"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 Foreground="{DynamicResource SystemErrorTextColor}"
+                 FontSize="13"/>
+
+      <!-- 주간 시간표 -->
+      <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+        <ItemsControl ItemsSource="{Binding WeekDays}" Margin="20,8,20,20">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:WeekDayEntry">
+              <Border Classes="card" Margin="0,4" Padding="14,12">
+                <StackPanel Spacing="8">
+
+                  <!-- 요일 헤더 -->
+                  <Grid ColumnDefinitions="36,Auto,*,Auto">
+
+                    <!-- 요일 원형 배지 -->
+                    <Border Grid.Column="0"
+                            Width="30" Height="30"
+                            CornerRadius="15"
+                            Background="{StaticResource BrandPrimaryBrush}"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center">
+                      <TextBlock Text="{Binding DayName}"
+                                 FontSize="13"
+                                 FontWeight="SemiBold"
+                                 Foreground="White"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center"/>
+                    </Border>
+
+                    <!-- 날짜 -->
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding DateLabel}"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"
+                               Margin="8,0,0,0"/>
+
+                    <!-- 오늘 배지 -->
+                    <Border Grid.Column="2"
+                            IsVisible="{Binding IsToday}"
+                            Background="{StaticResource BrandPrimaryBrush}"
+                            CornerRadius="4"
+                            Padding="8,2"
+                            Margin="8,0,0,0"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center">
+                      <TextBlock Text="오늘"
+                                 FontSize="11"
+                                 Foreground="White"/>
+                    </Border>
+
+                    <!-- 교시 수 -->
+                    <TextBlock Grid.Column="3"
+                               Text="{Binding SlotCountText}"
+                               FontSize="12"
+                               Foreground="{DynamicResource SystemBaseMediumColor}"
+                               VerticalAlignment="Center"/>
+                  </Grid>
+
+                  <!-- 구분선 -->
+                  <Border Height="1"
+                          Background="{DynamicResource SystemBaseLowColor}"
+                          IsVisible="{Binding HasSlots}"/>
+
+                  <!-- 교시 목록 -->
+                  <ItemsControl IsVisible="{Binding HasSlots}"
+                                ItemsSource="{Binding Slots}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="models:ClassTimetable">
+                        <Grid ColumnDefinitions="24,*,Auto" Margin="0,3">
+
+                          <!-- 교시 번호 -->
+                          <TextBlock Grid.Column="0"
+                                     Text="{Binding Period}"
+                                     FontSize="12"
+                                     Foreground="{DynamicResource SystemBaseMediumColor}"
+                                     VerticalAlignment="Center"/>
+
+                          <!-- 과목 -->
+                          <TextBlock Grid.Column="1"
+                                     Text="{Binding SubjectName}"
+                                     FontSize="13"
+                                     FontWeight="SemiBold"
+                                     VerticalAlignment="Center"
+                                     Margin="4,0,8,0"/>
+
+                          <!-- 교사 -->
+                          <TextBlock Grid.Column="2"
+                                     Text="{Binding TeacherName}"
+                                     FontSize="12"
+                                     Foreground="{DynamicResource SystemBaseMediumColor}"
+                                     VerticalAlignment="Center"/>
+                        </Grid>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+
+                  <!-- 수업 없음 -->
+                  <TextBlock IsVisible="{Binding !HasSlots}"
+                             Text="등록된 시간표 없음"
+                             FontSize="12"
+                             Foreground="{DynamicResource SystemBaseMediumLowColor}"/>
+
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+
+    </Panel>
+  </Grid>
 </UserControl>

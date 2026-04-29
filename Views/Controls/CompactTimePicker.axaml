@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="SaemDesk.Views.Controls.CompactTimePicker">
+
+  <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+
+    <!-- 시 -->
+    <NumericUpDown x:Name="HourBox"
+                   Minimum="0" Maximum="23"
+                   Increment="1"
+                   FormatString="00"
+                   Width="56"
+                   HorizontalContentAlignment="Center"
+                   ValueChanged="HourBox_ValueChanged" />
+
+    <TextBlock Text=":"
+               FontSize="16" FontWeight="Bold"
+               VerticalAlignment="Center"
+               Margin="2,0" />
+
+    <!-- 분 -->
+    <NumericUpDown x:Name="MinuteBox"
+                   Minimum="0" Maximum="59"
+                   Increment="5"
+                   FormatString="00"
+                   Width="56"
+                   HorizontalContentAlignment="Center"
+                   ValueChanged="MinuteBox_ValueChanged" />
+
+  </StackPanel>
+</UserControl>

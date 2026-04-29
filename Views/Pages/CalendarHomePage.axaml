@@ -1,0 +1,112 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SaemDesk.ViewModels.Pages"
+             x:Class="SaemDesk.Views.Pages.CalendarHomePage"
+             x:DataType="vm:CalendarHomePageVM"
+             Classes="page">
+
+  <Grid RowDefinitions="Auto,Auto,*">
+
+    <!-- ── 헤더 ───────────────────────────────────────── -->
+    <Grid Grid.Row="0"
+          Margin="20,18,20,8"
+          ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto">
+      <Button Grid.Column="0"
+              Content="◀"
+              Click="OnPreviousMonth"
+              Padding="10,4"
+              Background="Transparent"/>
+      <Button Grid.Column="1"
+              x:Name="MonthPickerButton"
+              Content="{Binding HeaderText}"
+              FontSize="18"
+              FontWeight="SemiBold"
+              Background="Transparent"
+              BorderThickness="0"
+              Padding="10,4"
+              VerticalAlignment="Center"
+              Margin="6,0"
+              ToolTip.Tip="연도/월 선택">
+        <Button.Flyout>
+          <Flyout Placement="Bottom">
+            <StackPanel Spacing="8" MinWidth="240">
+              <!-- 연도 ↑↓ -->
+              <Grid ColumnDefinitions="Auto,*,Auto">
+                <Button Grid.Column="0" Content="◀"
+                        Padding="8,2" Click="OnPickerYearPrev"
+                        Background="Transparent" BorderThickness="0"/>
+                <TextBlock Grid.Column="1"
+                           x:Name="PickerYearText"
+                           FontSize="14" FontWeight="SemiBold"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+                <Button Grid.Column="2" Content="▶"
+                        Padding="8,2" Click="OnPickerYearNext"
+                        Background="Transparent" BorderThickness="0"/>
+              </Grid>
+              <!-- 12개월 그리드 -->
+              <UniformGrid x:Name="MonthGrid" Rows="3" Columns="4"/>
+            </StackPanel>
+          </Flyout>
+        </Button.Flyout>
+      </Button>
+      <Button Grid.Column="2"
+              Content="▶"
+              Click="OnNextMonth"
+              Padding="10,4"
+              Background="Transparent"/>
+
+      <Button Grid.Column="4"
+              Content="오늘"
+              Click="OnToday"
+              Padding="10,4"
+              Margin="0,0,6,0"/>
+      <Button Grid.Column="5"
+              Content="새로고침"
+              Click="OnRefresh"
+              Padding="10,4"
+              Margin="0,0,6,0"/>
+      <Button Grid.Column="6"
+              Content="⚙"
+              Click="OnSettings"
+              Padding="10,4"
+              ToolTip.Tip="일정 설정"/>
+    </Grid>
+
+    <!-- ── 요일 헤더 ──────────────────────────────────── -->
+    <Grid Grid.Row="1"
+          Margin="20,0,20,0"
+          ColumnDefinitions="*,*,*,*,*,*,*">
+      <TextBlock Grid.Column="0" Text="일" Foreground="#D9372A"
+                 HorizontalAlignment="Center" FontSize="12" Padding="6"/>
+      <TextBlock Grid.Column="1" Text="월" HorizontalAlignment="Center" FontSize="12" Padding="6"/>
+      <TextBlock Grid.Column="2" Text="화" HorizontalAlignment="Center" FontSize="12" Padding="6"/>
+      <TextBlock Grid.Column="3" Text="수" HorizontalAlignment="Center" FontSize="12" Padding="6"/>
+      <TextBlock Grid.Column="4" Text="목" HorizontalAlignment="Center" FontSize="12" Padding="6"/>
+      <TextBlock Grid.Column="5" Text="금" HorizontalAlignment="Center" FontSize="12" Padding="6"/>
+      <TextBlock Grid.Column="6" Text="토" Foreground="#2A4FD9"
+                 HorizontalAlignment="Center" FontSize="12" Padding="6"/>
+    </Grid>
+
+    <!-- ── 본문 (6×7 셀 동적 생성) ───────────────────── -->
+    <Border Grid.Row="2"
+            Margin="20,0,20,20"
+            BorderThickness="0.5"
+            BorderBrush="{DynamicResource ContentSeparatorBrush}">
+      <Grid x:Name="CellsGrid"
+            RowDefinitions="*,*,*,*,*,*"
+            ColumnDefinitions="*,*,*,*,*,*,*"/>
+    </Border>
+
+    <!-- ── 로딩 오버레이 ──────────────────────────────── -->
+    <Border Grid.Row="2"
+            Margin="20,0,20,20"
+            Background="#33000000"
+            IsVisible="{Binding IsLoading}">
+      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+        <ProgressBar Width="160" IsIndeterminate="True"/>
+        <TextBlock Text="달력 데이터 로드 중…" Foreground="White" HorizontalAlignment="Center"/>
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>

@@ -1,14 +1,144 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:SaemDesk.ViewModels.Pages"
+             xmlns:models="using:SaemDesk.Models"
              x:Class="SaemDesk.Views.Pages.CalendarPage"
              x:DataType="vm:CalendarPageVM"
              Classes="page">
-  <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
-    <TextBlock Text="학사일정" FontSize="28" FontWeight="Bold"
-               HorizontalAlignment="Center" />
-    <TextBlock Text="Phase 5 구현 예정 — SchoolScheduleViewModel 통합"
-               Foreground="{DynamicResource SystemBaseMediumColor}"
-               HorizontalAlignment="Center" />
-  </StackPanel>
+
+  <Grid RowDefinitions="Auto,Auto,*">
+
+    <!-- ── 헤더 ──────────────────────────────────────────── -->
+    <StackPanel Grid.Row="0" Margin="20,20,20,0" Spacing="4">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <TextBlock Text="◫"
+                   FontSize="22"
+                   Foreground="{StaticResource BrandPrimaryBrush}"
+                   VerticalAlignment="Center"/>
+        <TextBlock Text="학사일정"
+                   FontSize="22"
+                   FontWeight="SemiBold"
+                   VerticalAlignment="Center"/>
+        <TextBlock Text="{Binding StatusText}"
+                   FontSize="13"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                   VerticalAlignment="Center"
+                   Margin="6,0,0,0"
+                   IsVisible="{Binding StatusText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <TextBlock Text="{Binding SchoolYearText}"
+                   FontSize="13"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"/>
+        <TextBlock Text="·"
+                   FontSize="13"
+                   Foreground="{DynamicResource SystemBaseMediumLowColor}"/>
+        <TextBlock Text="{Binding SchoolName}"
+                   FontSize="13"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"/>
+      </StackPanel>
+    </StackPanel>
+
+    <!-- ── 버튼 바 ───────────────────────────────────────── -->
+    <StackPanel Grid.Row="1"
+                Orientation="Horizontal"
+                Margin="20,12,20,0"
+                Spacing="8">
+      <Button Content="새로고침"
+              Command="{Binding LoadCalendarCommand}"
+              Padding="12,6"/>
+      <Button Content="NEIS 다운로드"
+              Command="{Binding DownloadFromNeisCommand}"
+              Classes="accent"
+              Padding="14,6"/>
+    </StackPanel>
+
+    <!-- ── 본문 ──────────────────────────────────────────── -->
+    <Panel Grid.Row="2">
+
+      <!-- 로딩 중 -->
+      <ProgressBar IsVisible="{Binding IsLoading}"
+                   IsIndeterminate="True"
+                   VerticalAlignment="Top"
+                   Margin="20,8,20,0"/>
+
+      <!-- 오류 -->
+      <TextBlock IsVisible="{Binding ErrorText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                 Text="{Binding ErrorText}"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 Foreground="{DynamicResource SystemErrorTextColor}"
+                 FontSize="13"
+                 TextWrapping="Wrap"
+                 Margin="20"/>
+
+      <!-- 빈 상태 -->
+      <StackPanel IsVisible="{Binding IsEmpty}"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  Spacing="8">
+        <TextBlock Text="학사일정이 없습니다."
+                   FontSize="15"
+                   HorizontalAlignment="Center"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"/>
+        <TextBlock Text="'NEIS 다운로드' 버튼으로 학사일정을 가져오세요."
+                   FontSize="12"
+                   HorizontalAlignment="Center"
+                   Foreground="{DynamicResource SystemBaseMediumLowColor}"/>
+        <TextBlock Text="(설정 메뉴에서 학교와 NEIS API 키를 먼저 등록하세요.)"
+                   FontSize="11"
+                   HorizontalAlignment="Center"
+                   Foreground="{DynamicResource SystemBaseMediumLowColor}"/>
+      </StackPanel>
+
+      <!-- 일정 목록 -->
+      <ScrollViewer IsVisible="{Binding HasEvents}"
+                    HorizontalScrollBarVisibility="Disabled">
+        <ItemsControl ItemsSource="{Binding Events}" Margin="20,8,20,20">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="models:SchoolScheduleGroup">
+              <Border Classes="card" Margin="0,3" Padding="14,10">
+                <Grid ColumnDefinitions="*,Auto,Auto">
+
+                  <!-- 일정명 + 날짜 -->
+                  <TextBlock Grid.Column="0"
+                             Text="{Binding DateText}"
+                             FontSize="14"
+                             VerticalAlignment="Center"/>
+
+                  <!-- 오늘 배지 -->
+                  <Border Grid.Column="1"
+                          IsVisible="{Binding IsToday}"
+                          Background="{StaticResource BrandPrimaryBrush}"
+                          CornerRadius="4"
+                          Padding="8,3"
+                          Margin="4,0,0,0"
+                          VerticalAlignment="Center">
+                    <TextBlock Text="오늘"
+                               FontSize="11"
+                               Foreground="White"/>
+                  </Border>
+
+                  <!-- 휴업일 배지 -->
+                  <Border Grid.Column="2"
+                          IsVisible="{Binding IsVacation}"
+                          Background="{DynamicResource SystemListLowColor}"
+                          CornerRadius="4"
+                          Padding="8,3"
+                          Margin="4,0,0,0"
+                          VerticalAlignment="Center">
+                    <TextBlock Text="휴업"
+                               FontSize="11"
+                               Foreground="{DynamicResource SystemBaseMediumColor}"/>
+                  </Border>
+
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+
+    </Panel>
+  </Grid>
 </UserControl>

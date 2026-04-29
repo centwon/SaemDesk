@@ -1,0 +1,100 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SaemDesk.Views.Dialogs.ExportDialog"
+        Title="내보내기"
+        Width="460" Height="440"
+        MinWidth="420" MinHeight="400"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        ShowInTaskbar="False">
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="20">
+
+    <!-- 헤더 -->
+    <StackPanel Grid.Row="0" Margin="0,0,0,16" Spacing="2">
+      <TextBlock Text="학급 데이터 내보내기"
+                 FontSize="18"
+                 FontWeight="SemiBold"/>
+      <TextBlock x:Name="SubTitleText"
+                 FontSize="13"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+    </StackPanel>
+
+    <!-- 폼 -->
+    <StackPanel Grid.Row="1" Spacing="14">
+
+      <!-- 데이터 종류 -->
+      <StackPanel Spacing="6">
+        <TextBlock Text="데이터 종류" FontSize="13" FontWeight="SemiBold"/>
+        <ComboBox x:Name="DataTypeCombo"
+                  HorizontalAlignment="Stretch"
+                  SelectionChanged="OnDataTypeChanged">
+          <ComboBoxItem Tag="StudentLog" IsSelected="True">누가기록</ComboBoxItem>
+          <ComboBoxItem Tag="StudentSpec">학생부 특기사항</ComboBoxItem>
+          <ComboBoxItem Tag="Seats">좌석 배정표</ComboBoxItem>
+          <ComboBoxItem Tag="StudentCard">학생 카드</ComboBoxItem>
+        </ComboBox>
+      </StackPanel>
+
+      <!-- 형식 -->
+      <StackPanel Spacing="6">
+        <TextBlock Text="형식" FontSize="13" FontWeight="SemiBold"/>
+        <ComboBox x:Name="FormatCombo"
+                  HorizontalAlignment="Stretch">
+          <ComboBoxItem Tag="Excel" IsSelected="True">Excel (.xlsx)</ComboBoxItem>
+          <ComboBoxItem Tag="Pdf">PDF (.pdf)</ComboBoxItem>
+          <ComboBoxItem Tag="Html">HTML (.html)</ComboBoxItem>
+          <ComboBoxItem Tag="Csv">CSV (.csv)</ComboBoxItem>
+        </ComboBox>
+        <TextBlock x:Name="FormatHintText"
+                   FontSize="11"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                   TextWrapping="Wrap"/>
+      </StackPanel>
+
+      <!-- 진행/결과 메시지 -->
+      <Border Padding="12"
+              CornerRadius="6"
+              Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+        <StackPanel Spacing="6">
+          <TextBlock x:Name="StatusText"
+                     FontSize="12"
+                     TextWrapping="Wrap"
+                     Text="형식과 데이터를 선택한 뒤 '내보내기'를 누르세요."/>
+          <TextBlock x:Name="ResultPathText"
+                     FontSize="11"
+                     IsVisible="False"
+                     TextWrapping="Wrap"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+        </StackPanel>
+      </Border>
+
+      <ProgressBar x:Name="BusyBar"
+                   IsIndeterminate="True"
+                   IsVisible="False"/>
+    </StackPanel>
+
+    <!-- 버튼 바 -->
+    <StackPanel Grid.Row="2"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                Spacing="8"
+                Margin="0,16,0,0">
+      <Button x:Name="OpenFolderButton"
+              Content="폴더 열기"
+              IsEnabled="False"
+              Padding="14,8"
+              Click="OnOpenFolder"/>
+      <Button x:Name="CloseButton"
+              Content="닫기"
+              Padding="14,8"
+              Click="OnClose"/>
+      <Button x:Name="ExportButton"
+              Content="내보내기"
+              Classes="accent"
+              Padding="16,8"
+              Click="OnExport"/>
+    </StackPanel>
+
+  </Grid>
+</Window>

@@ -1,0 +1,213 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ctrl="using:SaemDesk.Views.Controls"
+        x:Class="SaemDesk.Views.Dialogs.UnifiedItemDialog"
+        Title="새 항목"
+        Width="640" Height="700"
+        MinWidth="540" MinHeight="600"
+        WindowStartupLocation="CenterOwner"
+        CanResize="True"
+        ShowInTaskbar="False">
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="20">
+
+    <!-- ── 유형 선택 (할 일 / 일정) ─────────────────── -->
+    <Border Grid.Row="0"
+            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+            CornerRadius="8"
+            Padding="4"
+            Margin="0,0,0,12">
+      <StackPanel Orientation="Horizontal" Spacing="4">
+        <RadioButton x:Name="RbTypeTask"
+                     Content="✓  할 일"
+                     GroupName="ItemType"
+                     IsChecked="True"
+                     IsCheckedChanged="OnTypeChanged"
+                     Padding="16,6"
+                     FontSize="13"/>
+        <RadioButton x:Name="RbTypeEvent"
+                     Content="📅  일정"
+                     GroupName="ItemType"
+                     IsCheckedChanged="OnTypeChanged"
+                     Padding="16,6"
+                     FontSize="13"/>
+      </StackPanel>
+    </Border>
+
+    <!-- ── 본문 (스크롤) ─────────────────────────────── -->
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+      <StackPanel Spacing="6">
+
+        <!-- ════════════════ 할 일 패널 ════════════════ -->
+        <Grid x:Name="PanelTask"
+              ColumnDefinitions="80,*"
+              RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+
+          <TextBlock Grid.Row="0" Grid.Column="0" Text="분류"
+                     HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,8,12,8"/>
+          <ComboBox Grid.Row="0" Grid.Column="1" x:Name="CBoxTaskList"
+                    HorizontalAlignment="Stretch" Margin="0,4,0,4"
+                    SelectionChanged="CBoxTaskList_SelectionChanged"/>
+
+          <TextBlock Grid.Row="1" Grid.Column="0" Text="제목"
+                     HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,8,12,8"/>
+          <TextBox Grid.Row="1" Grid.Column="1" x:Name="TxtTaskTitle"
+                   Margin="0,4,0,4" PlaceholderText="할 일 제목"/>
+
+          <TextBlock Grid.Row="2" Grid.Column="0" Text="마감"
+                     HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,8,12,8"/>
+          <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="10" Margin="0,4,0,4">
+            <DatePicker x:Name="TaskDuePicker" SelectedDateChanged="TaskDuePicker_DateChanged"/>
+            <ctrl:CompactTimePicker x:Name="TaskDueTimePicker"/>
+            <CheckBox x:Name="ChkTaskAllday" Content="종일"
+                      IsCheckedChanged="ChkTaskAllday_Changed"
+                      VerticalAlignment="Center"/>
+          </StackPanel>
+
+          <!-- 반복 옵션 (신규 작업만) -->
+          <Grid Grid.Row="3" Grid.ColumnSpan="2" x:Name="GridRepeat"
+                ColumnDefinitions="80,*"
+                RowDefinitions="Auto,Auto">
+            <TextBlock Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Text="반복"
+                       HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,8,12,8"/>
+            <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,4,0,2" Spacing="2">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <RadioButton x:Name="RbNone"    Content="없음"  GroupName="Repeat" IsChecked="True"
+                             IsCheckedChanged="RepeatOption_Changed"/>
+                <RadioButton x:Name="RbDaily"   Content="매일"  GroupName="Repeat"
+                             IsCheckedChanged="RepeatOption_Changed"/>
+                <RadioButton x:Name="RbWeekly"  Content="매주"  GroupName="Repeat"
+                             IsCheckedChanged="RepeatOption_Changed"/>
+                <RadioButton x:Name="RbMonthly" Content="매월"  GroupName="Repeat"
+                             IsCheckedChanged="RepeatOption_Changed"/>
+                <RadioButton x:Name="RbYearly"  Content="매년"  GroupName="Repeat"
+                             IsCheckedChanged="RepeatOption_Changed"/>
+              </StackPanel>
+              <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding #PickerEnd.IsVisible}">
+                <TextBlock Text="반복 종료" VerticalAlignment="Center" FontSize="11"/>
+                <DatePicker x:Name="PickerEnd" IsVisible="False"/>
+              </StackPanel>
+            </StackPanel>
+          </Grid>
+
+          <TextBlock Grid.Row="4" Grid.Column="0" Text="완료"
+                     HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,8,12,8"/>
+          <CheckBox  Grid.Row="4" Grid.Column="1" x:Name="ChkTaskDone" Content="완료됨"
+                     Margin="0,2,0,2" VerticalAlignment="Center"/>
+
+          <TextBlock Grid.Row="5" Grid.Column="0" Text="설명"
+                     HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,12,0"/>
+          <TextBox  Grid.Row="5" Grid.Column="1" x:Name="TxtTaskNotes"
+                    AcceptsReturn="True"
+                    TextWrapping="Wrap"
+                    Height="180"
+                    Margin="0,4,0,4"
+                    PlaceholderText="메모"/>
+
+          <CheckBox Grid.Row="6" Grid.ColumnSpan="2" x:Name="ChkTaskGoogleSync"
+                    Content="📤 구글 캘린더에 등록"
+                    IsVisible="False"
+                    Margin="0,4,0,0"/>
+        </Grid>
+
+        <!-- ════════════════ 일정 패널 ════════════════ -->
+        <Grid x:Name="PanelEvent" IsVisible="False"
+              ColumnDefinitions="80,*"
+              RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+
+          <TextBlock Grid.Row="0" Grid.Column="0" Text="캘린더"
+                     HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,8,12,8"/>
+          <ComboBox Grid.Row="0" Grid.Column="1" x:Name="CBoxCalendar"
+                    HorizontalAlignment="Stretch" Margin="0,4,0,4"
+                    SelectionChanged="CBoxCalendar_SelectionChanged"/>
+
+          <TextBlock Grid.Row="1" Grid.Column="0" Text="제목"
+                     HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,8,12,8"/>
+          <TextBox  Grid.Row="1" Grid.Column="1" x:Name="TxtEventTitle" Margin="0,4,0,4"
+                    PlaceholderText="일정 제목"/>
+
+          <TextBlock Grid.Row="2" Grid.Column="0" Text="시작"
+                     HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,8,12,8"/>
+          <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="10" Margin="0,4,0,4">
+            <DatePicker x:Name="EventStartDatePicker" SelectedDateChanged="EventStartDate_Changed"/>
+            <ctrl:CompactTimePicker x:Name="EventStartTimePicker"/>
+            <CheckBox x:Name="ChkEventAllday" Content="종일"
+                      IsCheckedChanged="ChkEventAllday_Changed"
+                      VerticalAlignment="Center"/>
+          </StackPanel>
+
+          <TextBlock Grid.Row="3" Grid.Column="0" Text="종료"
+                     HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,8,12,8"/>
+          <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="10" Margin="0,4,0,4">
+            <DatePicker x:Name="EventEndDatePicker" SelectedDateChanged="EventEndDate_Changed"/>
+            <ctrl:CompactTimePicker x:Name="EventEndTimePicker"/>
+          </StackPanel>
+
+          <TextBlock Grid.Row="4" Grid.Column="0" Text="장소"
+                     HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,8,12,8"/>
+          <TextBox Grid.Row="4" Grid.Column="1" x:Name="TxtEventLocation" Margin="0,4,0,4"
+                   PlaceholderText="(선택)"/>
+
+          <TextBlock Grid.Row="5" Grid.Column="0" Text="색상"
+                     HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,8,12,8"/>
+          <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="0,4,0,4">
+            <ComboBox x:Name="CBoxColor" MinWidth="170"
+                      SelectionChanged="CBoxColor_SelectionChanged">
+              <ComboBoxItem Tag=""   Content="캘린더 기본색"/>
+              <ComboBoxItem Tag="1"  Content="🔴 토마토"/>
+              <ComboBoxItem Tag="2"  Content="🩷 플라밍고"/>
+              <ComboBoxItem Tag="3"  Content="🟠 탠저린"/>
+              <ComboBoxItem Tag="4"  Content="🍌 바나나"/>
+              <ComboBoxItem Tag="5"  Content="🌿 세이지"/>
+              <ComboBoxItem Tag="6"  Content="🌱 바질"/>
+              <ComboBoxItem Tag="7"  Content="🦚 피콕"/>
+              <ComboBoxItem Tag="8"  Content="🔵 블루베리"/>
+              <ComboBoxItem Tag="9"  Content="💜 라벤더"/>
+              <ComboBoxItem Tag="10" Content="🍇 그레이프"/>
+              <ComboBoxItem Tag="11" Content="⚫ 그라파이트"/>
+            </ComboBox>
+            <Border x:Name="ColorPreview"
+                    Width="22" Height="22"
+                    CornerRadius="11"
+                    Background="#4285F4"
+                    VerticalAlignment="Center"/>
+          </StackPanel>
+
+          <TextBlock Grid.Row="6" Grid.Column="0" Text="설명"
+                     HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,12,0"/>
+          <TextBox  Grid.Row="6" Grid.Column="1" x:Name="TxtEventNotes"
+                    AcceptsReturn="True"
+                    TextWrapping="Wrap"
+                    Height="180"
+                    Margin="0,4,0,4"
+                    PlaceholderText="메모"/>
+
+          <CheckBox Grid.Row="7" Grid.ColumnSpan="2" x:Name="ChkEventGoogleSync"
+                    Content="📤 구글 캘린더에 등록"
+                    IsVisible="False"
+                    Margin="0,4,0,0"/>
+        </Grid>
+
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- ── 푸터 ───────────────────────────────────────── -->
+    <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,12,0,0">
+      <Button Grid.Column="0" x:Name="BtnDelete"
+              Content="삭제"
+              Padding="14,6"
+              Foreground="#D9372A"
+              IsVisible="False"
+              Click="OnDelete"/>
+      <TextBlock Grid.Column="1" x:Name="StatusText"
+                 FontSize="11"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"
+                 VerticalAlignment="Center"
+                 Margin="12,0,0,0"/>
+      <Button Grid.Column="2" Content="취소" Padding="14,6"
+              Margin="0,0,6,0" Click="OnCancel"/>
+      <Button Grid.Column="3" Content="저장" Padding="14,6"
+              Classes="accent" Click="OnSave"/>
+    </Grid>
+  </Grid>
+</Window>

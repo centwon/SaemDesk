@@ -423,7 +423,8 @@ public static class Settings
         SchoolName.Reload();
         SchoolAddress.Reload();
         ProvinceName.Reload();
-        NeisApiKey.Reload();
+        // NeisApiKey 는 빌드 시 secrets.json 으로만 주입 — DB persistence 사용 안 함
+        // (SecretsService.NeisApiKey 가 SettingProperty 의 default 로 주입되어 그대로 유지됨)
         WorkSemester.Reload();
         TopMost.Reload();
         StartWithWindows.Reload();

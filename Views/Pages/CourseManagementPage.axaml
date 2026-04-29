@@ -1,0 +1,162 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SaemDesk.ViewModels.Pages"
+             xmlns:models="using:SaemDesk.Models"
+             x:Class="SaemDesk.Views.Pages.CourseManagementPage"
+             x:DataType="vm:CourseManagementPageVM"
+             Classes="page">
+
+  <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+    <!-- 헤더 -->
+    <StackPanel Grid.Row="0" Margin="20,18,20,4" Spacing="2">
+      <TextBlock Text="수업 관리" FontSize="22" FontWeight="SemiBold"/>
+      <TextBlock Text="학년도/학기별 학교 전체 수업(과목·선택과목·동아리) CRUD"
+                 FontSize="12"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+    </StackPanel>
+
+    <!-- 필터 / 검색 -->
+    <Grid Grid.Row="1" Margin="20,12,20,8"
+          ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,*,Auto,Auto,Auto,Auto">
+      <TextBlock Grid.Column="0" Text="학년도" VerticalAlignment="Center" Margin="0,0,6,0"/>
+      <NumericUpDown Grid.Column="1"
+                     Value="{Binding WorkYear, Mode=TwoWay}"
+                     Minimum="2000" Maximum="2100" Increment="1"
+                     Width="110" Margin="0,0,12,0"/>
+
+      <TextBlock Grid.Column="2" Text="학기" VerticalAlignment="Center" Margin="0,0,6,0"/>
+      <NumericUpDown Grid.Column="3"
+                     Value="{Binding WorkSemester, Mode=TwoWay}"
+                     Minimum="1" Maximum="2" Increment="1"
+                     Width="80" Margin="0,0,12,0"/>
+
+      <TextBlock Grid.Column="4" Text="유형" VerticalAlignment="Center" Margin="0,0,6,0"/>
+      <ComboBox Grid.Column="5"
+                ItemsSource="{Binding TypeFilters}"
+                SelectedItem="{Binding TypeFilter, Mode=TwoWay}"
+                MinWidth="120" Margin="0,0,12,0"/>
+
+      <Button Grid.Column="6" Content="조회"
+              Classes="accent"
+              Padding="14,6"
+              Command="{Binding QueryCommand}"
+              Margin="0,0,12,0"/>
+
+      <TextBox Grid.Column="7"
+               Text="{Binding SearchText, Mode=TwoWay}"
+               PlaceholderText="과목/강의실/비고 검색…"
+               MinWidth="200"
+               Margin="0,0,12,0"/>
+
+      <Button Grid.Column="8" Content="추가"
+              Padding="12,6"
+              Command="{Binding AddCourseCommand}"
+              Margin="0,0,6,0"/>
+      <Button Grid.Column="9" Content="편집"
+              Padding="12,6"
+              IsEnabled="{Binding HasSelection}"
+              Command="{Binding EditSelectedCommand}"
+              Margin="0,0,6,0"/>
+      <Button Grid.Column="10" Content="삭제"
+              Padding="12,6"
+              IsEnabled="{Binding HasSelection}"
+              Command="{Binding DeleteSelectedCommand}"
+              Margin="0,0,6,0"/>
+      <Button Grid.Column="11" Content="새로고침"
+              Padding="12,6"
+              Command="{Binding QueryCommand}"/>
+    </Grid>
+
+    <!-- 본문: 수업 목록 -->
+    <Grid Grid.Row="2" Margin="20,0,20,8">
+      <Border BorderThickness="1"
+              BorderBrush="{DynamicResource ContentSeparatorBrush}">
+        <Grid RowDefinitions="Auto,*">
+          <Grid Grid.Row="0"
+                ColumnDefinitions="80,80,*,80,*,Auto"
+                Margin="10,8"
+                Background="Transparent">
+            <TextBlock Grid.Column="0" Text="유형"   FontWeight="SemiBold" FontSize="12"/>
+            <TextBlock Grid.Column="1" Text="학년"   FontWeight="SemiBold" FontSize="12"/>
+            <TextBlock Grid.Column="2" Text="과목"   FontWeight="SemiBold" FontSize="12"/>
+            <TextBlock Grid.Column="3" Text="단위"   FontWeight="SemiBold" FontSize="12"/>
+            <TextBlock Grid.Column="4" Text="강의실" FontWeight="SemiBold" FontSize="12"/>
+            <TextBlock Grid.Column="5" Text="비고"   FontWeight="SemiBold" FontSize="12"/>
+          </Grid>
+          <Border Grid.Row="0" Height="1" VerticalAlignment="Bottom"
+                  Background="{DynamicResource ContentSeparatorBrush}"/>
+
+          <ListBox Grid.Row="1"
+                   ItemsSource="{Binding Courses}"
+                   SelectedItem="{Binding SelectedCourse, Mode=TwoWay}"
+                   Background="Transparent"
+                   BorderThickness="0">
+            <ListBox.ItemTemplate>
+              <DataTemplate DataType="models:Course">
+                <Grid ColumnDefinitions="80,80,*,80,*,Auto" Margin="0,2">
+                  <Border Grid.Column="0"
+                          Background="{DynamicResource SystemAccentColor}"
+                          CornerRadius="3" Padding="6,1"
+                          Height="20" VerticalAlignment="Center" HorizontalAlignment="Left">
+                    <TextBlock Text="{Binding TypeDisplay}"
+                               FontSize="10" Foreground="White"
+                               VerticalAlignment="Center"/>
+                  </Border>
+                  <TextBlock Grid.Column="1" Text="{Binding Grade, StringFormat={}{0}학년}"
+                             FontSize="12" VerticalAlignment="Center"/>
+                  <TextBlock Grid.Column="2" Text="{Binding Subject}"
+                             FontSize="13" FontWeight="SemiBold"
+                             VerticalAlignment="Center"
+                             TextTrimming="CharacterEllipsis"/>
+                  <TextBlock Grid.Column="3" Text="{Binding Unit, StringFormat={}{0}단위}"
+                             FontSize="12" Foreground="{DynamicResource SystemBaseMediumColor}"
+                             VerticalAlignment="Center"/>
+                  <TextBlock Grid.Column="4" Text="{Binding Rooms}"
+                             FontSize="12" Foreground="{DynamicResource SystemBaseMediumColor}"
+                             VerticalAlignment="Center"
+                             TextTrimming="CharacterEllipsis"/>
+                  <TextBlock Grid.Column="5" Text="{Binding Remark}"
+                             FontSize="11"
+                             Foreground="{DynamicResource SystemBaseMediumColor}"
+                             VerticalAlignment="Center"
+                             TextTrimming="CharacterEllipsis"
+                             MaxWidth="180"/>
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </Grid>
+      </Border>
+
+      <TextBlock Text="조회된 수업이 없습니다. 학년도/학기/유형을 확인하거나 ‘조회’를 다시 누르세요."
+                 IsVisible="{Binding IsEmpty}"
+                 FontSize="13"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 TextAlignment="Center"
+                 TextWrapping="Wrap"
+                 MaxWidth="420"/>
+
+      <Border IsVisible="{Binding IsLoading}" Background="#33000000">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+          <ProgressBar Width="160" IsIndeterminate="True"/>
+          <TextBlock Text="조회 중…" Foreground="White" HorizontalAlignment="Center"/>
+        </StackPanel>
+      </Border>
+    </Grid>
+
+    <!-- 상태바 -->
+    <Grid Grid.Row="3" Margin="20,0,20,16" ColumnDefinitions="*,Auto">
+      <TextBlock Grid.Column="0" Text="{Binding StatusText}"
+                 FontSize="11"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"
+                 VerticalAlignment="Center"/>
+      <TextBlock Grid.Column="1" Text="{Binding ErrorText}"
+                 FontSize="11"
+                 Foreground="#D9372A"
+                 VerticalAlignment="Center"/>
+    </Grid>
+  </Grid>
+</UserControl>

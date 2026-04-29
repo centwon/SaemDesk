@@ -1,3 +1,10 @@
 <linker>
+  <!-- 자체 코드 — XAML 컴파일 바인딩 + ViewLocator 가 리플렉션을 사용 -->
   <assembly fullname="SaemDesk" preserve="all" />
+
+  <!-- QuestPDF: 내부 렌더링 파이프라인이 리플렉션·동적 코드 일부 사용 (IL2104 보호) -->
+  <assembly fullname="QuestPDF" preserve="all" />
+
+  <!-- MiniExcel: 익명 객체 / POCO 의 public 멤버를 동적 매핑 (IL2104 보호) -->
+  <assembly fullname="MiniExcel" preserve="all" />
 </linker>

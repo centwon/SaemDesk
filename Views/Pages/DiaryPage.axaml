@@ -1,14 +1,191 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:SaemDesk.ViewModels.Pages"
+             xmlns:models="using:SaemDesk.Models"
              x:Class="SaemDesk.Views.Pages.DiaryPage"
              x:DataType="vm:DiaryPageVM"
              Classes="page">
-  <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
-    <TextBlock Text="학급일지" FontSize="28" FontWeight="Bold"
-               HorizontalAlignment="Center" />
-    <TextBlock Text="Phase 5 구현 예정 — ClassDiaryViewModel 통합"
-               Foreground="{DynamicResource SystemBaseMediumColor}"
-               HorizontalAlignment="Center" />
-  </StackPanel>
+
+  <Grid RowDefinitions="Auto,Auto,*">
+
+    <!-- ── 헤더 ──────────────────────────────────────────── -->
+    <StackPanel Grid.Row="0" Margin="20,20,20,0" Spacing="4">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <TextBlock Text="▣"
+                   FontSize="22"
+                   Foreground="{StaticResource BrandPrimaryBrush}"
+                   VerticalAlignment="Center"/>
+        <TextBlock Text="학급일지"
+                   FontSize="22"
+                   FontWeight="SemiBold"
+                   VerticalAlignment="Center"/>
+        <TextBlock Text="{Binding StatusText}"
+                   FontSize="13"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                   VerticalAlignment="Center"
+                   Margin="6,0,0,0"/>
+      </StackPanel>
+      <TextBlock Text="{Binding DiaryCountText}"
+                 FontSize="13"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+    </StackPanel>
+
+    <!-- ── 툴바 ─────────────────────────────────────────── -->
+    <StackPanel Grid.Row="1"
+                Orientation="Horizontal"
+                Margin="20,10,20,0"
+                Spacing="6">
+
+      <!-- 오늘 일지 작성/수정 -->
+      <Button Content="{Binding WriteTodayButtonText}"
+              Command="{Binding WriteTodayDiaryCommand}"
+              Classes="accent"
+              Padding="14,6"/>
+
+      <!-- 선택 일지 수정 -->
+      <Button Content="수정"
+              Command="{Binding EditSelectedDiaryCommand}"
+              IsEnabled="{Binding HasSelection}"
+              Padding="12,6"/>
+
+      <!-- 선택 일지 삭제 -->
+      <Button Content="삭제"
+              Command="{Binding DeleteSelectedDiaryCommand}"
+              IsEnabled="{Binding HasSelection}"
+              Padding="12,6"/>
+
+      <!-- 새로고침 -->
+      <Button Content="새로고침"
+              Command="{Binding LoadDiariesCommand}"
+              Padding="12,6"/>
+
+    </StackPanel>
+
+    <!-- ── 본문 ──────────────────────────────────────────── -->
+    <Panel Grid.Row="2">
+
+      <!-- 로딩 중 -->
+      <ProgressBar IsVisible="{Binding IsLoading}"
+                   IsIndeterminate="True"
+                   VerticalAlignment="Top"
+                   Margin="20,8,20,0"/>
+
+      <!-- 오류 -->
+      <TextBlock IsVisible="{Binding ErrorText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                 Text="{Binding ErrorText}"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 Foreground="{DynamicResource SystemErrorTextColor}"
+                 FontSize="13"/>
+
+      <!-- 빈 상태 -->
+      <StackPanel IsVisible="{Binding IsEmpty}"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  Spacing="8">
+        <TextBlock Text="작성된 학급일지가 없습니다."
+                   FontSize="15"
+                   HorizontalAlignment="Center"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"/>
+        <TextBlock Text="'오늘 일지 작성' 버튼으로 첫 일지를 기록하세요."
+                   FontSize="12"
+                   HorizontalAlignment="Center"
+                   Foreground="{DynamicResource SystemBaseMediumLowColor}"/>
+      </StackPanel>
+
+      <!-- 일지 목록 (ListBox — 선택 지원) -->
+      <ListBox IsVisible="{Binding HasDiaries}"
+               ItemsSource="{Binding Diaries}"
+               SelectedItem="{Binding SelectedDiary, Mode=TwoWay}"
+               Background="Transparent"
+               BorderThickness="0"
+               Margin="20,8,20,20">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="models:ClassDiary">
+            <Grid ColumnDefinitions="56,*,Auto">
+
+              <!-- 날짜 배지 -->
+              <Border Grid.Column="0"
+                      CornerRadius="6"
+                      Background="{StaticResource BrandPrimaryBrush}"
+                      Padding="6,4"
+                      HorizontalAlignment="Left"
+                      VerticalAlignment="Center">
+                <StackPanel HorizontalAlignment="Center" Spacing="0">
+                  <TextBlock Text="{Binding Date, StringFormat={}{0:M/d}}"
+                             FontSize="14"
+                             FontWeight="Bold"
+                             Foreground="White"
+                             HorizontalAlignment="Center"/>
+                  <TextBlock Text="{Binding DayOfWeekKorean}"
+                             FontSize="11"
+                             Foreground="White"
+                             HorizontalAlignment="Center"
+                             Opacity="0.85"/>
+                </StackPanel>
+              </Border>
+
+              <!-- 출결 요약 + 메모 -->
+              <StackPanel Grid.Column="1"
+                          Margin="12,0,8,0"
+                          VerticalAlignment="Center"
+                          Spacing="3">
+                <TextBlock Text="{Binding AttendanceSummary}"
+                           FontSize="13"
+                           FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding Memo}"
+                           FontSize="12"
+                           Foreground="{DynamicResource SystemBaseMediumColor}"
+                           MaxLines="1"
+                           TextTrimming="CharacterEllipsis"/>
+              </StackPanel>
+
+              <!-- 출결 문제 배지 -->
+              <Border Grid.Column="2"
+                      IsVisible="{Binding HasAttendanceIssues}"
+                      CornerRadius="4"
+                      Padding="8,3"
+                      Background="#FFEEEE"
+                      VerticalAlignment="Center">
+                <TextBlock Text="출결"
+                           FontSize="11"
+                           Foreground="{DynamicResource SystemErrorTextColor}"/>
+              </Border>
+
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+
+        <!-- ListBox 항목 스타일 — card 느낌 -->
+        <ListBox.ItemContainerTheme>
+          <ControlTheme TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="14,10"/>
+            <Setter Property="Margin" Value="0,3"/>
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Template">
+              <ControlTemplate>
+                <Border Background="{TemplateBinding Background}"
+                        CornerRadius="{TemplateBinding CornerRadius}"
+                        Padding="{TemplateBinding Padding}"
+                        BoxShadow="0 1 4 0 #18000000">
+                  <ContentPresenter Content="{TemplateBinding Content}"
+                                    ContentTemplate="{TemplateBinding ContentTemplate}"/>
+                </Border>
+              </ControlTemplate>
+            </Setter>
+            <Style Selector="^:selected /template/ Border">
+              <Setter Property="Background" Value="{DynamicResource SystemListLowColor}"/>
+              <Setter Property="BoxShadow" Value="0 2 8 0 #30000000"/>
+            </Style>
+            <Style Selector="^:pointerover /template/ Border">
+              <Setter Property="Background" Value="{DynamicResource SystemListMediumColor}"/>
+            </Style>
+          </ControlTheme>
+        </ListBox.ItemContainerTheme>
+
+      </ListBox>
+
+    </Panel>
+  </Grid>
 </UserControl>

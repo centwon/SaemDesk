@@ -1,14 +1,197 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:SaemDesk.ViewModels.Pages"
+             xmlns:models="using:SaemDesk.Models"
+             xmlns:ctrl="using:SaemDesk.Views.Controls"
              x:Class="SaemDesk.Views.Pages.TodayPage"
              x:DataType="vm:TodayPageVM"
              Classes="page">
-  <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
-    <TextBlock Text="오늘" FontSize="28" FontWeight="Bold"
-               HorizontalAlignment="Center" />
-    <TextBlock Text="Phase 5 구현 예정 — TodayPageViewModel 통합"
-               Foreground="{DynamicResource SystemBaseMediumColor}"
-               HorizontalAlignment="Center" />
-  </StackPanel>
+
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+    <StackPanel Margin="28,20" Spacing="16" MaxWidth="720">
+
+      <!-- ── 날짜 / 인사 헤더 ─────────────────────────────── -->
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Grid.Column="0" Spacing="4">
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <TextBlock Text="{Binding TodayDateText}"
+                       FontSize="26" FontWeight="SemiBold"/>
+            <TextBlock Text="{Binding TodayDayOfWeek}"
+                       FontSize="26" FontWeight="Light"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"/>
+          </StackPanel>
+          <TextBlock Text="{Binding TodayGreeting}"
+                     FontSize="14"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+        </StackPanel>
+        <Button Grid.Column="1"
+                Content="새로고침"
+                Command="{Binding LoadDashboardCommand}"
+                Padding="10,6"
+                VerticalAlignment="Top"/>
+      </Grid>
+
+      <!-- ── 구분선 ─────────────────────────────────────────── -->
+      <Border Height="1" Background="{DynamicResource SystemBaseLowColor}"/>
+
+      <!-- ── 안내 메시지 (미설정 시) ──────────────────────── -->
+      <ctrl:InfoBar IsOpen="{Binding HasHint}"
+                    Message="{Binding HintText}"
+                    Severity="Informational"
+                    IsClosable="False"
+                    IsVisible="{Binding HasHint}"/>
+
+      <!-- ── 학교 / 담임 카드 ──────────────────────────────── -->
+      <Border Classes="card" Padding="20,16">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel Grid.Column="0" Spacing="4">
+            <TextBlock Text="{Binding SchoolName}"
+                       FontSize="16" FontWeight="SemiBold"/>
+            <TextBlock Text="{Binding TeacherInfo}"
+                       FontSize="13"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"/>
+          </StackPanel>
+          <TextBlock Grid.Column="1"
+                     Text="{Binding WorkYearSemester}"
+                     FontSize="12"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"
+                     VerticalAlignment="Top"/>
+        </Grid>
+      </Border>
+
+      <!-- ── 빠른 현황 — 학생 수 + 일지 상태 ──────────────── -->
+      <Grid ColumnDefinitions="*,12,*">
+
+        <!-- 학생 수 -->
+        <Border Grid.Column="0" Classes="card" Padding="16,14">
+          <StackPanel Spacing="4">
+            <TextBlock Text="우리 반 학생"
+                       FontSize="12"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"/>
+            <TextBlock Text="{Binding StudentCountText}"
+                       FontSize="28"
+                       FontWeight="Bold"
+                       Foreground="{StaticResource BrandPrimaryBrush}"/>
+          </StackPanel>
+        </Border>
+
+        <!-- 오늘 일지 -->
+        <Border Grid.Column="2" Classes="card" Padding="16,14">
+          <StackPanel Spacing="4">
+            <TextBlock Text="오늘 학급일지"
+                       FontSize="12"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"/>
+            <TextBlock Text="{Binding DiaryStatusText}"
+                       FontSize="22"
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource BrandPrimaryBrush}"/>
+          </StackPanel>
+        </Border>
+
+      </Grid>
+
+      <!-- ── 오늘 시간표 ────────────────────────────────────── -->
+      <Border Classes="card" Padding="20,16">
+        <StackPanel Spacing="10">
+
+          <!-- 헤더 -->
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="오늘 시간표"
+                       FontSize="14" FontWeight="SemiBold"/>
+            <TextBlock Text="{Binding TodaySlotCountText}"
+                       FontSize="12"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                       VerticalAlignment="Center"/>
+          </StackPanel>
+
+          <!-- 교시 목록 -->
+          <ItemsControl IsVisible="{Binding HasTodaySlots}"
+                        ItemsSource="{Binding TodaySlots}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="models:ClassTimetable">
+                <Grid ColumnDefinitions="32,*,Auto" Margin="0,3">
+                  <!-- 교시 번호 -->
+                  <TextBlock Grid.Column="0"
+                             Text="{Binding Period, StringFormat={}{0}교시}"
+                             FontSize="12"
+                             Foreground="{DynamicResource SystemBaseMediumColor}"
+                             VerticalAlignment="Center"/>
+                  <!-- 과목 -->
+                  <TextBlock Grid.Column="1"
+                             Text="{Binding SubjectName}"
+                             FontSize="13" FontWeight="SemiBold"
+                             VerticalAlignment="Center"
+                             Margin="8,0"/>
+                  <!-- 교실 -->
+                  <TextBlock Grid.Column="2"
+                             Text="{Binding Room}"
+                             FontSize="12"
+                             Foreground="{DynamicResource SystemBaseMediumColor}"
+                             VerticalAlignment="Center"/>
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+
+          <!-- 빈 상태 -->
+          <TextBlock IsVisible="{Binding !HasTodaySlots}"
+                     Text="등록된 시간표가 없습니다."
+                     FontSize="12"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+        </StackPanel>
+      </Border>
+
+      <!-- ── 할 일 / 일정 ──────────────────────────────────── -->
+      <Border Classes="card" Padding="0">
+        <StackPanel Spacing="0">
+          <StackPanel Orientation="Horizontal" Spacing="8" Margin="20,16,20,8">
+            <TextBlock Text="오늘의 할 일 / 일정"
+                       FontSize="14" FontWeight="SemiBold"/>
+          </StackPanel>
+          <ctrl:KAgendaControl x:Name="AgendaList"
+                               Height="320"
+                               Margin="12,0,12,12"/>
+        </StackPanel>
+      </Border>
+
+      <!-- ── 급식 ─────────────────────────────────────────── -->
+      <Border Classes="card" Padding="20,16">
+        <StackPanel Spacing="8">
+
+          <!-- 헤더 -->
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="오늘의 급식"
+                       FontSize="14" FontWeight="SemiBold"/>
+            <TextBlock Text="{Binding MealCalories}"
+                       FontSize="12"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                       VerticalAlignment="Center"
+                       IsVisible="{Binding MealCalories, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+          </StackPanel>
+
+          <!-- 안내 / 오류 메시지 -->
+          <TextBlock Text="{Binding MealStatusText}"
+                     FontSize="12"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"
+                     TextWrapping="Wrap"
+                     IsVisible="{Binding MealStatusText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+
+          <!-- 메뉴 목록 -->
+          <ItemsControl IsVisible="{Binding HasMeal}"
+                        ItemsSource="{Binding MealItems}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="x:String">
+                <TextBlock Text="{Binding}"
+                           FontSize="13"
+                           Margin="0,1"/>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+
+        </StackPanel>
+      </Border>
+
+    </StackPanel>
+  </ScrollViewer>
+
 </UserControl>

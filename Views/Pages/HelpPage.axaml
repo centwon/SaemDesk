@@ -1,0 +1,181 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SaemDesk.ViewModels.Pages"
+             x:Class="SaemDesk.Views.Pages.HelpPage"
+             x:DataType="vm:HelpPageVM"
+             Classes="page">
+
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                VerticalScrollBarVisibility="Auto">
+    <StackPanel Margin="24,16" Spacing="12" MaxWidth="760">
+
+      <!-- 페이지 제목 -->
+      <TextBlock Text="도움말" FontSize="22" FontWeight="SemiBold" Margin="0,0,0,4"/>
+      <TextBlock Text="SaemDesk 의 핵심 기능과 단축키를 한눈에 확인합니다."
+                 FontSize="12"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"
+                 Margin="0,0,0,8"/>
+
+      <!-- ────────── 시작하기 ────────── -->
+      <Expander Header="처음 시작할 때" IsExpanded="True">
+        <StackPanel Margin="0,8,0,4" Spacing="6">
+          <TextBlock TextWrapping="Wrap">
+            <Run FontWeight="SemiBold">1.</Run>
+            <Run Text=" 설정 → 사용자 및 담임 정보에서 본인 이름과 학년·반을 입력합니다."/>
+          </TextBlock>
+          <TextBlock TextWrapping="Wrap">
+            <Run FontWeight="SemiBold">2.</Run>
+            <Run Text=" 학교 정보의 “학교 검색 (NEIS)” 버튼으로 본인 학교를 등록합니다. 학사일정·급식 조회에 사용됩니다."/>
+          </TextBlock>
+          <TextBlock TextWrapping="Wrap">
+            <Run FontWeight="SemiBold">3.</Run>
+            <Run Text=" 학년도와 학기를 현재 시점에 맞춰 설정합니다."/>
+          </TextBlock>
+          <TextBlock TextWrapping="Wrap">
+            <Run FontWeight="SemiBold">4.</Run>
+            <Run Text=" 학생 페이지에서 학급 명렬을 등록한 뒤 수업·학급일지·게시판 기능을 사용할 수 있습니다."/>
+          </TextBlock>
+        </StackPanel>
+      </Expander>
+
+      <!-- ────────── 페이지별 가이드 ────────── -->
+      <Expander Header="페이지별 기능">
+        <StackPanel Margin="0,8,0,4" Spacing="10">
+
+          <StackPanel Spacing="2">
+            <TextBlock Text="◈ 오늘" FontWeight="SemiBold"/>
+            <TextBlock TextWrapping="Wrap"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                       Text="오늘의 시간표·급식·일정을 한 화면에 모아 보여 줍니다."/>
+          </StackPanel>
+
+          <StackPanel Spacing="2">
+            <TextBlock Text="◉ 학생" FontWeight="SemiBold"/>
+            <TextBlock TextWrapping="Wrap"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                       Text="학급 명렬, 학생 카드, 누가기록·학생부 특기사항을 관리합니다. 우측 상단 “내보내기” 버튼으로 Excel·PDF·HTML·CSV 형식으로 일괄 내보낼 수 있습니다."/>
+          </StackPanel>
+
+          <StackPanel Spacing="2">
+            <TextBlock Text="◇ 수업" FontWeight="SemiBold"/>
+            <TextBlock TextWrapping="Wrap"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                       Text="과목·시간표·차시 기록을 관리합니다. 시간표는 한 칸 클릭으로 추가·수정합니다."/>
+          </StackPanel>
+
+          <StackPanel Spacing="2">
+            <TextBlock Text="▣ 학급일지" FontWeight="SemiBold"/>
+            <TextBlock TextWrapping="Wrap"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                       Text="날짜별 학급일지를 작성합니다. 출결·특이사항·식단 등을 한 페이지에 기록할 수 있습니다."/>
+          </StackPanel>
+
+          <StackPanel Spacing="2">
+            <TextBlock Text="✎ 게시판" FontWeight="SemiBold"/>
+            <TextBlock TextWrapping="Wrap"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                       Text="공지·메모·할일을 카테고리별로 정리합니다. 본문은 Jodit HTML 에디터로 작성하며, 이미지·표·링크 등이 지원됩니다."/>
+          </StackPanel>
+
+          <StackPanel Spacing="2">
+            <TextBlock Text="◷ 스케줄러" FontWeight="SemiBold"/>
+            <TextBlock TextWrapping="Wrap"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                       Text="개인 일정과 할일을 관리합니다. Google Calendar 연동 시 양방향 동기화됩니다."/>
+          </StackPanel>
+
+          <StackPanel Spacing="2">
+            <TextBlock Text="◫ 학사일정" FontWeight="SemiBold"/>
+            <TextBlock TextWrapping="Wrap"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                       Text="NEIS 에서 본교 학사일정을 받아 와 달력에 표시합니다. 설정 → 일정 설정에서 Google Calendar에 일괄 업로드할 수 있습니다."/>
+          </StackPanel>
+
+        </StackPanel>
+      </Expander>
+
+      <!-- ────────── Google Calendar 연동 ────────── -->
+      <Expander Header="Google Calendar 연동">
+        <StackPanel Margin="0,8,0,4" Spacing="6">
+          <TextBlock TextWrapping="Wrap">
+            <Run FontWeight="SemiBold">1.</Run>
+            <Run Text=" 앱 폴더의 secrets.template.json 을 secrets.json 으로 복사한 뒤 Google Cloud Console 에서 발급받은 OAuth 클라이언트 ID·Secret 을 입력합니다."/>
+          </TextBlock>
+          <TextBlock TextWrapping="Wrap">
+            <Run FontWeight="SemiBold">2.</Run>
+            <Run Text=" 설정 → 일정 설정 → Google 캘린더 연동의 “연결” 버튼을 누르면 브라우저에서 Google 로그인이 진행됩니다."/>
+          </TextBlock>
+          <TextBlock TextWrapping="Wrap">
+            <Run FontWeight="SemiBold">3.</Run>
+            <Run Text=" 인증이 끝나면 ‘개인’ 카테고리는 기본 캘린더로, ‘수업/학급/업무’는 학교 이름의 캘린더로 자동 매핑됩니다."/>
+          </TextBlock>
+          <TextBlock TextWrapping="Wrap">
+            <Run FontWeight="SemiBold">4.</Run>
+            <Run Text=" 동기화 탭에서 자동 동기화 토글과 간격(분)을 설정하면 앱이 켜져 있는 동안 백그라운드로 양방향 동기화됩니다."/>
+          </TextBlock>
+        </StackPanel>
+      </Expander>
+
+      <!-- ────────── NEIS API ────────── -->
+      <Expander Header="NEIS API 키">
+        <StackPanel Margin="0,8,0,4" Spacing="6">
+          <TextBlock TextWrapping="Wrap"
+                     Text="급식·학사일정 조회에는 교육부 NEIS Open API 키가 필요합니다. NEIS 데이터포털(open.neis.go.kr)에서 회원가입 후 인증키를 발급받으세요."/>
+          <TextBlock TextWrapping="Wrap"
+                     Text="발급받은 키는 앱 폴더의 secrets.json 의 neis_api_key 항목에 입력합니다. (Google OAuth 자격증명과 같은 파일입니다.) 키는 빌드 시 출력 디렉터리로만 복사되고 git 에는 포함되지 않습니다."
+                     Foreground="{DynamicResource SystemBaseMediumColor}"
+                     FontSize="11"/>
+        </StackPanel>
+      </Expander>
+
+      <!-- ────────── 데이터 / 백업 ────────── -->
+      <Expander Header="데이터와 백업">
+        <StackPanel Margin="0,8,0,4" Spacing="6">
+          <TextBlock TextWrapping="Wrap"
+                     Text="모든 데이터는 사용자 폴더의 SaemDesk 디렉터리(예: %APPDATA%\SaemDesk)에 SQLite DB 파일로 저장됩니다. 학생/수업 DB와 게시판 DB가 분리되어 있습니다."/>
+          <TextBlock TextWrapping="Wrap"
+                     Text="설정의 “자동 백업” 옵션을 켜면 종료 시 백업 폴더로 사본이 저장됩니다. 비정상 종료 대비를 위해 권장됩니다."
+                     Foreground="{DynamicResource SystemBaseMediumColor}"
+                     FontSize="11"/>
+        </StackPanel>
+      </Expander>
+
+      <!-- ────────── 자주 묻는 질문 ────────── -->
+      <Expander Header="자주 묻는 질문 (FAQ)">
+        <StackPanel Margin="0,8,0,4" Spacing="10">
+
+          <StackPanel Spacing="2">
+            <TextBlock Text="Q. 학교 검색이 되지 않습니다." FontWeight="SemiBold"/>
+            <TextBlock TextWrapping="Wrap"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                       Text="A. NEIS API 키가 필요합니다. 앱 폴더의 secrets.json 의 neis_api_key 에 키를 등록한 뒤 앱을 재시작하세요."/>
+          </StackPanel>
+
+          <StackPanel Spacing="2">
+            <TextBlock Text="Q. Google 연결 버튼이 비활성 상태입니다." FontWeight="SemiBold"/>
+            <TextBlock TextWrapping="Wrap"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                       Text="A. secrets.json 의 google_oauth.client_id / client_secret 가 비어 있을 때 비활성화됩니다. Google Cloud Console 에서 OAuth 클라이언트(데스크톱 앱)를 만들어 자격증명을 채워 넣으세요."/>
+          </StackPanel>
+
+          <StackPanel Spacing="2">
+            <TextBlock Text="Q. Native AOT 빌드는 어떤 의미인가요?" FontWeight="SemiBold"/>
+            <TextBlock TextWrapping="Wrap"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                       Text="A. .NET 런타임 없이 단일 실행 파일로 동작합니다. 시작 속도와 메모리 사용량이 개선되고, .NET 설치 없이도 실행됩니다. dotnet publish -r win-x64 -c Release 로 만들 수 있습니다."/>
+          </StackPanel>
+
+        </StackPanel>
+      </Expander>
+
+      <!-- ────────── 버전 정보 ────────── -->
+      <TextBlock Text="{Binding AppVersion}"
+                 FontSize="11"
+                 Foreground="{DynamicResource SystemBaseMediumLowColor}"
+                 HorizontalAlignment="Right"
+                 Margin="0,8,0,16"/>
+
+    </StackPanel>
+  </ScrollViewer>
+
+</UserControl>

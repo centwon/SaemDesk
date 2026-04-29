@@ -18,16 +18,16 @@
          좌측 네비게이션 패널
          ══════════════════════════════════════ -->
     <Border Grid.Column="0"
-            Background="{StaticResource NavBackgroundBrush}"
+            Background="{DynamicResource NavBackgroundBrush}"
             BorderThickness="0,0,1,0"
-            BorderBrush="{StaticResource ContentSeparatorBrush}">
+            BorderBrush="{DynamicResource ContentSeparatorBrush}">
       <DockPanel>
 
         <!-- 앱 헤더 -->
         <Border DockPanel.Dock="Top"
                 Padding="16,20,16,12"
                 BorderThickness="0,0,0,1"
-                BorderBrush="{StaticResource ContentSeparatorBrush}">
+                BorderBrush="{DynamicResource ContentSeparatorBrush}">
           <StackPanel Spacing="2">
             <TextBlock Text="샘Desk"
                        FontSize="22" FontWeight="Bold"
@@ -65,6 +65,12 @@
               <Setter Property="Padding" Value="8,2" />
               <Setter Property="CornerRadius" Value="6" />
             </Style>
+            <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+              <Setter Property="Background" Value="{DynamicResource NavItemHoverBrush}" />
+            </Style>
+            <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+              <Setter Property="Background" Value="{DynamicResource NavItemSelectedBrush}" />
+            </Style>
           </ListBox.Styles>
         </ListBox>
 
@@ -75,15 +81,16 @@
                    Margin="16,0,16,4"
                    Foreground="{DynamicResource SystemBaseMediumLowColor}" />
 
-        <!-- 상단 네비게이션 항목 -->
-        <ListBox ItemsSource="{x:Static vm:MainWindowViewModel.AllNavItems}"
-                 SelectedItem="{Binding SelectedNavItem}"
-                 Background="Transparent"
-                 BorderThickness="0"
-                 Padding="8,8">
-          <ListBox.ItemTemplate>
-            <DataTemplate x:DataType="vm:NavItem">
-              <Grid ColumnDefinitions="32,*" Height="38">
+        <!-- 상단 네비게이션 (트리) -->
+        <TreeView ItemsSource="{x:Static vm:MainWindowViewModel.AllNavItems}"
+                  SelectedItem="{Binding SelectedNavItem}"
+                  Background="Transparent"
+                  BorderThickness="0"
+                  Padding="8,8">
+          <TreeView.ItemTemplate>
+            <TreeDataTemplate DataType="vm:NavItem"
+                              ItemsSource="{Binding Children}">
+              <Grid ColumnDefinitions="28,*" Height="34">
                 <TextBlock Grid.Column="0"
                            Text="{Binding Icon}"
                            FontSize="14"
@@ -94,18 +101,22 @@
                            FontSize="13"
                            VerticalAlignment="Center" />
               </Grid>
-            </DataTemplate>
-          </ListBox.ItemTemplate>
-          <ListBox.Styles>
-            <Style Selector="ListBoxItem">
-              <Setter Property="Padding" Value="8,2" />
+            </TreeDataTemplate>
+          </TreeView.ItemTemplate>
+          <TreeView.Styles>
+            <Style Selector="TreeViewItem">
+              <Setter Property="Padding" Value="2,2" />
               <Setter Property="CornerRadius" Value="6" />
+              <Setter Property="IsExpanded" Value="True" />
             </Style>
-            <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
-              <Setter Property="Background" Value="{StaticResource NavItemSelectedBrush}" />
+            <Style Selector="TreeViewItem:pointerover /template/ Border#PART_Header">
+              <Setter Property="Background" Value="{DynamicResource NavItemHoverBrush}" />
             </Style>
-          </ListBox.Styles>
-        </ListBox>
+            <Style Selector="TreeViewItem:selected /template/ Border#PART_Header">
+              <Setter Property="Background" Value="{DynamicResource NavItemSelectedBrush}" />
+            </Style>
+          </TreeView.Styles>
+        </TreeView>
 
       </DockPanel>
     </Border>
@@ -115,14 +126,14 @@
                   Width="1"
                   ResizeBehavior="PreviousAndNext"
                   ResizeDirection="Columns"
-                  Background="{StaticResource ContentSeparatorBrush}" />
+                  Background="{DynamicResource ContentSeparatorBrush}" />
 
     <!-- ══════════════════════════════════════
-         콘텐츠 영역 — ViewLocator가 CurrentPage VM을 View로 변환
+         콘텐츠 영역
          ══════════════════════════════════════ -->
     <TransitioningContentControl Grid.Column="2"
                                  Content="{Binding CurrentPage}"
-                                 Background="{StaticResource ContentBackgroundBrush}" />
+                                 Background="{DynamicResource ContentBackgroundBrush}" />
 
   </Grid>
 </Window>

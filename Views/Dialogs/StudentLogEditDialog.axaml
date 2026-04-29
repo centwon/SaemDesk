@@ -1,0 +1,146 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SaemDesk.Views.Dialogs.StudentLogEditDialog"
+        Title="활동 기록"
+        Width="560" Height="600"
+        MinWidth="480" MinHeight="500"
+        WindowStartupLocation="CenterOwner"
+        CanResize="True"
+        ShowInTaskbar="False">
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="20">
+
+    <!-- 헤더 -->
+    <StackPanel Grid.Row="0" Margin="0,0,0,12" Spacing="2">
+      <TextBlock x:Name="TitleText" FontSize="18" FontWeight="SemiBold"/>
+      <TextBlock x:Name="SubTitleText" FontSize="13"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+    </StackPanel>
+
+    <!-- 폼 -->
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+      <StackPanel Spacing="10">
+
+        <Grid ColumnDefinitions="Auto,*,12,Auto,*">
+          <Grid.Styles>
+            <Style Selector="TextBlock.lbl">
+              <Setter Property="VerticalAlignment" Value="Center"/>
+              <Setter Property="Width" Value="68"/>
+              <Setter Property="Margin" Value="0,0,8,0"/>
+              <Setter Property="FontSize" Value="13"/>
+            </Style>
+          </Grid.Styles>
+
+          <TextBlock Grid.Column="0" Text="카테고리" Classes="lbl"/>
+          <ComboBox  Grid.Column="1" x:Name="CategoryCombo" HorizontalAlignment="Stretch"/>
+
+          <TextBlock Grid.Column="3" Text="날짜" Classes="lbl"/>
+          <DatePicker Grid.Column="4" x:Name="DatePickerCtl" HorizontalAlignment="Stretch"/>
+        </Grid>
+
+        <Grid ColumnDefinitions="Auto,*">
+          <TextBlock Grid.Column="0" Text="과목" Width="68" VerticalAlignment="Center"
+                     Margin="0,0,8,0" FontSize="13"/>
+          <TextBox   Grid.Column="1" x:Name="SubjectBox"
+                     PlaceholderText="(선택) 예) 국어"/>
+        </Grid>
+
+        <!-- 구조화 입력 -->
+        <Border Background="{DynamicResource SystemListLowColor}"
+                CornerRadius="6" Padding="12" Margin="0,4,0,0">
+          <StackPanel Spacing="8">
+            <TextBlock Text="활동 정보 (구조화 입력 — NEIS 학생부 자동 생성)"
+                       FontSize="12" FontWeight="SemiBold"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"/>
+
+            <Grid ColumnDefinitions="Auto,*">
+              <Grid.Styles>
+                <Style Selector="TextBlock.lbl">
+                  <Setter Property="VerticalAlignment" Value="Center"/>
+                  <Setter Property="Width" Value="72"/>
+                  <Setter Property="Margin" Value="0,0,8,8"/>
+                  <Setter Property="FontSize" Value="12"/>
+                </Style>
+                <Style Selector="TextBox">
+                  <Setter Property="Margin" Value="0,0,0,8"/>
+                  <Setter Property="FontSize" Value="13"/>
+                </Style>
+              </Grid.Styles>
+
+              <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                  <Grid.Styles>
+                    <Style Selector="TextBlock.lbl">
+                      <Setter Property="VerticalAlignment" Value="Center"/>
+                      <Setter Property="Width" Value="72"/>
+                      <Setter Property="Margin" Value="0,0,8,8"/>
+                      <Setter Property="FontSize" Value="12"/>
+                    </Style>
+                    <Style Selector="TextBox">
+                      <Setter Property="Margin" Value="0,0,0,8"/>
+                      <Setter Property="FontSize" Value="13"/>
+                    </Style>
+                  </Grid.Styles>
+
+                  <TextBlock Grid.Row="0" Grid.Column="0" Text="활동명" Classes="lbl"/>
+                  <TextBox   Grid.Row="0" Grid.Column="1" x:Name="ActivityBox"
+                             PlaceholderText="예) 수행평가, 토론활동"/>
+
+                  <TextBlock Grid.Row="1" Grid.Column="0" Text="주제" Classes="lbl"/>
+                  <TextBox   Grid.Row="1" Grid.Column="1" x:Name="TopicBox"
+                             PlaceholderText="예) 조선 후기 실학사상"/>
+
+                  <TextBlock Grid.Row="2" Grid.Column="0" Text="활동 내용" Classes="lbl"/>
+                  <TextBox   Grid.Row="2" Grid.Column="1" x:Name="DescBox"
+                             AcceptsReturn="True" Height="60" TextWrapping="Wrap"/>
+
+                  <TextBlock Grid.Row="3" Grid.Column="0" Text="역할" Classes="lbl"/>
+                  <TextBox   Grid.Row="3" Grid.Column="1" x:Name="RoleBox"
+                             PlaceholderText="예) 팀장, 발표 담당"/>
+
+                  <TextBlock Grid.Row="4" Grid.Column="0" Text="기른 능력" Classes="lbl"/>
+                  <TextBox   Grid.Row="4" Grid.Column="1" x:Name="SkillBox"
+                             PlaceholderText="예) 협업 능력, 논리적 사고력"/>
+
+                  <TextBlock Grid.Row="5" Grid.Column="0" Text="장점" Classes="lbl"/>
+                  <TextBox   Grid.Row="5" Grid.Column="1" x:Name="StrengthBox"
+                             PlaceholderText="예) 주도성, 성실성"/>
+
+                  <TextBlock Grid.Row="6" Grid.Column="0" Text="성취/결과" Classes="lbl"/>
+                  <TextBox   Grid.Row="6" Grid.Column="1" x:Name="ResultBox"
+                             PlaceholderText="예) 우수 평가 획득"/>
+                </Grid>
+              </Grid>
+            </Grid>
+          </StackPanel>
+        </Border>
+
+        <!-- 단순 메모 -->
+        <TextBlock Text="단순 메모 (선택)"
+                   FontSize="12"
+                   FontWeight="SemiBold"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                   Margin="0,4,0,0"/>
+        <TextBox x:Name="LogBox"
+                 PlaceholderText="구조화 입력 대신 자유롭게 적어도 됩니다"
+                 AcceptsReturn="True" Height="60" TextWrapping="Wrap"/>
+
+        <CheckBox x:Name="ImportantCheck" Content="중요 표시"/>
+
+        <!-- 오류 -->
+        <TextBlock x:Name="ErrorText" IsVisible="False"
+                   Foreground="{DynamicResource SystemErrorTextColor}"
+                   FontSize="12" TextWrapping="Wrap"/>
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- 버튼 바 -->
+    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right"
+                Spacing="8" Margin="0,12,0,0">
+      <Button Content="취소" Padding="16,8" Click="OnCancel"/>
+      <Button x:Name="SaveButton" Content="저장" Classes="accent"
+              Padding="16,8" Click="OnSave"/>
+    </StackPanel>
+
+  </Grid>
+</Window>

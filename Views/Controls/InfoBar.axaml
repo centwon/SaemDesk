@@ -1,0 +1,50 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:SaemDesk.Views.Controls"
+             x:Class="SaemDesk.Views.Controls.InfoBar"
+             x:DataType="local:InfoBar">
+
+  <Border x:Name="Root"
+          CornerRadius="6"
+          Padding="12,8,8,8"
+          IsVisible="{Binding IsOpen, RelativeSource={RelativeSource AncestorType=local:InfoBar}}">
+
+    <Grid ColumnDefinitions="24,*,Auto">
+
+      <!-- 심각도 아이콘 -->
+      <TextBlock x:Name="IconText"
+                 Grid.Column="0"
+                 FontSize="16"
+                 VerticalAlignment="Top"
+                 Margin="0,1,8,0" />
+
+      <!-- 메시지 영역 -->
+      <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+        <TextBlock x:Name="TitleText"
+                   FontWeight="SemiBold"
+                   FontSize="13"
+                   TextWrapping="Wrap"
+                   IsVisible="{Binding HasTitle,
+                     RelativeSource={RelativeSource AncestorType=local:InfoBar}}" />
+        <TextBlock x:Name="MessageText"
+                   FontSize="12"
+                   TextWrapping="Wrap"
+                   Opacity="0.9" />
+      </StackPanel>
+
+      <!-- 닫기 버튼 -->
+      <Button Grid.Column="2"
+              x:Name="CloseButton"
+              Content="✕"
+              FontSize="10"
+              Padding="6"
+              VerticalAlignment="Top"
+              Background="Transparent"
+              BorderThickness="0"
+              Opacity="0.7"
+              IsVisible="{Binding IsClosable,
+                RelativeSource={RelativeSource AncestorType=local:InfoBar}}"
+              Click="CloseButton_Click" />
+    </Grid>
+  </Border>
+</UserControl>

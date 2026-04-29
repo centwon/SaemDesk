@@ -1,0 +1,136 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SaemDesk.ViewModels.Pages"
+             xmlns:models="using:SaemDesk.Models"
+             x:Class="SaemDesk.Views.Pages.StudentSpecPage"
+             x:DataType="vm:StudentSpecPageVM"
+             Classes="page">
+
+  <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+    <!-- ── 헤더 ──────────────────────────────────────────── -->
+    <StackPanel Grid.Row="0" Margin="20,18,20,4" Spacing="2">
+      <TextBlock Text="학생부 특기사항" FontSize="22" FontWeight="SemiBold"/>
+      <TextBlock Text="NEIS 입력용 최종 기록 — 교과세특 / 자율·동아리·진로·봉사 / 개인별세특 / 종합의견"
+                 FontSize="12"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+    </StackPanel>
+
+    <!-- ── 필터 / 검색 / 작업 ──────────────────────────── -->
+    <Grid Grid.Row="1" Margin="20,12,20,8"
+          ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,Auto,Auto">
+      <TextBlock Grid.Column="0" Text="학년도" VerticalAlignment="Center" Margin="0,0,6,0"/>
+      <NumericUpDown Grid.Column="1"
+                     Value="{Binding WorkYear, Mode=TwoWay}"
+                     Minimum="2000" Maximum="2100" Increment="1"
+                     ShowButtonSpinner="True"
+                     Width="120" Margin="0,0,12,0"/>
+
+      <TextBlock Grid.Column="2" Text="카테고리" VerticalAlignment="Center" Margin="0,0,6,0"/>
+      <ComboBox Grid.Column="3"
+                ItemsSource="{Binding Categories}"
+                SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+                MinWidth="130" Margin="0,0,12,0"/>
+
+      <Button Grid.Column="4" Content="조회"
+              Classes="accent"
+              Padding="14,6"
+              Command="{Binding QueryCommand}"
+              Margin="0,0,12,0"/>
+
+      <TextBox Grid.Column="5"
+               Text="{Binding SearchText, Mode=TwoWay}"
+               PlaceholderText="제목/내용/과목 검색…"
+               MinWidth="180"
+               Margin="0,0,12,0"/>
+
+      <Button Grid.Column="7" Content="삭제"
+              Padding="12,6"
+              IsEnabled="{Binding HasSelection}"
+              Command="{Binding DeleteSelectedCommand}"
+              Margin="0,0,6,0"/>
+      <Button Grid.Column="8" Content="새로고침"
+              Padding="12,6"
+              Command="{Binding QueryCommand}"/>
+    </Grid>
+
+    <!-- ── 본문 (목록) ───────────────────────────────────── -->
+    <Grid Grid.Row="2" Margin="20,0,20,8">
+      <ListBox ItemsSource="{Binding Specs}"
+               SelectedItem="{Binding SelectedSpec, Mode=TwoWay}"
+               Background="Transparent"
+               BorderThickness="1"
+               BorderBrush="{DynamicResource ContentSeparatorBrush}">
+        <ListBox.ItemTemplate>
+          <DataTemplate DataType="models:StudentSpecial">
+            <Grid ColumnDefinitions="100,90,*,Auto" Margin="6,4">
+              <TextBlock Grid.Column="0" Text="{Binding StudentID}"
+                         FontSize="12" Foreground="{DynamicResource SystemBaseMediumColor}"
+                         VerticalAlignment="Center"/>
+              <Border Grid.Column="1"
+                      CornerRadius="3" Padding="6,1" Margin="6,0"
+                      Background="{DynamicResource SystemAccentColor}"
+                      Height="20" VerticalAlignment="Center">
+                <TextBlock Text="{Binding Type}"
+                           FontSize="10" Foreground="White"
+                           VerticalAlignment="Center"/>
+              </Border>
+              <StackPanel Grid.Column="2" Spacing="2" Margin="6,0">
+                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="13"
+                           TextTrimming="CharacterEllipsis"/>
+                <TextBlock Text="{Binding Content}"
+                           FontSize="11"
+                           Foreground="{DynamicResource SystemBaseMediumColor}"
+                           TextTrimming="CharacterEllipsis"
+                           MaxLines="2"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+              <StackPanel Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" Spacing="2">
+                <TextBlock Text="{Binding Date}"
+                           FontSize="10"
+                           Foreground="{DynamicResource SystemBaseMediumColor}"
+                           HorizontalAlignment="Right"/>
+                <TextBlock Text="확정"
+                           FontSize="9"
+                           Foreground="#2A8F2A"
+                           HorizontalAlignment="Right"
+                           IsVisible="{Binding IsFinalized}"/>
+              </StackPanel>
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <!-- 빈 상태 -->
+      <TextBlock Text="조회된 특기사항이 없습니다. 학년도와 카테고리를 확인 후 다시 조회해 주세요."
+                 IsVisible="{Binding IsEmpty}"
+                 FontSize="13"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"/>
+
+      <!-- 로딩 -->
+      <Border IsVisible="{Binding IsLoading}"
+              Background="#33000000">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+          <ProgressBar Width="160" IsIndeterminate="True"/>
+          <TextBlock Text="조회 중…" Foreground="White" HorizontalAlignment="Center"/>
+        </StackPanel>
+      </Border>
+    </Grid>
+
+    <!-- ── 상태바 ────────────────────────────────────────── -->
+    <Grid Grid.Row="3" Margin="20,0,20,16" ColumnDefinitions="*,Auto">
+      <TextBlock Grid.Column="0"
+                 Text="{Binding StatusText}"
+                 FontSize="11"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"
+                 VerticalAlignment="Center"/>
+      <TextBlock Grid.Column="1"
+                 Text="{Binding ErrorText}"
+                 FontSize="11"
+                 Foreground="#D9372A"
+                 VerticalAlignment="Center"/>
+    </Grid>
+  </Grid>
+</UserControl>

@@ -1,0 +1,103 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SaemDesk.Views.Dialogs.StudentEditDialog"
+        Title="학생 추가"
+        Width="400" Height="340"
+        MinWidth="360" MinHeight="300"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        ShowInTaskbar="False">
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="20">
+
+    <!-- ── 헤더 ──────────────────────────────────────────── -->
+    <StackPanel Grid.Row="0" Margin="0,0,0,16" Spacing="2">
+      <TextBlock x:Name="TitleText"
+                 FontSize="18"
+                 FontWeight="SemiBold"/>
+      <TextBlock x:Name="SubTitleText"
+                 FontSize="13"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+    </StackPanel>
+
+    <!-- ── 폼 ────────────────────────────────────────────── -->
+    <Grid Grid.Row="1"
+          ColumnDefinitions="Auto,*"
+          RowDefinitions="Auto,Auto,Auto,Auto"
+          Margin="0,0,0,8">
+      <Grid.Styles>
+        <Style Selector="TextBlock.lbl">
+          <Setter Property="VerticalAlignment" Value="Center"/>
+          <Setter Property="Width" Value="70"/>
+          <Setter Property="Margin" Value="0,0,10,12"/>
+          <Setter Property="FontSize" Value="13"/>
+        </Style>
+        <Style Selector="TextBox, NumericUpDown, ComboBox">
+          <Setter Property="Margin" Value="0,0,0,12"/>
+          <Setter Property="FontSize" Value="13"/>
+        </Style>
+      </Grid.Styles>
+
+      <!-- 번호 -->
+      <TextBlock Grid.Row="0" Grid.Column="0" Text="번호" Classes="lbl"/>
+      <NumericUpDown Grid.Row="0" Grid.Column="1"
+                     x:Name="NumberBox"
+                     Minimum="1" Maximum="100" Increment="1"
+                     Value="1"/>
+
+      <!-- 이름 -->
+      <TextBlock Grid.Row="1" Grid.Column="0" Text="이름" Classes="lbl"/>
+      <TextBox   Grid.Row="1" Grid.Column="1"
+                 x:Name="NameBox"
+                 PlaceholderText="학생 이름 입력"/>
+
+      <!-- 성별 -->
+      <TextBlock Grid.Row="2" Grid.Column="0" Text="성별" Classes="lbl"/>
+      <ComboBox  Grid.Row="2" Grid.Column="1"
+                 x:Name="SexCombo"
+                 SelectedIndex="0"
+                 HorizontalAlignment="Stretch">
+        <ComboBoxItem Content="남"/>
+        <ComboBoxItem Content="여"/>
+      </ComboBox>
+
+      <!-- 상태 -->
+      <TextBlock Grid.Row="3" Grid.Column="0" Text="상태" Classes="lbl"/>
+      <ComboBox  Grid.Row="3" Grid.Column="1"
+                 x:Name="StatusCombo"
+                 SelectedIndex="0"
+                 HorizontalAlignment="Stretch">
+        <ComboBoxItem Content="재학"/>
+        <ComboBoxItem Content="전학"/>
+        <ComboBoxItem Content="졸업"/>
+        <ComboBoxItem Content="휴학"/>
+      </ComboBox>
+    </Grid>
+
+    <!-- 오류 메시지 -->
+    <TextBlock x:Name="ErrorText"
+               Grid.Row="1"
+               VerticalAlignment="Bottom"
+               Foreground="{DynamicResource SystemErrorTextColor}"
+               FontSize="12"
+               Margin="0,0,0,0"
+               IsVisible="False"/>
+
+    <!-- ── 버튼 바 ───────────────────────────────────────── -->
+    <StackPanel Grid.Row="2"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                Spacing="8">
+      <Button x:Name="CancelButton"
+              Content="취소"
+              Padding="16,8"
+              Click="OnCancel"/>
+      <Button x:Name="SaveButton"
+              Content="저장"
+              Classes="accent"
+              Padding="16,8"
+              Click="OnSave"/>
+    </StackPanel>
+
+  </Grid>
+</Window>

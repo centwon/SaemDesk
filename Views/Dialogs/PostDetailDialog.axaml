@@ -1,0 +1,68 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:SaemDesk.Views.Controls"
+        x:Class="SaemDesk.Views.Dialogs.PostDetailDialog"
+        Title="게시글 보기"
+        Width="900" Height="680"
+        MinWidth="700" MinHeight="500"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="20">
+
+    <!-- 헤더 -->
+    <Border Grid.Row="0"
+            Padding="16"
+            Margin="0,0,0,8"
+            CornerRadius="8"
+            Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+
+        <Border Grid.Column="0"
+                VerticalAlignment="Center"
+                Padding="10,4"
+                Margin="0,0,12,0"
+                CornerRadius="4"
+                MinWidth="64"
+                Background="{StaticResource BrandPrimaryBrush}">
+          <TextBlock x:Name="CategoryText"
+                     FontSize="12"
+                     Foreground="White"
+                     HorizontalAlignment="Center"/>
+        </Border>
+
+        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="3">
+          <TextBlock x:Name="TitleText"
+                     FontSize="18"
+                     FontWeight="SemiBold"
+                     TextTrimming="CharacterEllipsis"/>
+          <TextBlock x:Name="MetaText"
+                     FontSize="12"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+        </StackPanel>
+
+      </Grid>
+    </Border>
+
+    <!-- 본문 (Jodit 읽기전용) -->
+    <Border Grid.Row="1"
+            BorderBrush="{DynamicResource ContentSeparatorBrush}"
+            BorderThickness="1"
+            CornerRadius="6">
+      <controls:JoditEditor x:Name="Viewer"
+                            Mode="ReadOnly"/>
+    </Border>
+
+    <!-- 버튼 -->
+    <StackPanel Grid.Row="2"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                Spacing="8"
+                Margin="0,12,0,0">
+      <Button Content="닫기"
+              Padding="16,8"
+              Click="OnClose"/>
+    </StackPanel>
+
+  </Grid>
+</Window>

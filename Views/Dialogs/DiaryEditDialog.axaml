@@ -1,0 +1,112 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SaemDesk.Views.Dialogs.DiaryEditDialog"
+        Title="학급일지 작성"
+        Width="500" Height="460"
+        MinWidth="420" MinHeight="380"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        ShowInTaskbar="False">
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="20">
+
+    <!-- ── 헤더 ──────────────────────────────────────────── -->
+    <StackPanel Grid.Row="0" Margin="0,0,0,16" Spacing="2">
+      <TextBlock x:Name="TitleText"
+                 FontSize="18"
+                 FontWeight="SemiBold"/>
+      <TextBlock x:Name="SubTitleText"
+                 FontSize="13"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+    </StackPanel>
+
+    <!-- ── 폼 ────────────────────────────────────────────── -->
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+      <StackPanel Spacing="12">
+
+        <!-- 출결 섹션 -->
+        <TextBlock Text="출결 현황"
+                   FontSize="13"
+                   FontWeight="SemiBold"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"/>
+
+        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto"
+              Margin="0,0,0,4">
+          <Grid.Styles>
+            <Style Selector="TextBlock.lbl">
+              <Setter Property="VerticalAlignment" Value="Center"/>
+              <Setter Property="Width" Value="80"/>
+              <Setter Property="Margin" Value="0,0,8,8"/>
+              <Setter Property="FontSize" Value="13"/>
+            </Style>
+            <Style Selector="TextBox">
+              <Setter Property="Margin" Value="0,0,0,8"/>
+              <Setter Property="FontSize" Value="13"/>
+            </Style>
+          </Grid.Styles>
+
+          <TextBlock Grid.Row="0" Grid.Column="0"
+                     Text="결석" Classes="lbl"/>
+          <TextBox   Grid.Row="0" Grid.Column="1"
+                     x:Name="AbsentBox"
+                     PlaceholderText="예) 홍길동, 이순신"/>
+
+          <TextBlock Grid.Row="1" Grid.Column="0"
+                     Text="지각" Classes="lbl"/>
+          <TextBox   Grid.Row="1" Grid.Column="1"
+                     x:Name="LateBox"
+                     PlaceholderText="예) 홍길동"/>
+
+          <TextBlock Grid.Row="2" Grid.Column="0"
+                     Text="조퇴" Classes="lbl"/>
+          <TextBox   Grid.Row="2" Grid.Column="1"
+                     x:Name="LeaveEarlyBox"
+                     PlaceholderText="예) 이순신"/>
+        </Grid>
+
+        <!-- 메모 섹션 -->
+        <TextBlock Text="메모"
+                   FontSize="13"
+                   FontWeight="SemiBold"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"/>
+
+        <TextBox x:Name="MemoBox"
+                 PlaceholderText="오늘 학급 특이사항, 교사 메모 등"
+                 AcceptsReturn="True"
+                 Height="100"
+                 TextWrapping="Wrap"/>
+
+        <!-- 알림장 섹션 -->
+        <TextBlock Text="알림장"
+                   FontSize="13"
+                   FontWeight="SemiBold"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"/>
+
+        <TextBox x:Name="NoticeBox"
+                 PlaceholderText="가정통신사항, 준비물, 숙제 등"
+                 AcceptsReturn="True"
+                 Height="80"
+                 TextWrapping="Wrap"/>
+
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- ── 버튼 바 ───────────────────────────────────────── -->
+    <StackPanel Grid.Row="2"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                Spacing="8"
+                Margin="0,16,0,0">
+      <Button x:Name="CancelButton"
+              Content="취소"
+              Padding="16,8"
+              Click="OnCancel"/>
+      <Button x:Name="SaveButton"
+              Content="저장"
+              Classes="accent"
+              Padding="16,8"
+              Click="OnSave"/>
+    </StackPanel>
+
+  </Grid>
+</Window>

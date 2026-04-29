@@ -1,0 +1,146 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SaemDesk.ViewModels.Pages"
+             xmlns:models="using:SaemDesk.Models"
+             x:Class="SaemDesk.Views.Pages.StudentLogPage"
+             x:DataType="vm:StudentLogPageVM"
+             Classes="page">
+
+  <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+    <!-- ── 헤더 ──────────────────────────────────────────── -->
+    <StackPanel Grid.Row="0" Margin="20,18,20,4" Spacing="2">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <TextBlock Text="◉" FontSize="22"
+                   Foreground="{StaticResource BrandPrimaryBrush}"
+                   VerticalAlignment="Center"/>
+        <TextBlock Text="학생 누가기록" FontSize="22" FontWeight="SemiBold"
+                   VerticalAlignment="Center"/>
+        <TextBlock Text="{Binding ClassHeaderText}"
+                   FontSize="13"
+                   VerticalAlignment="Center"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                   Margin="6,0,0,0"/>
+      </StackPanel>
+      <TextBlock Text="학급 단위 활동 기록 — 학생부 작성의 근거자료가 됩니다."
+                 FontSize="12"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+    </StackPanel>
+
+    <!-- ── 필터 / 검색 / 작업 ──────────────────────────── -->
+    <Grid Grid.Row="1" Margin="20,12,20,8"
+          ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,*,Auto,Auto,Auto,Auto">
+      <TextBlock Grid.Column="0" Text="기간"
+                 VerticalAlignment="Center" Margin="0,0,6,0"/>
+      <DatePicker Grid.Column="1"
+                  SelectedDate="{Binding StartDate, Mode=TwoWay}"
+                  Margin="0,0,6,0"/>
+      <TextBlock Grid.Column="2" Text="~" VerticalAlignment="Center" Margin="0,0,6,0"/>
+      <DatePicker Grid.Column="3"
+                  SelectedDate="{Binding EndDate, Mode=TwoWay}"
+                  Margin="0,0,12,0"/>
+
+      <TextBlock Grid.Column="4" Text="카테고리" VerticalAlignment="Center" Margin="0,0,6,0"/>
+      <ComboBox Grid.Column="5"
+                ItemsSource="{Binding Categories}"
+                SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+                MinWidth="120" Margin="0,0,12,0"/>
+
+      <Button Grid.Column="6" Content="조회"
+              Classes="accent"
+              Padding="14,6"
+              Command="{Binding QueryCommand}"
+              Margin="0,0,12,0"/>
+
+      <TextBox Grid.Column="7"
+               Text="{Binding SearchText, Mode=TwoWay}"
+               PlaceholderText="제목/내용/학생 ID 검색…"
+               MinWidth="180" Margin="0,0,12,0"/>
+
+      <Button Grid.Column="8"  Content="추가"  Padding="12,6"
+              Command="{Binding AddLogCommand}"
+              Margin="0,0,6,0"/>
+      <Button Grid.Column="9"  Content="편집"  Padding="12,6"
+              IsEnabled="{Binding HasSelection}"
+              Command="{Binding EditSelectedCommand}"
+              Margin="0,0,6,0"/>
+      <Button Grid.Column="10" Content="삭제"  Padding="12,6"
+              IsEnabled="{Binding HasSelection}"
+              Command="{Binding DeleteSelectedCommand}"
+              Margin="0,0,6,0"/>
+      <Button Grid.Column="11" Content="새로고침" Padding="12,6"
+              Command="{Binding QueryCommand}"/>
+    </Grid>
+
+    <!-- ── 본문 (목록) ───────────────────────────────────── -->
+    <Grid Grid.Row="2" Margin="20,0,20,8">
+      <ListBox ItemsSource="{Binding Logs}"
+               SelectedItem="{Binding SelectedLog, Mode=TwoWay}"
+               Background="Transparent"
+               BorderThickness="1"
+               BorderBrush="{DynamicResource ContentSeparatorBrush}">
+        <ListBox.ItemTemplate>
+          <DataTemplate DataType="models:StudentLog">
+            <Grid ColumnDefinitions="100,90,*,Auto" Margin="6,4">
+              <TextBlock Grid.Column="0" Text="{Binding StudentID}"
+                         FontSize="12" Foreground="{DynamicResource SystemBaseMediumColor}"
+                         VerticalAlignment="Center"/>
+              <Border Grid.Column="1"
+                      CornerRadius="3" Padding="6,1" Margin="6,0"
+                      Background="{DynamicResource SystemAccentColor}"
+                      Height="20" VerticalAlignment="Center">
+                <TextBlock Text="{Binding Category}"
+                           FontSize="10" Foreground="White"
+                           VerticalAlignment="Center"/>
+              </Border>
+              <StackPanel Grid.Column="2" Spacing="2" Margin="6,0">
+                <TextBlock Text="{Binding ActivityName}"
+                           FontWeight="SemiBold" FontSize="13"
+                           TextTrimming="CharacterEllipsis"/>
+                <TextBlock Text="{Binding Log}"
+                           FontSize="11"
+                           Foreground="{DynamicResource SystemBaseMediumColor}"
+                           TextTrimming="CharacterEllipsis"
+                           MaxLines="2"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+              <TextBlock Grid.Column="3"
+                         Text="{Binding Date}"
+                         FontSize="10"
+                         Foreground="{DynamicResource SystemBaseMediumColor}"
+                         VerticalAlignment="Center"
+                         HorizontalAlignment="Right"/>
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <TextBlock Text="조회된 누가기록이 없습니다. 기간/카테고리를 확인하거나 ‘추가’ 로 새 기록을 작성하세요."
+                 IsVisible="{Binding IsEmpty}"
+                 FontSize="13"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 TextAlignment="Center"
+                 TextWrapping="Wrap"
+                 MaxWidth="420"/>
+
+      <Border IsVisible="{Binding IsLoading}" Background="#33000000">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+          <ProgressBar Width="160" IsIndeterminate="True"/>
+          <TextBlock Text="조회 중…" Foreground="White" HorizontalAlignment="Center"/>
+        </StackPanel>
+      </Border>
+    </Grid>
+
+    <!-- ── 상태바 ────────────────────────────────────────── -->
+    <Grid Grid.Row="3" Margin="20,0,20,16" ColumnDefinitions="*,Auto">
+      <TextBlock Grid.Column="0" Text="{Binding StatusText}"
+                 FontSize="11" Foreground="{DynamicResource SystemBaseMediumColor}"
+                 VerticalAlignment="Center"/>
+      <TextBlock Grid.Column="1" Text="{Binding ErrorText}"
+                 FontSize="11" Foreground="#D9372A"
+                 VerticalAlignment="Center"/>
+    </Grid>
+  </Grid>
+</UserControl>
