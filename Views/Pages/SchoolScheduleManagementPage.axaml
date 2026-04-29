@@ -5,27 +5,198 @@
              x:DataType="vm:SchoolScheduleManagementPageVM"
              Classes="page">
 
-  <ScrollViewer>
-    <StackPanel Margin="24,18" Spacing="10" MaxWidth="720">
-      <TextBlock Text="학사일정 관리 (편집)" FontSize="22" FontWeight="SemiBold"/>
-      <TextBlock Text="{Binding StatusText}"
+  <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="20,16">
+
+    <!-- 헤더 -->
+    <StackPanel Grid.Row="0" Spacing="2" Margin="0,0,0,12">
+      <TextBlock Text="📅 학사일정 관리" FontSize="22" FontWeight="SemiBold"/>
+      <TextBlock Text="NEIS 학사일정을 조회·편집하고 수동 추가합니다."
                  FontSize="12"
                  Foreground="{DynamicResource SystemBaseMediumColor}"/>
-
-      <Border Classes="card" Padding="16,14" Margin="0,8,0,0">
-        <StackPanel Spacing="6">
-          <TextBlock Text="이식 예정 기능" FontWeight="SemiBold"/>
-          <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource SystemBaseMediumColor}">
-            • NEIS 가져온 일정 직접 편집/추가/삭제
-          </TextBlock>
-          <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource SystemBaseMediumColor}">
-            • 휴업일 토글, 학기 경계(개학·종업) 지정
-          </TextBlock>
-          <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource SystemBaseMediumColor}">
-            • Google Calendar 일괄 업로드
-          </TextBlock>
-        </StackPanel>
-      </Border>
     </StackPanel>
-  </ScrollViewer>
+
+    <!-- 필터 + 버튼 -->
+    <Border Grid.Row="1"
+            Padding="12,10"
+            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+            BorderBrush="{DynamicResource ContentSeparatorBrush}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Margin="0,0,0,10">
+      <StackPanel Spacing="8">
+
+        <Grid ColumnDefinitions="Auto,120,16,Auto,160,16,Auto,160,*">
+          <TextBlock Grid.Column="0" Text="학년도" VerticalAlignment="Center" Margin="0,0,8,0"/>
+          <ComboBox  Grid.Column="1"
+                     ItemsSource="{Binding Years}"
+                     SelectedItem="{Binding SelectedYear, Mode=TwoWay}"
+                     HorizontalAlignment="Stretch"/>
+          <TextBlock Grid.Column="3" Text="시작일" VerticalAlignment="Center" Margin="0,0,8,0"/>
+          <DatePicker Grid.Column="4"
+                      SelectedDate="{Binding StartDate, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch"/>
+          <TextBlock Grid.Column="6" Text="종료일" VerticalAlignment="Center" Margin="0,0,8,0"/>
+          <DatePicker Grid.Column="7"
+                      SelectedDate="{Binding EndDate, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch"/>
+        </Grid>
+
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <Button Content="🔍 조회" Classes="accent" Padding="12,6"
+                  Command="{Binding SearchCommand}"/>
+          <Button Content="🔄 NEIS 동기화" Padding="12,6"
+                  Command="{Binding SyncFromNeisCommand}"/>
+          <Border Width="1" Background="{DynamicResource ContentSeparatorBrush}" Margin="4,0"/>
+          <Button Content="➕ 수동 추가" Padding="12,6"
+                  Command="{Binding AddManualCommand}"/>
+          <Button Content="💾 저장" Padding="12,6"
+                  Command="{Binding SaveSelectedCommand}"
+                  HotKey="Ctrl+S"
+                  ToolTip.Tip="선택 + 변경된 항목 저장 (Ctrl+S)"/>
+          <Button Content="🗑 삭제" Padding="12,6"
+                  Command="{Binding DeleteSelectedCommand}"/>
+
+          <ProgressBar Width="120" IsIndeterminate="True"
+                       IsVisible="{Binding IsBusy}"
+                       VerticalAlignment="Center" Margin="8,0,0,0"/>
+          <TextBlock Text="{Binding StatusText}"
+                     VerticalAlignment="Center"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"
+                     Margin="6,0,0,0"/>
+        </StackPanel>
+      </StackPanel>
+    </Border>
+
+    <!-- 목록 -->
+    <Border Grid.Row="2"
+            BorderThickness="1"
+            BorderBrush="{DynamicResource ContentSeparatorBrush}"
+            CornerRadius="6">
+      <Grid>
+
+        <StackPanel IsVisible="{Binding IsEmpty}"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Spacing="8">
+          <TextBlock Text="조회된 학사일정이 없습니다."
+                     FontSize="15"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+          <TextBlock Text="학년도/기간을 선택하고 ‘조회’를 눌러주세요."
+                     FontSize="12"
+                     Foreground="{DynamicResource SystemBaseMediumLowColor}"/>
+        </StackPanel>
+
+        <Grid IsVisible="{Binding !IsEmpty}" RowDefinitions="Auto,*">
+          <!-- 헤더 -->
+          <Grid Grid.Row="0"
+                ColumnDefinitions="44,140,*,110,250,60"
+                Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                Margin="0" Height="36">
+            <CheckBox Grid.Column="0"
+                      IsChecked="{Binding IsSelectAll, Mode=OneWay}"
+                      Command="{Binding ToggleSelectAllCommand}"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="1" Text="날짜"           FontWeight="SemiBold" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="2" Text="행사명 / 내용"  FontWeight="SemiBold" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="3" Text="수업공제일"     FontWeight="SemiBold" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="4" Text="대상학년"       FontWeight="SemiBold" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="5" Text="구분"           FontWeight="SemiBold" VerticalAlignment="Center"
+                       HorizontalAlignment="Center"/>
+          </Grid>
+
+          <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Items}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="vm:SchoolScheduleItemVM">
+                  <Border BorderThickness="0,0,0,1"
+                          BorderBrush="{DynamicResource ContentSeparatorBrush}"
+                          Padding="0,6">
+                    <Grid ColumnDefinitions="44,140,*,110,250,60">
+                      <CheckBox Grid.Column="0"
+                                IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+
+                      <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding DisplayDate}" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding DisplayDayOfWeek}"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource SystemBaseMediumColor}"/>
+                      </StackPanel>
+
+                      <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="2"
+                                  Margin="0,0,8,0">
+                        <TextBox Text="{Binding EventName, Mode=TwoWay}"
+                                 FontWeight="SemiBold"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 Padding="2"/>
+                        <TextBox Text="{Binding EventContent, Mode=TwoWay}"
+                                 FontSize="11"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 Padding="2"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+                      </StackPanel>
+
+                      <ComboBox Grid.Column="3"
+                                SelectedItem="{Binding SbtrType, Mode=TwoWay}"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Stretch">
+                        <ComboBoxItem>해당없음</ComboBoxItem>
+                        <ComboBoxItem>휴업일</ComboBoxItem>
+                        <ComboBoxItem>공휴일</ComboBoxItem>
+                      </ComboBox>
+
+                      <StackPanel Grid.Column="4" Orientation="Horizontal"
+                                  Spacing="6" VerticalAlignment="Center">
+                        <CheckBox Content="1" IsChecked="{Binding G1, Mode=TwoWay}" MinWidth="0"/>
+                        <CheckBox Content="2" IsChecked="{Binding G2, Mode=TwoWay}" MinWidth="0"/>
+                        <CheckBox Content="3" IsChecked="{Binding G3, Mode=TwoWay}" MinWidth="0"/>
+                        <CheckBox Content="4" IsChecked="{Binding G4, Mode=TwoWay}" MinWidth="0"/>
+                        <CheckBox Content="5" IsChecked="{Binding G5, Mode=TwoWay}" MinWidth="0"/>
+                        <CheckBox Content="6" IsChecked="{Binding G6, Mode=TwoWay}" MinWidth="0"/>
+                      </StackPanel>
+
+                      <StackPanel Grid.Column="5" Orientation="Horizontal"
+                                  HorizontalAlignment="Center" VerticalAlignment="Center"
+                                  Spacing="3">
+                        <TextBlock Text="{Binding ManualIcon}" ToolTip.Tip="수동/NEIS"/>
+                        <TextBlock Text="{Binding ModifiedIcon}"
+                                   Foreground="#E08F2A"
+                                   ToolTip.Tip="수정됨"/>
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Grid>
+      </Grid>
+    </Border>
+
+    <!-- 상태바 -->
+    <Grid Grid.Row="3"
+          ColumnDefinitions="*,Auto,Auto"
+          Margin="0,8,0,0"
+          Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+          Height="32">
+      <TextBlock Grid.Column="0"
+                 Text="{Binding ItemCount, StringFormat=총 {0}개 항목}"
+                 VerticalAlignment="Center" Margin="10,0,0,0"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+      <TextBlock Grid.Column="1"
+                 Text="{Binding SelectedCount, StringFormat=선택: {0}개}"
+                 VerticalAlignment="Center" Margin="14,0"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+      <TextBlock Grid.Column="2"
+                 Text="{Binding ErrorText}"
+                 IsVisible="{Binding ErrorText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                 VerticalAlignment="Center" Margin="0,0,10,0"
+                 Foreground="#D9372A"/>
+    </Grid>
+  </Grid>
 </UserControl>

@@ -1,25 +1,104 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:models="using:SaemDesk.Models"
              x:Class="SaemDesk.Views.Controls.MemoBoard">
 
-  <Border BorderThickness="1"
-          BorderBrush="{DynamicResource ContentSeparatorBrush}"
+  <Border BorderBrush="CornflowerBlue"
+          BorderThickness="1"
           CornerRadius="6"
-          Padding="14,12"
-          MinHeight="200">
-    <StackPanel Spacing="6">
-      <TextBlock Text="📌 메모보드"
-                 FontWeight="SemiBold"
-                 FontSize="14"/>
-      <TextBlock Text="Phase 5 메모보드 컨트롤 이식 예정"
-                 FontSize="12"
-                 Foreground="{DynamicResource SystemBaseMediumColor}"
-                 TextWrapping="Wrap"/>
-      <TextBlock TextWrapping="Wrap"
-                 FontSize="11"
-                 Foreground="{DynamicResource SystemBaseMediumLowColor}">
-        • 카테고리별 메모 카드, 드래그/리사이즈 배치, Jodit 본문, 댓글
-      </TextBlock>
-    </StackPanel>
+          Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+    <Grid RowDefinitions="36,*">
+
+      <!-- 헤더 -->
+      <Border Grid.Row="0"
+              BorderBrush="CornflowerBlue"
+              BorderThickness="0,0,0,1"
+              Background="#E6E6FA"
+              CornerRadius="6,6,0,0">
+        <Grid ColumnDefinitions="Auto,Auto,*,Auto" Margin="6,2">
+          <TextBlock Grid.Column="0" Text="📝 메모"
+                     FontWeight="Bold" FontSize="14"
+                     VerticalAlignment="Center"
+                     Foreground="#222"/>
+          <ComboBox Grid.Column="1"
+                    Name="CategoryFilter"
+                    MinWidth="80"
+                    Margin="8,0,0,0"
+                    VerticalAlignment="Center"
+                    SelectedIndex="0"
+                    SelectionChanged="OnCategoryChanged">
+            <ComboBoxItem Content="전체" Tag=""/>
+            <ComboBoxItem Content="수업" Tag="수업"/>
+            <ComboBoxItem Content="학급" Tag="학급"/>
+            <ComboBoxItem Content="업무" Tag="업무"/>
+            <ComboBoxItem Content="개인" Tag="개인"/>
+          </ComboBox>
+          <Button Grid.Column="3"
+                  Content="＋ 추가"
+                  Padding="8,2"
+                  Background="Transparent"
+                  Click="OnAddClick"
+                  ToolTip.Tip="새 메모 추가"/>
+        </Grid>
+      </Border>
+
+      <!-- 목록 -->
+      <Grid Grid.Row="1">
+        <ScrollViewer Name="ListScroll"
+                      VerticalScrollBarVisibility="Auto">
+          <ItemsControl Name="ItemsView">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate DataType="models:Post">
+                <Border BorderThickness="0,0,0,1"
+                        BorderBrush="{DynamicResource ContentSeparatorBrush}"
+                        Padding="8,6">
+                  <StackPanel Spacing="2">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                      <Border Grid.Column="0"
+                              Background="#5B7FB8"
+                              CornerRadius="3"
+                              Padding="4,1"
+                              VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Category}"
+                                   FontSize="10"
+                                   Foreground="White"/>
+                      </Border>
+                      <TextBlock Grid.Column="1"
+                                 Text="{Binding Title}"
+                                 FontWeight="SemiBold"
+                                 Margin="6,0,0,0"
+                                 TextTrimming="CharacterEllipsis"/>
+                      <TextBlock Grid.Column="2"
+                                 Text="{Binding DateTimeDisplay}"
+                                 FontSize="10"
+                                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+                    </Grid>
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+
+        <StackPanel Name="EmptyState"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    IsVisible="False">
+          <TextBlock Text="🗒"
+                     FontSize="32"
+                     Foreground="{DynamicResource SystemBaseMediumLowColor}"
+                     HorizontalAlignment="Center"/>
+          <TextBlock Text="메모가 없습니다"
+                     FontSize="13"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"
+                     Margin="0,8,0,0"/>
+        </StackPanel>
+
+        <ProgressBar Name="LoadingBar"
+                     IsIndeterminate="True"
+                     IsVisible="False"
+                     VerticalAlignment="Top"/>
+      </Grid>
+    </Grid>
   </Border>
 </UserControl>
