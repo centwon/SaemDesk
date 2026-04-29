@@ -40,9 +40,19 @@
 ### Changed
 - **NEIS API 키 입력 UI 제거** — Google OAuth 자격증명과 동일하게 secrets.json (neis_api_key) 빌드 시 주입 방식으로 일원화. `Settings.NeisApiKey` 는 더 이상 DB 에 영구 저장하지 않으며, 빌드 시 secrets.json 의 값이 그대로 유지됩니다.
 
+### Added — 통합 내보내기 페이지
+- `UnifiedExportPage` + `UnifiedExportPageVM` — 학급(학년도/학년/반) × 데이터 타입 4종 × 형식 4종 콤보 선택 → `UnifiedExportService.ExportClassAsync` 위임. 좌석/학생카드 선택 시 Excel 비활성, 누가/학생부만 CSV 가용.
+- 좌측 트리에 **통합 내보내기** 항목 노출 + ViewLocator 등록.
+
+### Added — Phase 5 잔여 placeholder
+- `ProgressMatrixPage` / VM (수업 그룹 — 본 이식 대기).
+- `SchoolScheduleManagementPage` / VM (편집용 — 기존 CalendarPage 는 보기 전용으로 분리).
+- `Views/Controls/MemoBoard` 컨트롤 (Board 탭에서 사용 예정).
+
 ### Build
 - TrimmerRoots.xml 에 QuestPDF · MiniExcel 어셈블리 보호 등록(IL2104 trim 경고 보강).
-- `dotnet publish -r win-x64 -c Release` Native AOT 단일 파일 빌드 검증 — 31MB exe 생성.
+- `dotnet publish -r win-x64 -c Release` **Native AOT 재검증** — 단일 파일 33MB exe 생성, 출시 후 4초 스모크 테스트 통과 (정상 윈도우 표시).
+- 잔존 경고: IL3000 (QuestPDF Assembly.Location — 자체 코드는 AppContext.BaseDirectory 사용으로 영향 없음), IL2104/IL3053 (QuestPDF·MiniExcel — TrimmerRoots 보호로 노이즈 처리).
 - 모든 청크 종료 시점 빌드 0 경고 / 0 오류 유지.
 
 ### 진행 상황 (chunk 단위)
@@ -51,13 +61,16 @@
 - ✅ Chunk B — 학급 그룹 핵심 4종 (학생 누가기록 / 학생부 특기사항 / 자리 배정 / 학생 추가)
 - ✅ Chunk B-Add — Excel 가져오기 + 템플릿 다운로드
 - ✅ Chunk C — 수업 그룹 핵심 3종 + 편집 다이얼로그 2종
+- ✅ Chunk D — 통합 내보내기 페이지
+- ✅ Phase 6 — Native AOT publish 재검증 통과
+- ⏳ Phase 5 잔여 본 이식 (ProgressMatrix / SchoolScheduleManagement / MemoBoard)
 
 ### 미진행 (남은 청크)
 - Chunk D — 동아리 그룹 (ClubHomePage / ClubManagementPage / ClubActivityPage)
 - Chunk E — 대형 페이지 (AnnualLessonPlanPage 867 줄, ProgressMatrixPage)
 - Chunk F — 업무 그룹 (PageSchoolWork)
-- TeacherTimetablePage / SchoolScheduleManagementPage 보강
-- AOT publish 재검증 + 시나리오 스모크 테스트
+- TeacherTimetablePage / SchoolScheduleManagementPage 본 이식
+- 시나리오 스모크 테스트 (DB CRUD / Google OAuth / Jodit / Excel/PDF 내보내기 / NEIS / 좌석 저장복원)
 
 ---
 
