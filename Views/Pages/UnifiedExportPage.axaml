@@ -1,0 +1,103 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SaemDesk.ViewModels.Pages"
+             x:Class="SaemDesk.Views.Pages.UnifiedExportPage"
+             x:DataType="vm:UnifiedExportPageVM"
+             Classes="page">
+
+  <Grid RowDefinitions="Auto,Auto,Auto,Auto,*" Margin="20,18,20,16">
+
+    <StackPanel Grid.Row="0" Spacing="2" Margin="0,0,0,12">
+      <TextBlock Text="통합 내보내기"
+                 FontSize="22" FontWeight="SemiBold"/>
+      <TextBlock Text="학급 단위로 누가기록·학생부 특기사항·좌석배정·학생카드를 Excel/PDF/HTML/CSV 로 일괄 내보냅니다."
+                 FontSize="12"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+    </StackPanel>
+
+    <!-- 학급 -->
+    <Border Grid.Row="1"
+            Padding="14,12"
+            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+            BorderBrush="{DynamicResource ContentSeparatorBrush}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Margin="0,0,0,10">
+      <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,*">
+        <TextBlock Grid.Column="0" Text="학년도" VerticalAlignment="Center" Margin="0,0,6,0"/>
+        <NumericUpDown Grid.Column="1" Value="{Binding Year, Mode=TwoWay}"
+                       Minimum="2000" Maximum="2100" Width="100" Margin="0,0,12,0"/>
+        <TextBlock Grid.Column="2" Text="학년" VerticalAlignment="Center" Margin="0,0,6,0"/>
+        <NumericUpDown Grid.Column="3" Value="{Binding Grade, Mode=TwoWay}"
+                       Minimum="1" Maximum="6" Width="80" Margin="0,0,12,0"/>
+        <TextBlock Grid.Column="4" Text="반" VerticalAlignment="Center" Margin="0,0,6,0"/>
+        <NumericUpDown Grid.Column="5" Value="{Binding ClassNo, Mode=TwoWay}"
+                       Minimum="1" Maximum="50" Width="80"/>
+      </Grid>
+    </Border>
+
+    <!-- 데이터 타입 -->
+    <Border Grid.Row="2"
+            Padding="14,12"
+            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+            BorderBrush="{DynamicResource ContentSeparatorBrush}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Margin="0,0,0,10">
+      <StackPanel Spacing="8">
+        <TextBlock Text="데이터 종류" FontWeight="SemiBold"/>
+        <ComboBox ItemsSource="{Binding DataTypes}"
+                  SelectedIndex="{Binding SelectedDataIndex, Mode=TwoWay}"
+                  MinWidth="220"/>
+      </StackPanel>
+    </Border>
+
+    <!-- 형식 -->
+    <Border Grid.Row="3"
+            Padding="14,12"
+            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+            BorderBrush="{DynamicResource ContentSeparatorBrush}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Margin="0,0,0,10">
+      <StackPanel Spacing="8">
+        <TextBlock Text="형식" FontWeight="SemiBold"/>
+        <ComboBox ItemsSource="{Binding Formats}"
+                  SelectedIndex="{Binding SelectedFormatIndex, Mode=TwoWay}"
+                  MinWidth="220"/>
+        <TextBlock Text="좌석배정·학생카드는 PDF/HTML 만, CSV 는 누가기록/학생부 특기사항만 가능합니다."
+                   FontSize="11"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                   TextWrapping="Wrap"/>
+      </StackPanel>
+    </Border>
+
+    <!-- 실행 + 상태 -->
+    <StackPanel Grid.Row="4" Spacing="10" Margin="0,4,0,0">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <Button Content="내보내기"
+                Classes="accent"
+                Padding="18,8"
+                IsEnabled="{Binding !IsBusy}"
+                Command="{Binding ExportCommand}"/>
+        <ProgressBar Width="160"
+                     IsIndeterminate="True"
+                     IsVisible="{Binding IsBusy}"
+                     VerticalAlignment="Center"/>
+      </StackPanel>
+
+      <TextBlock Text="{Binding StatusText}"
+                 FontSize="12"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"
+                 IsVisible="{Binding StatusText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                 TextWrapping="Wrap"/>
+
+      <TextBlock Text="{Binding ErrorText}"
+                 FontSize="12"
+                 Foreground="#D9372A"
+                 IsVisible="{Binding ErrorText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                 TextWrapping="Wrap"/>
+    </StackPanel>
+
+  </Grid>
+</UserControl>

@@ -46,6 +46,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         // ── 설정/관리 항목 ──
         new NavItem("학사일정 관리", "◷", () => new CalendarPageVM()),
+        new NavItem("통합 내보내기", "📤", () => new UnifiedExportPageVM()),
     ]);
 
     public static readonly ReadOnlyCollection<NavItem> BottomNavItems = new(
