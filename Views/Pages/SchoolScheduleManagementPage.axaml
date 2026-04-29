@@ -55,6 +55,9 @@
                   ToolTip.Tip="선택 + 변경된 항목 저장 (Ctrl+S)"/>
           <Button Content="🗑 삭제" Padding="12,6"
                   Command="{Binding DeleteSelectedCommand}"/>
+          <Border Width="1" Background="{DynamicResource ContentSeparatorBrush}" Margin="4,0"/>
+          <Button Content="📊 Excel" Padding="12,6"
+                  Command="{Binding ExportExcelCommand}"/>
 
           <ProgressBar Width="120" IsIndeterminate="True"
                        IsVisible="{Binding IsBusy}"

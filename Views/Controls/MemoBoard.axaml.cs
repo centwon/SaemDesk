@@ -3,9 +3,12 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using SaemDesk.Models;
 using SaemDesk.Repositories;
+using SaemDesk.Views.Dialogs;
 
 namespace SaemDesk.Views.Controls;
 
@@ -23,6 +26,24 @@ public partial class MemoBoard : UserControl
         InitializeComponent();
         ItemsView.ItemsSource = _items;
         Loaded += async (_, _) => await ReloadAsync();
+        ItemsView.PointerPressed += OnItemPointerPressed;
+    }
+
+    private async void OnItemPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (e.ClickCount < 2) return;
+        if (e.Source is Control c && c.DataContext is Post p)
+            await OpenEditAsync(p);
+    }
+
+    private async Task OpenEditAsync(Post? existing)
+    {
+        var owner = (Avalonia.Application.Current?.ApplicationLifetime
+            as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+        if (owner is null) return;
+        var dlg = new PostEditDialog(existing);
+        await dlg.ShowDialog(owner);
+        if (dlg.Saved) await ReloadAsync();
     }
 
     private async void OnCategoryChanged(object? sender, SelectionChangedEventArgs e)
@@ -36,21 +57,15 @@ public partial class MemoBoard : UserControl
 
     private async void OnAddClick(object? sender, RoutedEventArgs e)
     {
-        try
+        // 카테고리 필터가 지정되어 있으면 신규 메모에 기본값으로 적용
+        var seed = new Post
         {
-            using var repo = new PostRepository(BoardDatabase.DbPath);
-            var post = new Post
-            {
-                Title = "(새 메모)",
-                Content = string.Empty,
-                Category = string.IsNullOrEmpty(_currentCategory) ? "개인" : _currentCategory,
-                User = Settings.UserName.Value,
-                DateTime = DateTime.Now,
-            };
-            post.No = await repo.CreateAsync(post);
-            await ReloadAsync();
-        }
-        catch { /* 무시 — 컨트롤 단위 */ }
+            DateTime = DateTime.Now,
+            User = Settings.UserName.Value,
+            Category = string.IsNullOrEmpty(_currentCategory) ? "개인" : _currentCategory,
+        };
+        await OpenEditAsync(null);
+        // 다이얼로그 측에서 직접 저장하므로 별도 처리는 ReloadAsync 에 위임
     }
 
     private async Task ReloadAsync()

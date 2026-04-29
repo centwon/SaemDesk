@@ -23,6 +23,8 @@
         </ComboBox.ItemTemplate>
       </ComboBox>
       <Button Content="새로고침" Padding="12,6" Command="{Binding RefreshCommand}"/>
+      <Button Content="격차 분석" Padding="12,6" Command="{Binding AnalyzeGapCommand}"/>
+      <Button Content="📊 Excel" Padding="12,6" Command="{Binding ExportExcelCommand}"/>
       <ProgressBar Width="100" IsIndeterminate="True"
                    IsVisible="{Binding IsBusy}"
                    VerticalAlignment="Center"/>

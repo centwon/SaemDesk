@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MiniExcelLibs;
 using SaemDesk.Models;
 using SaemDesk.Services;
 
@@ -177,6 +178,35 @@ public partial class SchoolScheduleManagementPageVM : ViewModelBase
         }
         catch (Exception ex) { ErrorText = ex.Message; }
         finally { IsBusy = false; }
+    }
+
+    [RelayCommand]
+    private async Task ExportExcelAsync()
+    {
+        if (Items.Count == 0) { StatusText = "내보낼 항목이 없습니다."; return; }
+        try
+        {
+            var path = await App.FilePicker.SaveFileAsync(
+                $"학사일정_{SelectedYear}.xlsx", "xlsx");
+            if (string.IsNullOrEmpty(path)) return;
+            var rows = Items.Select(i => new Dictionary<string, object>
+            {
+                ["날짜"] = i.DisplayDate,
+                ["요일"] = i.DisplayDayOfWeek,
+                ["행사명"] = i.EventName,
+                ["내용"] = i.EventContent,
+                ["수업공제일"] = i.SbtrType,
+                ["대상학년"] = string.Join(",", new[]
+                {
+                    i.G1?"1":null, i.G2?"2":null, i.G3?"3":null,
+                    i.G4?"4":null, i.G5?"5":null, i.G6?"6":null,
+                }.Where(s => s != null)!),
+                ["구분"] = i.IsManual ? "수동" : "NEIS",
+            }).Cast<object>().ToList();
+            await MiniExcel.SaveAsAsync(path, rows, overwriteFile: true);
+            StatusText = $"Excel 저장: {path}";
+        }
+        catch (Exception ex) { ErrorText = ex.Message; }
     }
 
     [RelayCommand]

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MiniExcelLibs;
 using SaemDesk.Models;
 using SaemDesk.Repositories;
 
@@ -127,6 +128,49 @@ public partial class ProgressMatrixPageVM : ViewModelBase
         var min = counts.Min(c => c.Done);
         MaxGap = max - min;
         LeadingRoom = counts.OrderByDescending(c => c.Done).First().Room;
+    }
+
+    [RelayCommand]
+    private async Task AnalyzeGapAsync()
+    {
+        if (SelectedCourse is null) return;
+        try
+        {
+            using var repo = new LessonProgressRepository(SchoolDatabase.DbPath);
+            var gaps = await repo.GetProgressGapsAsync(SelectedCourse.No, Rooms.ToList());
+            if (gaps.Count == 0) { StatusText = "격차 데이터 없음"; return; }
+            var max = gaps.OrderByDescending(g => g.GapFromMax).First();
+            StatusText = $"격차 분석: {max.Room} {max.CompletedCount}/{max.TotalCount} (최대 격차 {max.GapFromMax}, 평균과 차이 {max.GapFromAverage:F1})";
+        }
+        catch (Exception ex) { ErrorText = ex.Message; }
+    }
+
+    [RelayCommand]
+    private async Task ExportExcelAsync()
+    {
+        if (Rows.Count == 0) { StatusText = "내보낼 매트릭스가 없습니다."; return; }
+        try
+        {
+            var path = await App.FilePicker.SaveFileAsync(
+                $"진도매트릭스_{SelectedCourse?.Subject}.xlsx", "xlsx");
+            if (string.IsNullOrEmpty(path)) return;
+
+            var rows = new List<Dictionary<string, object>>();
+            foreach (var row in Rows)
+            {
+                var dict = new Dictionary<string, object>
+                {
+                    ["순번"] = row.Index,
+                    ["단원"] = row.SectionName,
+                };
+                foreach (var c in row.Cells)
+                    dict[c.Room] = c.Glyph;
+                rows.Add(dict);
+            }
+            await MiniExcel.SaveAsAsync(path, rows, overwriteFile: true);
+            StatusText = $"Excel 저장: {path}";
+        }
+        catch (Exception ex) { ErrorText = ex.Message; }
     }
 
     [RelayCommand]
