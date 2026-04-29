@@ -156,6 +156,8 @@ public partial class App : Application
         ViewLocator.Register<LessonHomePageVM>       (() => new LessonHomePage());
         ViewLocator.Register<LessonActivityPageVM>   (() => new LessonActivityPage());
         ViewLocator.Register<CourseManagementPageVM> (() => new CourseManagementPage());
-        ViewLocator.Register<UnifiedExportPageVM>    (() => new UnifiedExportPage());
+        ViewLocator.Register<UnifiedExportPageVM>            (() => new UnifiedExportPage());
+        ViewLocator.Register<ProgressMatrixPageVM>           (() => new ProgressMatrixPage());
+        ViewLocator.Register<SchoolScheduleManagementPageVM> (() => new SchoolScheduleManagementPage());
     }
 }

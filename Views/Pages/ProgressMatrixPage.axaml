@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SaemDesk.ViewModels.Pages"
+             x:Class="SaemDesk.Views.Pages.ProgressMatrixPage"
+             x:DataType="vm:ProgressMatrixPageVM"
+             Classes="page">
+
+  <ScrollViewer>
+    <StackPanel Margin="24,18" Spacing="10" MaxWidth="720">
+      <TextBlock Text="진도 관리" FontSize="22" FontWeight="SemiBold"/>
+      <TextBlock Text="{Binding StatusText}"
+                 FontSize="12"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+
+      <Border Classes="card" Padding="16,14" Margin="0,8,0,0">
+        <StackPanel Spacing="6">
+          <TextBlock Text="이식 예정 기능" FontWeight="SemiBold"/>
+          <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource SystemBaseMediumColor}">
+            • 수업 선택 → 차시 × 주차 격자 표시
+          </TextBlock>
+          <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource SystemBaseMediumColor}">
+            • 격차 분석 (분반 간 진도 차이)
+          </TextBlock>
+          <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource SystemBaseMediumColor}">
+            • 일괄 진도 입력 / 차시별 메모
+          </TextBlock>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

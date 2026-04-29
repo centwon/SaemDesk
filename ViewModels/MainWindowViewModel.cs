@@ -41,11 +41,13 @@ public partial class MainWindowViewModel : ViewModelBase
             new NavItem("주간 시간표", "📅", () => new LessonsPageVM()),
             new NavItem("수업 누가기록","✏", () => new LessonActivityPageVM()),
             new NavItem("수업 관리",   "◇", () => new CourseManagementPageVM()),
+            new NavItem("진도 관리",   "▤", () => new ProgressMatrixPageVM()),
             new NavItem("스케줄러",    "◷", () => new SchedulerPageVM()),
         }),
 
         // ── 설정/관리 항목 ──
-        new NavItem("학사일정 관리", "◷", () => new CalendarPageVM()),
+        new NavItem("학사일정 관리", "◷", () => new SchoolScheduleManagementPageVM()),
+        new NavItem("학사일정 보기", "◫", () => new CalendarPageVM()),
         new NavItem("통합 내보내기", "📤", () => new UnifiedExportPageVM()),
     ]);
 

@@ -1,0 +1,25 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="SaemDesk.Views.Controls.MemoBoard">
+
+  <Border BorderThickness="1"
+          BorderBrush="{DynamicResource ContentSeparatorBrush}"
+          CornerRadius="6"
+          Padding="14,12"
+          MinHeight="200">
+    <StackPanel Spacing="6">
+      <TextBlock Text="📌 메모보드"
+                 FontWeight="SemiBold"
+                 FontSize="14"/>
+      <TextBlock Text="Phase 5 메모보드 컨트롤 이식 예정"
+                 FontSize="12"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"
+                 TextWrapping="Wrap"/>
+      <TextBlock TextWrapping="Wrap"
+                 FontSize="11"
+                 Foreground="{DynamicResource SystemBaseMediumLowColor}">
+        • 카테고리별 메모 카드, 드래그/리사이즈 배치, Jodit 본문, 댓글
+      </TextBlock>
+    </StackPanel>
+  </Border>
+</UserControl>

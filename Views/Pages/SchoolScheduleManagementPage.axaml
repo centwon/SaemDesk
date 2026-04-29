@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SaemDesk.ViewModels.Pages"
+             x:Class="SaemDesk.Views.Pages.SchoolScheduleManagementPage"
+             x:DataType="vm:SchoolScheduleManagementPageVM"
+             Classes="page">
+
+  <ScrollViewer>
+    <StackPanel Margin="24,18" Spacing="10" MaxWidth="720">
+      <TextBlock Text="학사일정 관리 (편집)" FontSize="22" FontWeight="SemiBold"/>
+      <TextBlock Text="{Binding StatusText}"
+                 FontSize="12"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+
+      <Border Classes="card" Padding="16,14" Margin="0,8,0,0">
+        <StackPanel Spacing="6">
+          <TextBlock Text="이식 예정 기능" FontWeight="SemiBold"/>
+          <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource SystemBaseMediumColor}">
+            • NEIS 가져온 일정 직접 편집/추가/삭제
+          </TextBlock>
+          <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource SystemBaseMediumColor}">
+            • 휴업일 토글, 학기 경계(개학·종업) 지정
+          </TextBlock>
+          <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource SystemBaseMediumColor}">
+            • Google Calendar 일괄 업로드
+          </TextBlock>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>
