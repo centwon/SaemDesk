@@ -314,15 +314,18 @@ namespace SaemDesk.Repositories
 
         /// <summary>
         /// 특정 반의 학생 목록 조회
+        /// semester=0 이면 학기 무관 전체 조회
         /// </summary>
-        public async Task<List<Enrollment>> GetByClassAsync(string schoolCode, int year, int grade, int classNum)
+        public async Task<List<Enrollment>> GetByClassAsync(string schoolCode, int year, int grade, int classNum, int semester = 0)
         {
-            const string query = @"
+            var semesterClause = (semester == 1 || semester == 2) ? "AND Semester = @Semester" : string.Empty;
+            string query = $@"
                 SELECT * FROM Enrollment 
                 WHERE SchoolCode = @SchoolCode 
                   AND Year = @Year 
                   AND Grade = @Grade 
                   AND Class = @Class 
+                  {semesterClause}
                   AND IsDeleted = 0
                 ORDER BY Number";
 
@@ -335,6 +338,8 @@ namespace SaemDesk.Repositories
                 cmd.Parameters.AddWithValue("@Year", year);
                 cmd.Parameters.AddWithValue("@Grade", grade);
                 cmd.Parameters.AddWithValue("@Class", classNum);
+                if (semester == 1 || semester == 2)
+                    cmd.Parameters.AddWithValue("@Semester", semester);
 
                 using var reader = await cmd.ExecuteReaderAsync();
                 while (await reader.ReadAsync())
@@ -897,7 +902,9 @@ namespace SaemDesk.Repositories
             cmd.Parameters.AddWithValue("@Class", enrollment.Class);
             cmd.Parameters.AddWithValue("@Number", enrollment.Number);
             cmd.Parameters.AddWithValue("@Status", enrollment.Status);
-            cmd.Parameters.AddWithValue("@TeacherID", enrollment.TeacherID ?? (object)DBNull.Value);
+            // 빈 문자열 TeacherID 는 Teacher FK 위반 → NULL 로 정규화
+            cmd.Parameters.AddWithValue("@TeacherID",
+                string.IsNullOrEmpty(enrollment.TeacherID) ? (object)DBNull.Value : enrollment.TeacherID);
             cmd.Parameters.AddWithValue("@AdmissionDate", enrollment.AdmissionDate ?? (object)DBNull.Value);
             cmd.Parameters.AddWithValue("@GraduationDate", enrollment.GraduationDate ?? (object)DBNull.Value);
             cmd.Parameters.AddWithValue("@TransferOutDate", enrollment.TransferOutDate ?? (object)DBNull.Value);

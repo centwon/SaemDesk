@@ -9,7 +9,7 @@ namespace SaemDesk;
 public static class AppInfo
 {
     /// <summary>표시용 버전 — UI 좌·우하단 등에 사용.</summary>
-    public const string Version = "v0.1.0-alpha";
+    public const string Version = "v0.2.0-alpha";
 
     /// <summary>제품명.</summary>
     public const string Product = "SaemDesk";

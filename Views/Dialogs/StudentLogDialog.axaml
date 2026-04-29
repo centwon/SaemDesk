@@ -1,0 +1,101 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ctrl="using:SaemDesk.Views.Controls"
+        xmlns:models="using:SaemDesk.Models"
+        xmlns:dlg="using:SaemDesk.Views.Dialogs"
+        x:Class="SaemDesk.Views.Dialogs.StudentLogDialog"
+        x:DataType="dlg:StudentLogDialog"
+        Title="학생 기록"
+        Width="960" Height="640"
+        MinWidth="760" MinHeight="500"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+  <Grid Margin="16">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+
+    <!-- 헤더: 필터 + 학생 정보 -->
+    <Grid Grid.Row="0" Margin="0,0,0,12">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <!-- 필터 컨트롤 -->
+      <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10" Margin="0,0,0,8">
+
+        <StackPanel x:Name="CategoryPanel" Spacing="2">
+          <TextBlock Text="영역" FontSize="11"
+                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+          <ComboBox x:Name="CBoxCategory" MinWidth="130"
+                    SelectionChanged="OnCategoryChanged"/>
+        </StackPanel>
+
+        <StackPanel x:Name="CoursePanel" Spacing="2" IsVisible="False">
+          <TextBlock Text="과목" FontSize="11"
+                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+          <ComboBox x:Name="CBoxCourse" MinWidth="150"
+                    ItemsSource="{Binding Courses}"
+                    SelectionChanged="OnCourseChanged">
+            <ComboBox.ItemTemplate>
+              <DataTemplate x:DataType="models:Course">
+                <TextBlock Text="{Binding Subject}"/>
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+        </StackPanel>
+
+        <StackPanel x:Name="ClubPanel" Spacing="2" IsVisible="False">
+          <TextBlock Text="동아리" FontSize="11"
+                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+          <ComboBox x:Name="CBoxClub" MinWidth="150"
+                    ItemsSource="{Binding Clubs}"
+                    SelectionChanged="OnClubChanged">
+            <ComboBox.ItemTemplate>
+              <DataTemplate x:DataType="models:Club">
+                <TextBlock Text="{Binding ClubName}"/>
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+        </StackPanel>
+
+        <StackPanel x:Name="GradePanel" Spacing="2" IsVisible="False">
+          <TextBlock Text="학년" FontSize="11"
+                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+          <ComboBox x:Name="CBoxGrade" MinWidth="90"
+                    SelectionChanged="OnGradeChanged"/>
+        </StackPanel>
+
+        <StackPanel x:Name="ClassPanel" Spacing="2" IsVisible="False">
+          <TextBlock Text="반" FontSize="11"
+                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+          <ComboBox x:Name="CBoxClass" MinWidth="90"
+                    SelectionChanged="OnClassChanged"/>
+        </StackPanel>
+      </StackPanel>
+
+      <!-- 학생/학급 정보 표시 -->
+      <TextBlock Grid.Row="1" x:Name="TxtStudentInfo"
+                 Text="" FontWeight="SemiBold" FontSize="14"
+                 Foreground="#5B7FB8"/>
+    </Grid>
+
+    <!-- 메인: 학생 목록(좌) + LogBox(우) -->
+    <Grid Grid.Row="1" RowDefinitions="*,Auto">
+      <Grid Grid.Row="0" ColumnDefinitions="280,16,*">
+        <ctrl:ListStudent x:Name="ListStudents" Grid.Column="0"/>
+        <ctrl:StudentLogBox x:Name="LogBox" Grid.Column="2"/>
+      </Grid>
+      <!-- 버튼 바 -->
+      <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right"
+                  Spacing="8" Margin="0,12,0,0">
+        <Button Content="취소" Padding="16,8" Click="OnCancel"/>
+        <Button x:Name="SaveButton" Content="저장"
+                Classes="accent" Padding="16,8" Click="OnSave"/>
+      </StackPanel>
+    </Grid>
+  </Grid>
+</Window>

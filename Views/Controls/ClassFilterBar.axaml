@@ -1,0 +1,28 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="SaemDesk.Views.Controls.ClassFilterBar">
+
+  <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+
+    <!-- 학년도 -->
+    <ComboBox x:Name="CBoxYear"
+              MinWidth="110"
+              PlaceholderText="학년도"/>
+
+    <!-- 학기 (ShowSemester로 제어) -->
+    <ComboBox x:Name="CBoxSemester"
+              MinWidth="80"
+              PlaceholderText="학기"/>
+
+    <!-- 학년 (ShowGrade로 제어) -->
+    <ComboBox x:Name="CBoxGrade"
+              MinWidth="80"
+              PlaceholderText="학년"/>
+
+    <!-- 반 (ShowClass로 제어) -->
+    <ComboBox x:Name="CBoxClass"
+              MinWidth="76"
+              PlaceholderText="반"/>
+
+  </StackPanel>
+</UserControl>

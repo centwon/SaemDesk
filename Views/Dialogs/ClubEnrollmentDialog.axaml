@@ -1,0 +1,123 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ctrl="using:SaemDesk.Views.Controls"
+        x:Class="SaemDesk.Views.Dialogs.ClubEnrollmentDialog"
+        Title="부원 관리"
+        Width="900" Height="640"
+        MinWidth="760" MinHeight="520"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+  <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="16">
+
+    <Border x:Name="InfoBar" Grid.Row="0" IsVisible="False"
+            CornerRadius="4" Padding="10,6" Margin="0,0,0,8">
+      <TextBlock x:Name="InfoBarText" FontSize="12" TextWrapping="Wrap"/>
+    </Border>
+
+    <Border Grid.Row="1"
+            Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+            CornerRadius="6" Padding="12,8" Margin="0,0,0,10">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+          <TextBlock x:Name="TxtClubName" Text="동아리명"
+                     FontWeight="SemiBold" FontSize="15" VerticalAlignment="Center"/>
+          <TextBlock x:Name="TxtActivityRoom" FontSize="13"
+                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                     VerticalAlignment="Center"/>
+        </StackPanel>
+        <TextBlock Grid.Column="1" x:Name="TxtEnrolledCount" Text="부원: 0명"
+                   FontSize="13"
+                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                   VerticalAlignment="Center"/>
+      </Grid>
+    </Border>
+
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto,*">
+
+      <!-- 좌: 등록 가능한 학생 -->
+      <Grid Grid.Column="0">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+                Padding="12,8" CornerRadius="8,8,0,0"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                BorderThickness="1,1,1,0">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <TextBlock Text="등록 가능한 학생" FontWeight="SemiBold" FontSize="13"/>
+            <TextBlock x:Name="TxtAvailableCount" FontSize="12"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       VerticalAlignment="Center"/>
+          </StackPanel>
+        </Border>
+
+        <!-- 학년/반 필터: Grid → Border+Grid 로 교체 -->
+        <Border Grid.Row="1" Padding="8"
+                Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                BorderThickness="1,0,1,0">
+          <Grid ColumnDefinitions="*,*" ColumnSpacing="6">
+            <ComboBox Grid.Column="0" x:Name="CBoxGradeFilter" HorizontalAlignment="Stretch"
+                      SelectionChanged="CBoxGradeFilter_SelectionChanged">
+              <ComboBoxItem Tag="0">전체</ComboBoxItem>
+              <ComboBoxItem Tag="1">1학년</ComboBoxItem>
+              <ComboBoxItem Tag="2">2학년</ComboBoxItem>
+              <ComboBoxItem Tag="3">3학년</ComboBoxItem>
+            </ComboBox>
+            <ComboBox Grid.Column="1" x:Name="CBoxClassFilter" HorizontalAlignment="Stretch"
+                      SelectionChanged="CBoxClassFilter_SelectionChanged"/>
+          </Grid>
+        </Border>
+
+        <ctrl:ListStudent x:Name="ListAvailable" Grid.Row="2" ViewMode="NumName"/>
+      </Grid>
+
+      <!-- 중앙: 이동 버튼 -->
+      <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="8,0" Spacing="8">
+        <Button Content="▶" ToolTip.Tip="선택한 학생 등록" Padding="12,8" Click="BtnAdd_Click"/>
+        <Button Content="◀" ToolTip.Tip="선택한 학생 제거" Padding="12,8" Click="BtnRemove_Click"/>
+      </StackPanel>
+
+      <!-- 우: 등록된 부원 -->
+      <Grid Grid.Column="2">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+                Padding="12,8" CornerRadius="8,8,0,0"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                BorderThickness="1,1,1,0">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <TextBlock Text="✅ 등록된 부원" FontWeight="SemiBold" FontSize="13"/>
+            <TextBlock x:Name="TxtRegisteredCount" FontSize="12"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       VerticalAlignment="Center"/>
+          </StackPanel>
+        </Border>
+
+        <TextBox Grid.Row="1" x:Name="TxtSearch"
+                 PlaceholderText="이름 검색..."
+                 Margin="8"
+                 TextChanged="TxtSearch_TextChanged"/>
+
+        <ctrl:ListStudent x:Name="ListEnrolled" Grid.Row="2" ViewMode="ClassNumName"/>
+      </Grid>
+    </Grid>
+
+    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right"
+                Spacing="8" Margin="0,12,0,0">
+      <Button Content="취소" Padding="14,8" Click="OnCancel"/>
+      <Button Content="저장" Classes="accent" Padding="16,8" Click="OnSave"/>
+    </StackPanel>
+
+  </Grid>
+</Window>

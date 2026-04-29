@@ -1,0 +1,184 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="SaemDesk.Views.Controls.StudentLogBox">
+
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <StackPanel Spacing="10">
+
+      <!-- 학년도·학기·카테고리·날짜·중요 (한 줄) -->
+      <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+        <StackPanel Spacing="2">
+          <TextBlock Text="학년도" FontSize="10"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+          <TextBlock x:Name="TxtYear"
+                     FontSize="14" FontWeight="SemiBold"
+                     VerticalAlignment="Center" MinWidth="70"/>
+        </StackPanel>
+        <StackPanel Spacing="2">
+          <TextBlock Text="학기" FontSize="10"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+          <TextBlock x:Name="TxtSemester"
+                     FontSize="14" FontWeight="SemiBold"
+                     VerticalAlignment="Center" MinWidth="50"/>
+        </StackPanel>
+        <StackPanel Spacing="2">
+          <TextBlock Text="카테고리" FontSize="10"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+          <ComboBox x:Name="CBoxCategory" MinWidth="130"
+                    FontSize="14" FontWeight="SemiBold"
+                    SelectionChanged="OnCategoryChanged"/>
+        </StackPanel>
+        <StackPanel x:Name="PanelSubject" Spacing="2" IsVisible="False">
+          <TextBlock Text="과목명" FontSize="10"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+          <TextBox x:Name="TxtSubjectName" Width="140"
+                   PlaceholderText="과목명 입력"/>
+        </StackPanel>
+        <StackPanel Spacing="2">
+          <TextBlock Text="날짜" FontSize="10"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+          <CalendarDatePicker x:Name="DatePickerLog" Width="160"/>
+        </StackPanel>
+        <CheckBox x:Name="ChkIsImportant" Content="중요"
+                  VerticalAlignment="Bottom" Margin="4,0,0,4"/>
+      </StackPanel>
+
+      <!-- 기록 내용 -->
+      <StackPanel Spacing="4">
+        <TextBlock Text="기록 내용" FontSize="12" FontWeight="SemiBold"/>
+        <TextBox x:Name="TxtLog"
+                 PlaceholderText="기록 내용을 입력하세요"
+                 AcceptsReturn="True" TextWrapping="Wrap"
+                 MinHeight="240" MaxHeight="640"
+                 FontSize="13"
+                 TextChanged="OnLogTextChanged"/>
+        <TextBlock x:Name="TxtLogByteInfo"
+                   Text="0 Byte / 0 자"
+                   FontSize="10"
+                   HorizontalAlignment="Right"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"/>
+      </StackPanel>
+
+      <!-- 활동 상세 항목 (기본 접힘) -->
+      <Expander x:Name="ExpanderStructured"
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Stretch"
+                IsExpanded="False">
+        <Expander.Header>
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="활동 상세 항목" FontWeight="SemiBold" FontSize="13"/>
+            <TextBlock Text="(학생부 기록용)" FontSize="11"
+                       Foreground="{DynamicResource SystemBaseMediumLowColor}"
+                       VerticalAlignment="Center"/>
+          </StackPanel>
+        </Expander.Header>
+        <Grid ColumnDefinitions="80,*" Margin="0,8,0,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.Styles>
+            <Style Selector="TextBlock">
+              <Setter Property="VerticalAlignment" Value="Center"/>
+              <Setter Property="FontSize" Value="12"/>
+              <Setter Property="Margin" Value="0,0,8,8"/>
+            </Style>
+            <Style Selector="TextBox">
+              <Setter Property="Margin" Value="0,0,0,8"/>
+              <Setter Property="FontSize" Value="13"/>
+            </Style>
+          </Grid.Styles>
+          <TextBlock Grid.Row="0" Grid.Column="0" Text="활동명"/>
+          <TextBox   Grid.Row="0" Grid.Column="1" x:Name="TxtActivityName"
+                     PlaceholderText="예: 수행평가, 프로젝트 학습"
+                     TextChanged="OnStructuredFieldChanged"/>
+          <TextBlock Grid.Row="1" Grid.Column="0" Text="주제"/>
+          <TextBox   Grid.Row="1" Grid.Column="1" x:Name="TxtTopic"
+                     PlaceholderText="예: 조선 후기 실학사상"
+                     TextChanged="OnStructuredFieldChanged"/>
+          <TextBlock Grid.Row="2" Grid.Column="0" Text="활동 내용" VerticalAlignment="Top" Margin="0,4,8,8"/>
+          <TextBox   Grid.Row="2" Grid.Column="1" x:Name="TxtDescription"
+                     PlaceholderText="구체적인 활동 내용"
+                     AcceptsReturn="True" TextWrapping="Wrap"
+                     MinHeight="60" MaxHeight="120"
+                     TextChanged="OnStructuredFieldChanged"/>
+          <TextBlock Grid.Row="3" Grid.Column="0" Text="역할"/>
+          <TextBox   Grid.Row="3" Grid.Column="1" x:Name="TxtRole"
+                     PlaceholderText="예: 팀장, 발표 담당"
+                     TextChanged="OnStructuredFieldChanged"/>
+          <TextBlock Grid.Row="4" Grid.Column="0" Text="기른 능력"/>
+          <TextBox   Grid.Row="4" Grid.Column="1" x:Name="TxtSkillDeveloped"
+                     PlaceholderText="예: 협업 능력, 논리적 사고력"
+                     TextChanged="OnStructuredFieldChanged"/>
+          <TextBlock Grid.Row="5" Grid.Column="0" Text="드러난 장점"/>
+          <TextBox   Grid.Row="5" Grid.Column="1" x:Name="TxtStrengthShown"
+                     PlaceholderText="예: 주도성, 성실성"
+                     TextChanged="OnStructuredFieldChanged"/>
+          <TextBlock Grid.Row="6" Grid.Column="0" Text="성취/결과"/>
+          <TextBox   Grid.Row="6" Grid.Column="1" x:Name="TxtResultOrOutcome"
+                     PlaceholderText="예: 발표 성공, 우수 평가"
+                     TextChanged="OnStructuredFieldChanged"/>
+        </Grid>
+      </Expander>
+
+      <!-- 자동 생성 (기본 접힘) -->
+      <Expander HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Stretch"
+                IsExpanded="False">
+        <Expander.Header>
+          <TextBlock Text="자동 생성" FontWeight="SemiBold" FontSize="13"/>
+        </Expander.Header>
+        <StackPanel Spacing="10" Margin="0,8,0,0">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button x:Name="BtnGenerateSummary"
+                    Content="활동 요약 생성"
+                    Classes="accent" IsEnabled="False"
+                    Click="OnGenerateSummaryClick"/>
+            <Button x:Name="BtnGenerateDraft"
+                    Content="학생부 초안 생성"
+                    IsEnabled="False"
+                    Click="OnGenerateDraftClick"/>
+            <TextBlock Text="(활동 상세 항목 입력 시 활성화)"
+                       FontSize="10"
+                       Foreground="{DynamicResource SystemBaseMediumLowColor}"
+                       VerticalAlignment="Center"/>
+          </StackPanel>
+          <Border Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+                  BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                  BorderThickness="1" CornerRadius="4" Padding="10" MinHeight="60">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+              <TextBlock x:Name="TxtGeneratedText"
+                         Text="여기에 생성된 요약 또는 초안이 표시됩니다."
+                         TextWrapping="Wrap" FontSize="13" LineHeight="22"
+                         Foreground="{DynamicResource SystemBaseMediumColor}"/>
+            </ScrollViewer>
+          </Border>
+          <Button x:Name="BtnCopyToClipboard"
+                  Content="클립보드에 복사"
+                  IsEnabled="False"
+                  HorizontalAlignment="Right"
+                  Click="OnCopyToClipboardClick"/>
+        </StackPanel>
+      </Expander>
+
+      <!-- 태그 -->
+      <StackPanel Spacing="2">
+        <TextBlock Text="태그" FontSize="10"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"/>
+        <TextBox x:Name="TxtTag"
+                 PlaceholderText="쉼표로 구분 (예: 협업, 발표, 리더십)"/>
+      </StackPanel>
+
+      <!-- 오류 메시지 -->
+      <TextBlock x:Name="TxtError" IsVisible="False"
+                 Foreground="{DynamicResource SystemErrorTextColor}"
+                 FontSize="12" TextWrapping="Wrap"/>
+
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

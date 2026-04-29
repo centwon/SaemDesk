@@ -1,136 +1,109 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:SaemDesk.ViewModels.Pages"
-             xmlns:models="using:SaemDesk.Models"
+             xmlns:ctrl="using:SaemDesk.Views.Controls"
              x:Class="SaemDesk.Views.Pages.StudentSpecPage"
              x:DataType="vm:StudentSpecPageVM"
              Classes="page">
 
-  <Grid RowDefinitions="Auto,Auto,*,Auto">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="12"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
 
-    <!-- ── 헤더 ──────────────────────────────────────────── -->
-    <StackPanel Grid.Row="0" Margin="20,18,20,4" Spacing="2">
-      <TextBlock Text="학생부 특기사항" FontSize="22" FontWeight="SemiBold"/>
-      <TextBlock Text="NEIS 입력용 최종 기록 — 교과세특 / 자율·동아리·진로·봉사 / 개인별세특 / 종합의견"
-                 FontSize="12"
-                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
-    </StackPanel>
+    <!-- ── 필터 및 버튼 영역 ─────────────────────────────── -->
+    <Border Grid.Row="0"
+            Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BorderThickness="0,0,0,1">
+      <Grid Margin="8,4">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
 
-    <!-- ── 필터 / 검색 / 작업 ──────────────────────────── -->
-    <Grid Grid.Row="1" Margin="20,12,20,8"
-          ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,Auto,Auto">
-      <TextBlock Grid.Column="0" Text="학년도" VerticalAlignment="Center" Margin="0,0,6,0"/>
-      <NumericUpDown Grid.Column="1"
-                     Value="{Binding WorkYear, Mode=TwoWay}"
-                     Minimum="2000" Maximum="2100" Increment="1"
-                     ShowButtonSpinner="True"
-                     Width="120" Margin="0,0,12,0"/>
-
-      <TextBlock Grid.Column="2" Text="카테고리" VerticalAlignment="Center" Margin="0,0,6,0"/>
-      <ComboBox Grid.Column="3"
-                ItemsSource="{Binding Categories}"
-                SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
-                MinWidth="130" Margin="0,0,12,0"/>
-
-      <Button Grid.Column="4" Content="조회"
-              Classes="accent"
-              Padding="14,6"
-              Command="{Binding QueryCommand}"
-              Margin="0,0,12,0"/>
-
-      <TextBox Grid.Column="5"
-               Text="{Binding SearchText, Mode=TwoWay}"
-               PlaceholderText="제목/내용/과목 검색…"
-               MinWidth="180"
-               Margin="0,0,12,0"/>
-
-      <Button Grid.Column="7" Content="삭제"
-              Padding="12,6"
-              IsEnabled="{Binding HasSelection}"
-              Command="{Binding DeleteSelectedCommand}"
-              Margin="0,0,6,0"/>
-      <Button Grid.Column="8" Content="새로고침"
-              Padding="12,6"
-              Command="{Binding QueryCommand}"/>
-    </Grid>
-
-    <!-- ── 본문 (목록) ───────────────────────────────────── -->
-    <Grid Grid.Row="2" Margin="20,0,20,8">
-      <ListBox ItemsSource="{Binding Specs}"
-               SelectedItem="{Binding SelectedSpec, Mode=TwoWay}"
-               Background="Transparent"
-               BorderThickness="1"
-               BorderBrush="{DynamicResource ContentSeparatorBrush}">
-        <ListBox.ItemTemplate>
-          <DataTemplate DataType="models:StudentSpecial">
-            <Grid ColumnDefinitions="100,90,*,Auto" Margin="6,4">
-              <TextBlock Grid.Column="0" Text="{Binding StudentID}"
-                         FontSize="12" Foreground="{DynamicResource SystemBaseMediumColor}"
-                         VerticalAlignment="Center"/>
-              <Border Grid.Column="1"
-                      CornerRadius="3" Padding="6,1" Margin="6,0"
-                      Background="{DynamicResource SystemAccentColor}"
-                      Height="20" VerticalAlignment="Center">
-                <TextBlock Text="{Binding Type}"
-                           FontSize="10" Foreground="White"
-                           VerticalAlignment="Center"/>
-              </Border>
-              <StackPanel Grid.Column="2" Spacing="2" Margin="6,0">
-                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="13"
-                           TextTrimming="CharacterEllipsis"/>
-                <TextBlock Text="{Binding Content}"
-                           FontSize="11"
-                           Foreground="{DynamicResource SystemBaseMediumColor}"
-                           TextTrimming="CharacterEllipsis"
-                           MaxLines="2"
-                           TextWrapping="Wrap"/>
-              </StackPanel>
-              <StackPanel Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" Spacing="2">
-                <TextBlock Text="{Binding Date}"
-                           FontSize="10"
-                           Foreground="{DynamicResource SystemBaseMediumColor}"
-                           HorizontalAlignment="Right"/>
-                <TextBlock Text="확정"
-                           FontSize="9"
-                           Foreground="#2A8F2A"
-                           HorizontalAlignment="Right"
-                           IsVisible="{Binding IsFinalized}"/>
-              </StackPanel>
-            </Grid>
-          </DataTemplate>
-        </ListBox.ItemTemplate>
-      </ListBox>
-
-      <!-- 빈 상태 -->
-      <TextBlock Text="조회된 특기사항이 없습니다. 학년도와 카테고리를 확인 후 다시 조회해 주세요."
-                 IsVisible="{Binding IsEmpty}"
-                 FontSize="13"
-                 Foreground="{DynamicResource SystemBaseMediumColor}"
-                 HorizontalAlignment="Center"
-                 VerticalAlignment="Center"/>
-
-      <!-- 로딩 -->
-      <Border IsVisible="{Binding IsLoading}"
-              Background="#33000000">
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
-          <ProgressBar Width="160" IsIndeterminate="True"/>
-          <TextBlock Text="조회 중…" Foreground="White" HorizontalAlignment="Center"/>
+        <!-- 왼쪽: 필터 -->
+        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+          <ctrl:ClassFilterBar x:Name="FilterBar" IncludeAllClass="False"/>
+          <ComboBox Name="CBoxCategory"
+                    ItemsSource="{Binding Categories}"
+                    SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+                    MinWidth="140"
+                    VerticalAlignment="Center"
+                    SelectionChanged="OnCategoryChanged"/>
         </StackPanel>
-      </Border>
-    </Grid>
 
-    <!-- ── 상태바 ────────────────────────────────────────── -->
-    <Grid Grid.Row="3" Margin="20,0,20,16" ColumnDefinitions="*,Auto">
-      <TextBlock Grid.Column="0"
-                 Text="{Binding StatusText}"
-                 FontSize="11"
-                 Foreground="{DynamicResource SystemBaseMediumColor}"
-                 VerticalAlignment="Center"/>
-      <TextBlock Grid.Column="1"
-                 Text="{Binding ErrorText}"
-                 FontSize="11"
-                 Foreground="#D9372A"
-                 VerticalAlignment="Center"/>
-    </Grid>
+        <!-- 오른쪽: 버튼 -->
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4"
+                    VerticalAlignment="Center">
+
+          <!-- 그룹1: 개별 편집 -->
+          <Button Name="BtnSave"   Padding="12,6" Click="OnSaveClick">
+            <StackPanel Orientation="Horizontal" Spacing="4">
+              <TextBlock Text="💾" FontSize="16" VerticalAlignment="Center"/>
+              <TextBlock Text="저장" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Button>
+          <Button Name="BtnDelete" Padding="12,6" Click="OnDeleteClick">
+            <StackPanel Orientation="Horizontal" Spacing="4">
+              <TextBlock Text="🗑" FontSize="16" VerticalAlignment="Center"/>
+              <TextBlock Text="삭제" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Button>
+
+          <!-- 세로 구분선 -->
+          <Border Width="1" Margin="4,4" VerticalAlignment="Stretch"
+                  Background="{DynamicResource SystemControlForegroundBaseLowBrush}"/>
+
+          <!-- 그룹2: 일괄 작업 -->
+          <Button Name="BtnBatchInput"  ToolTip.Tip="일괄 입력" Padding="10,6" Click="OnBatchInputClick">
+            <TextBlock Text="📝" FontSize="20" VerticalAlignment="Center"/>
+          </Button>
+          <Button Name="BtnBatchExport" ToolTip.Tip="일괄 출력" Padding="10,6" Click="OnBatchExportClick">
+            <TextBlock Text="📤" FontSize="20" VerticalAlignment="Center"/>
+          </Button>
+
+          <!-- 세로 구분선 -->
+          <Border Width="1" Margin="4,4" VerticalAlignment="Stretch"
+                  Background="{DynamicResource SystemControlForegroundBaseLowBrush}"/>
+
+          <!-- 글꼴 크기 -->
+          <Button Name="BtnFontResize" ToolTip.Tip="글자 크기 변경" Padding="8,6">
+            <Button.Flyout>
+              <Flyout Placement="Bottom">
+                <Grid Width="180" Height="140" Margin="8">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <StackPanel Grid.Column="0" VerticalAlignment="Stretch" Spacing="4" Width="36">
+                    <TextBlock x:Name="TbMax" Text="30" FontSize="9" HorizontalAlignment="Right"
+                               VerticalAlignment="Top" Margin="0,4,4,0"/>
+                    <TextBlock x:Name="TbSize" Text="13" FontWeight="Bold" HorizontalAlignment="Right"
+                               VerticalAlignment="Center" Margin="0,0,4,0" FontSize="13"/>
+                    <TextBlock x:Name="TbMin" Text="6" FontSize="9" HorizontalAlignment="Right"
+                               VerticalAlignment="Bottom" Margin="0,0,4,4"/>
+                  </StackPanel>
+                  <Slider x:Name="SldFontSize"
+                          Grid.Column="1"
+                          Orientation="Vertical"
+                          Minimum="6" Maximum="30" Value="13"
+                          TickFrequency="2" IsSnapToTickEnabled="True"
+                          VerticalAlignment="Stretch"
+                          ValueChanged="SldFontSize_ValueChanged"/>
+                </Grid>
+              </Flyout>
+            </Button.Flyout>
+            <TextBlock Text="🔠" FontSize="20" VerticalAlignment="Center"/>
+          </Button>
+
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- ── 목록 ──────────────────────────────────────────── -->
+    <ctrl:SpecListViewer Name="SpecListViewer" Grid.Row="2" Margin="12,0,12,12"/>
   </Grid>
 </UserControl>

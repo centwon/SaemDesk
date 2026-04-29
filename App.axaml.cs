@@ -3,6 +3,7 @@ using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using SaemDesk.Board;
 using SaemDesk.Google;
 using SaemDesk.Services;
 using SaemDesk.Services.Platform;
@@ -10,6 +11,7 @@ using SaemDesk.Services.Platform.Windows;
 using SaemDesk.ViewModels;
 using SaemDesk.ViewModels.Pages;
 using SaemDesk.Views;
+using SaemDesk.Views.Dialogs;
 using SaemDesk.Views.Pages;
 
 namespace SaemDesk;
@@ -49,29 +51,59 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        // 1. 앱 설정 로드 (동기 — DB 경로 결정에 필요)
+        // 1. 앱 설정 로드
         Settings.Initialize();
 
-        // 2. School DB 스키마 초기화 (fire-and-forget; CREATE TABLE IF NOT EXISTS → 항상 안전)
-        //    첫 페이지 탐색 전에 완료되므로 타이밍 충돌 없음
+        // 2. DB 스키마 초기화
         _ = SchoolDatabase.InitAsync();
         _ = BoardDatabase.InitAsync();
+        _ = SaemDesk.Scheduler.Scheduler.InitAsync();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new MainWindow
+            // 3. 초기 설정 여부 확인 — SchoolCode가 없으면 최초 실행
+            if (string.IsNullOrEmpty(Settings.SchoolCode.Value))
             {
-                DataContext = new MainWindowViewModel(),
-            };
+                Debug.WriteLine("[App] 초기 설정이 필요합니다.");
 
-            // 종료 시 Google 동기화 서비스 정리
+                var setupDialog = new InitialSetupDialog();
+                setupDialog.Closed += (_, _) =>
+                {
+                    if (setupDialog.IsSuccess)
+                    {
+                        Debug.WriteLine("[App] 초기 설정 완료 — MainWindow 표시");
+                        ShowMainWindow(desktop);
+                    }
+                    else
+                    {
+                        Debug.WriteLine("[App] 초기 설정 취소 — 앱 종료");
+                        desktop.Shutdown();
+                    }
+                };
+
+                // 임시 숨김 MainWindow (Avalonia는 MainWindow 없이 Window를 Show 불가)
+                desktop.MainWindow = new Avalonia.Controls.Window { IsVisible = false };
+                setupDialog.Show();
+            }
+            else
+            {
+                // 초기 설정 완료 — 바로 MainWindow 표시
+                ShowMainWindow(desktop);
+            }
+
             desktop.ShutdownRequested += (_, _) => StopGoogleAutoSync();
         }
 
-        // Google Calendar 자동 동기화 시작 (인증 + 자동 동기화 활성 시에만)
         TryStartGoogleAutoSync();
-
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private static void ShowMainWindow(IClassicDesktopStyleApplicationLifetime desktop)
+    {
+        var mainWindow = new MainWindow { DataContext = new MainWindowViewModel() };
+        desktop.MainWindow = mainWindow;
+        mainWindow.Show();
+        Debug.WriteLine("[App] 앱 시작 완료");
     }
 
     // ────────────────────────────────────────────────────
@@ -140,7 +172,8 @@ public partial class App : Application
 
         // Pages (Phase 3 placeholder — Phase 5에서 실제 페이지로 교체)
         ViewLocator.Register<TodayPageVM>    (() => new TodayPage());
-        ViewLocator.Register<StudentsPageVM> (() => new StudentsPage());
+        ViewLocator.Register<StudentInfoPageVM>    (() => new StudentInfoPage());
+        ViewLocator.Register<StudentsPageVM>       (() => new StudentsPage());
         ViewLocator.Register<LessonsPageVM>  (() => new LessonsPage());
         ViewLocator.Register<DiaryPageVM>    (() => new DiaryPage());
         ViewLocator.Register<BoardPageVM>    (() => new BoardPage());
@@ -157,6 +190,7 @@ public partial class App : Application
         ViewLocator.Register<LessonActivityPageVM>   (() => new LessonActivityPage());
         ViewLocator.Register<CourseManagementPageVM> (() => new CourseManagementPage());
         ViewLocator.Register<UnifiedExportPageVM>            (() => new UnifiedExportPage());
+        ViewLocator.Register<StudentInfoExportPageVM>        (() => new StudentInfoExportPage());
         ViewLocator.Register<ProgressMatrixPageVM>           (() => new ProgressMatrixPage());
         ViewLocator.Register<SchoolScheduleManagementPageVM> (() => new SchoolScheduleManagementPage());
         ViewLocator.Register<ClubHomePageVM>                 (() => new ClubHomePage());

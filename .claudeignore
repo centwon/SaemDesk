@@ -1,0 +1,32 @@
+# SaemDesk .claudeignore
+
+# 빌드 출력
+bin/
+obj/
+
+# IDE
+.vs/
+*.user
+*.suo
+
+# Git
+.git/
+
+# 패키지 캐시
+packages/
+
+# 바이너리 / 에셋 (텍스트 불필요)
+Assets/Fonts/
+Assets/Jodit/
+
+# DB 파일
+*.db
+*.db-shm
+*.db-wal
+
+# 시크릿
+secrets.json
+
+# 백업
+*-backup*/
+*-bak*/

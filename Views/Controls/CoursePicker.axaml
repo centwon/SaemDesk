@@ -1,0 +1,18 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="SaemDesk.Views.Controls.CoursePicker">
+
+  <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+
+    <!-- 과목 -->
+    <ComboBox x:Name="CBoxCourse"
+              MinWidth="150"
+              PlaceholderText="과목 선택"/>
+
+    <!-- 강의실 (ShowRoom=true 일 때만 표시) -->
+    <ComboBox x:Name="CBoxRoom"
+              MinWidth="110"
+              PlaceholderText="강의실"/>
+
+  </StackPanel>
+</UserControl>

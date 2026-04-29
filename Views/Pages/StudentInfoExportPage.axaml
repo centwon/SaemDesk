@@ -1,0 +1,144 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ctrl="using:SaemDesk.Views.Controls"
+             x:Class="SaemDesk.Views.Pages.StudentInfoExportPage"
+             Classes="page">
+
+  <Grid RowDefinitions="Auto,Auto,Auto,Auto,*" Margin="16,12,16,16">
+
+    <!-- Row 0: 학급 필터 + 제목 + 옵션 -->
+    <Border Grid.Row="0"
+            Padding="10,8"
+            Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BorderThickness="0,0,0,1">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <ctrl:ClassFilterBar x:Name="FilterBar"
+                             ShowSemester="False"
+                             IncludeAllClass="True"/>
+        <Separator/>
+        <TextBlock Text="제목:" VerticalAlignment="Center"/>
+        <TextBox x:Name="TboxTitle" Width="160" PlaceholderText="학생 정보"/>
+        <CheckBox x:Name="ChkShowNo"    Content="연번"/>
+        <CheckBox x:Name="ChkShowClass" Content="학급"/>
+        <CheckBox x:Name="ChkShowEtc"   Content="비고" IsChecked="True"/>
+      </StackPanel>
+    </Border>
+
+    <!-- Row 1: 출력항목 선택 -->
+    <Expander Grid.Row="1"
+              Header="출력항목 선택"
+              IsExpanded="True"
+              Margin="0,6,0,0"
+              HorizontalAlignment="Stretch"
+              HorizontalContentAlignment="Stretch">
+      <StackPanel x:Name="PanItem" Margin="12,4" Spacing="4">
+
+        <!-- 기본 정보 -->
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <TextBlock Text="기본" FontWeight="SemiBold" FontSize="12"
+                     Foreground="{StaticResource BrandPrimaryBrush}"
+                     VerticalAlignment="Center" Width="40"/>
+          <CheckBox x:Name="ChkSex"     Content="성별"   Tag="Sex"/>
+          <CheckBox x:Name="ChkBirth"   Content="생년월일" Tag="Birth"/>
+          <CheckBox x:Name="ChkPhone"   Content="전화"   Tag="Phone"/>
+          <CheckBox x:Name="ChkEmail"   Content="이메일" Tag="Email"/>
+          <CheckBox x:Name="ChkAddress" Content="주소"   Tag="Address"/>
+          <CheckBox x:Name="ChkMemo"    Content="메모"   Tag="Memo"/>
+        </StackPanel>
+
+        <!-- 보호자 -->
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <TextBlock Text="보호자" FontWeight="SemiBold" FontSize="12"
+                     Foreground="{StaticResource BrandPrimaryBrush}"
+                     VerticalAlignment="Center" Width="40"/>
+          <CheckBox x:Name="ChkGuardianName"     Content="보호자"  Tag="GuardianName"/>
+          <CheckBox x:Name="ChkGuardianRelation" Content="관계"    Tag="GuardianRelation"/>
+          <CheckBox x:Name="ChkGuardianPhone"    Content="전화"    Tag="GuardianPhone"/>
+          <CheckBox x:Name="ChkFatherName"       Content="부"      Tag="FatherName"/>
+          <CheckBox x:Name="ChkFatherPhone"      Content="부전화"  Tag="FatherPhone"/>
+          <CheckBox x:Name="ChkFatherJob"        Content="부직업"  Tag="FatherJob"/>
+          <CheckBox x:Name="ChkMotherName"       Content="모"      Tag="MotherName"/>
+          <CheckBox x:Name="ChkMotherPhone"      Content="모전화"  Tag="MotherPhone"/>
+          <CheckBox x:Name="ChkMotherJob"        Content="모직업"  Tag="MotherJob"/>
+        </StackPanel>
+
+        <!-- 특성 + 건강 -->
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <TextBlock Text="특성" FontWeight="SemiBold" FontSize="12"
+                     Foreground="{StaticResource BrandPrimaryBrush}"
+                     VerticalAlignment="Center" Width="40"/>
+          <CheckBox x:Name="ChkInterest"    Content="흥미"    Tag="Interest"/>
+          <CheckBox x:Name="ChkTalents"     Content="특기"    Tag="Talents"/>
+          <CheckBox x:Name="ChkCareerHope"  Content="진로"    Tag="CareerHope"/>
+          <CheckBox x:Name="ChkFamily"      Content="가족"    Tag="Family"/>
+          <CheckBox x:Name="ChkFriends"     Content="교우"    Tag="Friends"/>
+          <Separator/>
+          <TextBlock Text="건강" FontWeight="SemiBold" FontSize="12"
+                     Foreground="{StaticResource BrandPrimaryBrush}"
+                     VerticalAlignment="Center"/>
+          <CheckBox x:Name="ChkHealthInfo"   Content="건강"    Tag="HealthInfo"/>
+          <CheckBox x:Name="ChkAllergies"    Content="알레르기" Tag="Allergies"/>
+          <CheckBox x:Name="ChkSpecialNeeds" Content="특이사항" Tag="SpecialNeeds"/>
+        </StackPanel>
+      </StackPanel>
+    </Expander>
+
+    <!-- Row 2: 사용자 정의 항목 -->
+    <Expander Grid.Row="2"
+              x:Name="ExpanderUserItem"
+              Header="사용자 정의 항목"
+              Margin="0,4,0,0"
+              HorizontalAlignment="Stretch"
+              HorizontalContentAlignment="Stretch">
+      <StackPanel Orientation="Horizontal" Margin="12,6" Spacing="8">
+        <TextBlock Text="1" VerticalAlignment="Center" Opacity="0.6"/>
+        <TextBox x:Name="TBoxUser1" MinWidth="100"/>
+        <TextBlock Text="2" VerticalAlignment="Center" Opacity="0.6"/>
+        <TextBox x:Name="TBoxUser2" MinWidth="100"/>
+        <TextBlock Text="3" VerticalAlignment="Center" Opacity="0.6"/>
+        <TextBox x:Name="TBoxUser3" MinWidth="100"/>
+        <TextBlock Text="4" VerticalAlignment="Center" Opacity="0.6"/>
+        <TextBox x:Name="TBoxUser4" MinWidth="100"/>
+        <TextBlock Text="5" VerticalAlignment="Center" Opacity="0.6"/>
+        <TextBox x:Name="TBoxUser5" MinWidth="100"/>
+      </StackPanel>
+    </Expander>
+
+    <!-- Row 3: 출력 옵션 + 버튼 -->
+    <Grid Grid.Row="3" Margin="0,8,0,0" ColumnDefinitions="*,Auto">
+      <StackPanel Orientation="Horizontal" Spacing="20"
+                  HorizontalAlignment="Center" VerticalAlignment="Center">
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <TextBlock Text="출력 방향:" VerticalAlignment="Center"/>
+          <RadioButton x:Name="RbPortrait"  Content="세로" GroupName="PageOrientation" IsChecked="True"/>
+          <RadioButton x:Name="RbLandscape" Content="가로" GroupName="PageOrientation"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <TextBlock Text="출력 대상:" VerticalAlignment="Center"/>
+          <RadioButton x:Name="RbToPrinter" Content="프린터" GroupName="ExportType"/>
+          <RadioButton x:Name="RbToExcel"   Content="CSV/Excel" GroupName="ExportType" IsChecked="True"/>
+        </StackPanel>
+      </StackPanel>
+
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+        <Button x:Name="BtnPreview" Content="미리보기"
+                Padding="16,6" Click="BtnPreview_Click"/>
+        <Button x:Name="BtnExport"  Content="출력"
+                Classes="accent" Padding="16,6" Click="BtnExport_Click"/>
+      </StackPanel>
+    </Grid>
+
+    <!-- Row 4: 미리보기 -->
+    <Border Grid.Row="4"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BorderThickness="1" CornerRadius="8"
+            Margin="0,8,0,0"
+            Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+      <NativeWebView x:Name="PreviewWebView"
+                     HorizontalAlignment="Stretch"
+                     VerticalAlignment="Stretch"/>
+    </Border>
+
+  </Grid>
+</UserControl>

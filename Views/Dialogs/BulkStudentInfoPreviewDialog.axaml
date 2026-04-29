@@ -1,0 +1,33 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SaemDesk.Views.Dialogs.BulkStudentInfoPreviewDialog"
+        Title="학생 정보 일괄 입력 미리보기"
+        Width="560" Height="520"
+        MinWidth="480" MinHeight="440"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="20">
+
+    <!-- 요약 -->
+    <Border Grid.Row="0"
+            Background="#F0F8FF"
+            CornerRadius="6" Padding="12,8" Margin="0,0,0,10">
+      <TextBlock x:Name="TxtSummary" FontSize="13" TextWrapping="Wrap"/>
+    </Border>
+
+    <!-- 미리보기 목록 -->
+    <ListBox Grid.Row="1" x:Name="PreviewListView"
+             Background="Transparent" BorderThickness="0"
+             SelectionMode="Single"/>
+
+    <!-- 버튼 바 -->
+    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right"
+                Spacing="8" Margin="0,12,0,0">
+      <Button Content="취소" Padding="14,8" Click="OnCancel"/>
+      <Button x:Name="ApplyButton" Content="적용" Classes="accent"
+              Padding="16,8" IsEnabled="False" Click="OnApply"/>
+    </StackPanel>
+
+  </Grid>
+</Window>

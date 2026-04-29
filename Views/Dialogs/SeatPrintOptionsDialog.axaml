@@ -1,0 +1,38 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SaemDesk.Views.Dialogs.SeatPrintOptionsDialog"
+        Title="좌석배정표 인쇄 옵션"
+        Width="380" Height="260"
+        MinWidth="340" MinHeight="240"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        ShowInTaskbar="False">
+
+  <Grid RowDefinitions="*,Auto" Margin="20">
+
+    <!-- 옵션 폼 -->
+    <StackPanel Grid.Row="0" Spacing="16">
+
+      <!-- 출력 방향 -->
+      <StackPanel Spacing="6">
+        <TextBlock Text="출력 방향" FontWeight="SemiBold" FontSize="13"/>
+        <RadioButton x:Name="RbAuto"      Content="자동 (좌석 가로/세로 비율에 따름)"
+                     GroupName="Orientation" IsChecked="True"/>
+        <RadioButton x:Name="RbPortrait"  Content="세로" GroupName="Orientation"/>
+        <RadioButton x:Name="RbLandscape" Content="가로" GroupName="Orientation"/>
+      </StackPanel>
+
+      <!-- 명렬표 포함 -->
+      <CheckBox x:Name="ChkIncludeRoster"
+                Content="학급 명렬표 포함 (번호·이름)"/>
+    </StackPanel>
+
+    <!-- 버튼 바 -->
+    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right"
+                Spacing="8" Margin="0,12,0,0">
+      <Button Content="취소" Padding="14,8" Click="OnCancel"/>
+      <Button Content="인쇄" Classes="accent" Padding="16,8" Click="OnPrint"/>
+    </StackPanel>
+
+  </Grid>
+</Window>

@@ -480,23 +480,23 @@ namespace SaemDesk.ViewModels
         public async Task LoadDiaryAsync(int grade, int classNumber, DateTime date)
         {
             var diary = await _diaryService.GetDiaryAsync(
-                Settings.SchoolCode.Value, 
-                Settings.WorkYear,  // 작업 학년도로 통일
-                grade, 
-                classNumber, 
+                Settings.SchoolCode.Value,
+                Settings.WorkYear.Value,
+                grade,
+                classNumber,
                 date);
-            
+
             if (diary == null)
             {
                 diary = new ClassDiary
                 {
-                    Year = Settings.WorkYear,  // 작업 학년도로 통일
-                    Semester = Settings.WorkSemester,  // 작업 학기도 사용
-                    Date = date.Date,
-                    Grade = grade,
-                    Class = classNumber,
-                    TeacherID = Settings.User,
-                    SchoolCode = Settings.SchoolCode
+                    Year       = Settings.WorkYear.Value,
+                    Semester   = Settings.WorkSemester.Value,
+                    Date       = date.Date,
+                    Grade      = grade,
+                    Class      = classNumber,
+                    TeacherID  = Settings.User.Value,
+                    SchoolCode = Settings.SchoolCode.Value,
                 };
             }
 
@@ -510,6 +510,8 @@ namespace SaemDesk.ViewModels
         public async Task SaveDiaryAsync()
         {
             if (_diary == null) return;
+            // 유효하지 않으면 저장 안 함 (ArgumentException 방지)
+            if (!_diary.IsValid()) return;
             await _diaryService.CreateOrUpdateAsync(_diary);
         }
 

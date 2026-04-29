@@ -1,0 +1,158 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SaemDesk.ViewModels"
+             xmlns:ctrl="using:SaemDesk.Views.Controls"
+             x:Class="SaemDesk.Views.Controls.StudentCard"
+             x:DataType="vm:StudentCardViewModel">
+  <UserControl.Resources>
+    <ctrl:PathToBitmapConverter x:Key="PathToBitmap"/>
+  </UserControl.Resources>
+
+  <UserControl.Styles>
+    <Style Selector="TextBlock.formLabel">
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="HorizontalAlignment" Value="Right"/>
+      <Setter Property="Margin" Value="0,0,6,0"/>
+      <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+    </Style>
+    <Style Selector="TextBlock.sectionHeader">
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="Margin" Value="0,8,0,4"/>
+      <Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}"/>
+    </Style>
+  </UserControl.Styles>
+
+  <StackPanel Margin="4,4,4,8" Spacing="2">
+
+      <!-- 기본 정보 + 사진 -->
+      <TextBlock Text="기본 정보" Classes="sectionHeader" Margin="0,0,0,4"/>
+      <Grid ColumnDefinitions="*,Auto">
+
+        <!-- 왼쪽: 입력 -->
+        <Grid Grid.Column="0" Margin="0,0,12,0"
+              ColumnDefinitions="65,2*,55,*,Auto,Auto"
+              RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+              ColumnSpacing="6" RowSpacing="4">
+
+          <TextBlock Grid.Row="0" Grid.Column="0" Text="이름" Classes="formLabel"/>
+          <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Student.Name, Mode=TwoWay}"/>
+
+          <TextBlock Grid.Row="0" Grid.Column="2" Text="성별" Classes="formLabel"/>
+          <ComboBox Grid.Row="0" Grid.Column="3"
+                    SelectedItem="{Binding Student.Sex, Mode=TwoWay}"
+                    HorizontalAlignment="Stretch">
+            <x:String>남</x:String>
+            <x:String>여</x:String>
+          </ComboBox>
+
+          <TextBlock Grid.Row="0" Grid.Column="4" Text="나이" Classes="formLabel"/>
+          <TextBlock Grid.Row="0" Grid.Column="5" Text="{Binding Age}" VerticalAlignment="Center"/>
+
+          <TextBlock Grid.Row="1" Grid.Column="0" Text="생년월일" Classes="formLabel"/>
+          <CalendarDatePicker Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3"
+                              SelectedDate="{Binding Student.BirthDate, Mode=TwoWay}"/>
+
+          <TextBlock Grid.Row="2" Grid.Column="0" Text="전화번호" Classes="formLabel"/>
+          <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Student.Phone, Mode=TwoWay}"/>
+
+          <TextBlock Grid.Row="2" Grid.Column="2" Text="이메일" Classes="formLabel"/>
+          <TextBox Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="3"
+                   Text="{Binding Student.Email, Mode=TwoWay}"/>
+
+          <TextBlock Grid.Row="3" Grid.Column="0" Text="주소" Classes="formLabel"/>
+          <TextBox Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="5"
+                   Text="{Binding Student.Address, Mode=TwoWay}"/>
+
+          <TextBlock Grid.Row="4" Grid.Column="0" Text="메모" Classes="formLabel"/>
+          <TextBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="5"
+                   Text="{Binding Student.Memo, Mode=TwoWay}"
+                   PlaceholderText="간단한 메모"/>
+        </Grid>
+
+        <!-- 오른쪽: 사진 -->
+        <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Top">
+          <Border BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                  BorderThickness="1" CornerRadius="4">
+            <Image Source="{Binding PhotoImage, Converter={StaticResource PathToBitmap}}"
+                   Width="120" Height="150"
+                   Stretch="UniformToFill"/>
+          </Border>
+          <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Center">
+            <Button Content="등록" Click="AddPhoto_Click"  Padding="8,3" FontSize="11"/>
+            <Button Content="삭제" Click="DeletePhoto_Click" Padding="8,3" FontSize="11"/>
+          </StackPanel>
+        </StackPanel>
+      </Grid>
+
+      <!-- 상세 정보 -->
+      <Expander Header="상세 정보"
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Stretch"
+                Margin="0,6,0,0"
+                IsVisible="{Binding IsLoaded}">
+        <StackPanel Margin="4" Spacing="0">
+
+          <!-- 보호자 -->
+          <TextBlock Text="보호자 정보" Classes="sectionHeader" Margin="0,0,0,4"/>
+          <Grid ColumnDefinitions="65,120,45,70,50,*" ColumnSpacing="6" RowSpacing="4">
+            <TextBlock Grid.Column="0" Text="보호자" Classes="formLabel"/>
+            <TextBox  Grid.Column="1" PlaceholderText="이름" Text="{Binding Detail.GuardianName, Mode=TwoWay}"/>
+            <TextBlock Grid.Column="2" Text="관계" Classes="formLabel"/>
+            <TextBox  Grid.Column="3" PlaceholderText="부/모" Text="{Binding Detail.GuardianRelation, Mode=TwoWay}"/>
+            <TextBlock Grid.Column="4" Text="연락처" Classes="formLabel"/>
+            <TextBox  Grid.Column="5" Text="{Binding Detail.GuardianPhone, Mode=TwoWay}"/>
+          </Grid>
+
+          <!-- 가족 -->
+          <TextBlock Text="가족 정보" Classes="sectionHeader"/>
+          <Grid ColumnDefinitions="65,120,50,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="6" RowSpacing="4">
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="아버지" Classes="formLabel"/>
+            <TextBox  Grid.Row="0" Grid.Column="1" PlaceholderText="이름" Text="{Binding Detail.FatherName, Mode=TwoWay}"/>
+            <TextBlock Grid.Row="0" Grid.Column="2" Text="연락처" Classes="formLabel"/>
+            <TextBox  Grid.Row="0" Grid.Column="3" Text="{Binding Detail.FatherPhone, Mode=TwoWay}"/>
+
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="어머니" Classes="formLabel"/>
+            <TextBox  Grid.Row="1" Grid.Column="1" PlaceholderText="이름" Text="{Binding Detail.MotherName, Mode=TwoWay}"/>
+            <TextBlock Grid.Row="1" Grid.Column="2" Text="연락처" Classes="formLabel"/>
+            <TextBox  Grid.Row="1" Grid.Column="3" Text="{Binding Detail.MotherPhone, Mode=TwoWay}"/>
+
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="가족구성" Classes="formLabel"
+                       VerticalAlignment="Top" Margin="0,8,6,0"/>
+            <TextBox  Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3"
+                     Text="{Binding Detail.FamilyInfo, Mode=TwoWay}"
+                     PlaceholderText="가족 구성 및 환경"
+                     AcceptsReturn="True" TextWrapping="Wrap" MinHeight="60"/>
+          </Grid>
+
+          <!-- 진로/관심 -->
+          <TextBlock Text="진로 및 관심사" Classes="sectionHeader"/>
+          <Grid ColumnDefinitions="65,*,65,*" RowDefinitions="Auto,Auto" ColumnSpacing="6" RowSpacing="4">
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="진로희망" Classes="formLabel"/>
+            <TextBox  Grid.Row="0" Grid.Column="1" Text="{Binding Detail.CareerGoal, Mode=TwoWay}"/>
+            <TextBlock Grid.Row="0" Grid.Column="2" Text="특기" Classes="formLabel"/>
+            <TextBox  Grid.Row="0" Grid.Column="3" Text="{Binding Detail.Talents, Mode=TwoWay}"/>
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="관심/취미" Classes="formLabel"/>
+            <TextBox  Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Text="{Binding Detail.Interests, Mode=TwoWay}"/>
+          </Grid>
+
+          <!-- 건강 -->
+          <TextBlock Text="건강 정보" Classes="sectionHeader"/>
+          <Grid ColumnDefinitions="65,*,65,*" RowDefinitions="Auto,Auto" ColumnSpacing="6" RowSpacing="4">
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="건강정보" Classes="formLabel"/>
+            <TextBox  Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" Text="{Binding Detail.HealthInfo, Mode=TwoWay}"/>
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="알레르기" Classes="formLabel"/>
+            <TextBox  Grid.Row="1" Grid.Column="1" Text="{Binding Detail.Allergies, Mode=TwoWay}"/>
+            <TextBlock Grid.Row="1" Grid.Column="2" Text="특수교육" Classes="formLabel"/>
+            <TextBox  Grid.Row="1" Grid.Column="3" Text="{Binding Detail.SpecialNeeds, Mode=TwoWay}"/>
+          </Grid>
+
+          <!-- 상세 메모 -->
+          <TextBlock Text="상세 메모" Classes="sectionHeader"/>
+          <TextBox Text="{Binding Detail.Memo, Mode=TwoWay}"
+                   AcceptsReturn="True" MinHeight="60"
+                   PlaceholderText="학생에 대한 상세 메모"/>
+        </StackPanel>
+      </Expander>
+  </StackPanel>
+</UserControl>

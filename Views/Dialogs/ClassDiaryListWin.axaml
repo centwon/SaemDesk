@@ -1,0 +1,100 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SaemDesk.ViewModels"
+        x:Class="SaemDesk.Views.Dialogs.ClassDiaryListWin"
+        Title="학급일지 목록"
+        Width="780" Height="600"
+        MinWidth="600" MinHeight="400"
+        WindowStartupLocation="CenterOwner">
+
+  <Grid RowDefinitions="Auto,*,Auto">
+
+    <!-- 필터 -->
+    <Border Grid.Row="0"
+            Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BorderThickness="0,0,0,1"
+            Padding="24,16">
+      <StackPanel Orientation="Horizontal" Spacing="12">
+        <StackPanel Spacing="2">
+          <TextBlock Text="시작일" FontSize="11"/>
+          <CalendarDatePicker Name="DatePickerStart" Width="150"/>
+        </StackPanel>
+        <TextBlock Text="~" VerticalAlignment="Bottom" Margin="0,0,0,8"/>
+        <StackPanel Spacing="2">
+          <TextBlock Text="종료일" FontSize="11"/>
+          <CalendarDatePicker Name="DatePickerEnd" Width="150"/>
+        </StackPanel>
+        <Button Name="BtnSearch" Click="BtnSearch_Click"
+                VerticalAlignment="Bottom" Classes="accent"
+                MinWidth="100" Content="🔍 조회"/>
+      </StackPanel>
+    </Border>
+
+    <!-- 목록 -->
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24,16">
+      <ItemsControl Name="DiaryItemsRepeater">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate><StackPanel Orientation="Vertical" Spacing="8"/></ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate DataType="vm:ClassDiaryViewModel">
+            <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                    BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                    BorderThickness="1" CornerRadius="8" Padding="16"
+                    Tag="{Binding}"
+                    PointerPressed="DiaryItem_PointerPressed">
+              <Grid ColumnDefinitions="140,*,40">
+                <StackPanel Grid.Column="0" VerticalAlignment="Top">
+                  <TextBlock Text="{Binding DateDisplay}" FontWeight="SemiBold" FontSize="14"/>
+                  <TextBlock Text="{Binding DayOfWeekKorean}" FontSize="12"
+                             Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                             Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Spacing="8" Margin="16,0">
+                  <StackPanel IsVisible="{Binding HasAttendanceIssues}" Spacing="4">
+                    <TextBlock Text="📋 출결" FontWeight="SemiBold" FontSize="12"/>
+                    <TextBlock Text="{Binding AttendanceSummary}" FontSize="12" TextWrapping="Wrap"/>
+                  </StackPanel>
+                  <StackPanel IsVisible="{Binding HasMemo}" Spacing="4">
+                    <TextBlock Text="📝 메모" FontWeight="SemiBold" FontSize="12"/>
+                    <TextBlock Text="{Binding Memo}" FontSize="12" TextWrapping="Wrap"
+                               MaxLines="3" TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+                  </StackPanel>
+                  <StackPanel IsVisible="{Binding HasNotice}" Spacing="4">
+                    <TextBlock Text="📢 알림장" FontWeight="SemiBold" FontSize="12"/>
+                    <TextBlock Text="{Binding Notice}" FontSize="12" TextWrapping="Wrap"
+                               MaxLines="3" TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+                  </StackPanel>
+                  <StackPanel IsVisible="{Binding HasLifeRecord}" Spacing="4">
+                    <TextBlock Text="👥 생활 기록" FontWeight="SemiBold" FontSize="12"/>
+                    <TextBlock Text="{Binding Life}" FontSize="11" TextWrapping="Wrap"
+                               MaxLines="2" TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+                  </StackPanel>
+                </StackPanel>
+
+                <TextBlock Grid.Column="2" Text="▶" FontSize="14"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+              </Grid>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+
+    <!-- 닫기 -->
+    <Border Grid.Row="2"
+            Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BorderThickness="0,1,0,0"
+            Padding="24,16">
+      <Button Name="BtnClose" Click="BtnClose_Click"
+              HorizontalAlignment="Right" MinWidth="100" Content="✕ 닫기"/>
+    </Border>
+  </Grid>
+</Window>

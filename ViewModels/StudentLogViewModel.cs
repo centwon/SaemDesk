@@ -312,7 +312,15 @@ namespace SaemDesk.ViewModels
         /// <summary>작성일</summary>
         public DateTimeOffset Date
         {
-            get => new DateTimeOffset(_studentlog.Date);
+            get
+            {
+                // DateTime.Kind가 Unspecified 일 때 DateTimeOffset 변환 실패 방지
+                var dt = _studentlog.Date;
+                var safe = dt.Kind == DateTimeKind.Unspecified
+                    ? DateTime.SpecifyKind(dt, DateTimeKind.Local)
+                    : dt;
+                return new DateTimeOffset(safe);
+            }
             set
             {
                 var localDate = value.LocalDateTime;

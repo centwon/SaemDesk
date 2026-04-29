@@ -1,0 +1,41 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="SaemDesk.Views.Controls.PhotoCard"
+             Width="80">
+  <UserControl.ContextMenu>
+    <ContextMenu>
+      <MenuItem Name="MenuSeatDisable" Header="미사용 좌석" Click="MenuSeatDisable_Click"/>
+      <MenuItem Name="MenuSeatFixed"   Header="지정 좌석"   Click="MenuSeatFixed_Click"/>
+      <Separator/>
+      <MenuItem Name="MenuSeatHidden"  Header="미표시 좌석" Click="MenuSeatHidden_Click"/>
+    </ContextMenu>
+  </UserControl.ContextMenu>
+
+  <Border Name="BrdrOutLine"
+          BorderBrush="CornflowerBlue"
+          BorderThickness="1"
+          CornerRadius="4"
+          Background="Transparent">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <Viewbox Grid.Row="0" Stretch="Uniform" Name="PhotoControl">
+        <Border Name="PhotoBorder" CornerRadius="2">
+          <Image Name="Photo" Stretch="UniformToFill"/>
+        </Border>
+      </Viewbox>
+
+      <Viewbox Grid.Row="1" Stretch="Uniform" Name="NameBox">
+        <TextBlock Name="TBName"
+                   Text=""
+                   TextAlignment="Center"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Center"
+                   Padding="4,2"/>
+      </Viewbox>
+    </Grid>
+  </Border>
+</UserControl>

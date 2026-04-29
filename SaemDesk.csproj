@@ -13,18 +13,21 @@
     <NoWarn>$(NoWarn);AVLN3001</NoWarn>
 
     <!-- 앱 메타데이터 -->
-    <Version>0.1.0-alpha</Version>
-    <AssemblyVersion>0.1.0.0</AssemblyVersion>
-    <FileVersion>0.1.0.0</FileVersion>
+    <Version>0.2.0-alpha</Version>
+    <AssemblyVersion>0.2.0.0</AssemblyVersion>
+    <FileVersion>0.2.0.0</FileVersion>
     <Product>SaemDesk</Product>
     <Company>Centwons</Company>
     <Description>학교 업무 통합 데스크탑 — 학생·수업·학급일지·게시판·스케줄러·NEIS·Google Calendar.</Description>
     <Copyright>© 2026 Centwons</Copyright>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
   </PropertyGroup>
-
+<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+  <PublishAot>false</PublishAot>
+</PropertyGroup>
   <ItemGroup>
-    <AvaloniaResource Include="Assets\**" />
+    <!-- Assets 폴더를 포함하되, axaml 파일은 자동 포함되므로 여기서 제외 -->
+    <AvaloniaResource Include="Assets\**" Exclude="Assets\**\*.axaml" />  
   </ItemGroup>
 
   <ItemGroup>
@@ -37,23 +40,24 @@
 
   <ItemGroup>
     <!-- Avalonia UI -->
-    <PackageReference Include="Avalonia" Version="12.0.1" />
-    <PackageReference Include="Avalonia.Desktop" Version="12.0.1" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.1" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.1" />
-    <PackageReference Include="Avalonia.Controls.WebView" Version="12.0.0" />
+    <PackageReference Include="Avalonia" Version="12.0.3" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.0.3" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.3" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.3" />
+    <PackageReference Include="Avalonia.Controls.WebView" Version="12.0.1" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.1">
       <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
     <!-- Database -->
-    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.7" />
-    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.2" />
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.8" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
     <!-- Export -->
-    <PackageReference Include="QuestPDF" Version="2026.2.4" />
+    <PackageReference Include="QuestPDF" Version="2026.5.0" />
     <PackageReference Include="MiniExcel" Version="1.43.1" />
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
     <!-- Windows: DPAPI token encryption -->
-    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.7" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.8" />
   </ItemGroup>
 </Project>

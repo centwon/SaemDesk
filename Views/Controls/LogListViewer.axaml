@@ -1,0 +1,171 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SaemDesk.ViewModels"
+             xmlns:ctrl="using:SaemDesk.Views.Controls"
+             x:Class="SaemDesk.Views.Controls.LogListViewer"
+             x:Name="Root">
+  <UserControl.Resources>
+    <ctrl:HexToBrushConverter x:Key="HexToBrush"/>
+  </UserControl.Resources>
+
+  <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+          BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+          BorderThickness="1"
+          CornerRadius="8">
+    <Grid RowDefinitions="Auto,*" Grid.IsSharedSizeScope="True">
+
+      <!-- 헤더 -->
+      <Border Grid.Row="0"
+              Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+              BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+              BorderThickness="0,0,0,1">
+        <Grid ColumnDefinitions="3,*">
+          <Grid Grid.Column="1" Name="HeaderGrid" Margin="8,10">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="24"                     SharedSizeGroup="ColCheck"/>
+              <ColumnDefinition Width="60"                     SharedSizeGroup="ColYear"/>
+              <ColumnDefinition Width="40"                     SharedSizeGroup="ColSem"/>
+              <ColumnDefinition Width="100"                    SharedSizeGroup="ColCat"/>
+              <ColumnDefinition Width="100"                    SharedSizeGroup="ColSubj"/>
+              <ColumnDefinition Width="40"                     SharedSizeGroup="ColGrade"/>
+              <ColumnDefinition Width="40"                     SharedSizeGroup="ColClass"/>
+              <ColumnDefinition Width="40"                     SharedSizeGroup="ColNum"/>
+              <ColumnDefinition Width="60"                     SharedSizeGroup="ColName"/>
+              <ColumnDefinition Width="90"                     SharedSizeGroup="ColDate"/>
+              <ColumnDefinition Width="150"                    SharedSizeGroup="ColTopic"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <CheckBox Name="ChkSelectAll" Grid.Column="0"
+                      HorizontalAlignment="Left" VerticalAlignment="Center"
+                      Margin="4,0,0,0"/>
+
+            <TextBlock Grid.Column="1"  Name="TxtYearHeader"     Text="학년도" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="2"  Name="TxtSemesterHeader" Text="학기"   FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="3"  Name="TxtCategoryHeader" Text="영역"   FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="4"  Name="TxtSubjectHeader"  Text="과목"   FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="5"  Name="TxtGradeHeader"    Text="학년"   FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="6"  Name="TxtClassHeader"    Text="반"     FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="7"  Name="TxtNumberHeader"   Text="번호"   FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="8"  Name="TxtNameHeader"     Text="이름"   FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="9"  Text="일시"   FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="10" Text="주제"   FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="11" Text="기록 내용" FontWeight="SemiBold" HorizontalAlignment="Left"   VerticalAlignment="Center" Margin="12,0,0,0"/>
+          </Grid>
+        </Grid>
+      </Border>
+
+      <!-- 로그 목록 -->
+      <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <ItemsControl Name="LogItems">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Orientation="Vertical"/>
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+
+          <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="vm:StudentLogViewModel">
+              <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                      BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                      BorderThickness="0,0,0,1"
+                      Padding="0"
+                      Tag="{Binding}"
+                      PointerPressed="OnRowPointerPressed">
+                <Grid ColumnDefinitions="Auto,*">
+                  <Border Name="SelectionIndicator" Grid.Column="0"
+                          Width="3" Background="Transparent" VerticalAlignment="Stretch"/>
+
+                  <Grid Grid.Column="1" Margin="8,8">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="Auto" SharedSizeGroup="ColCheck"/>
+                      <ColumnDefinition Width="Auto" SharedSizeGroup="ColYear"/>
+                      <ColumnDefinition Width="Auto" SharedSizeGroup="ColSem"/>
+                      <ColumnDefinition Width="Auto" SharedSizeGroup="ColCat"/>
+                      <ColumnDefinition Width="Auto" SharedSizeGroup="ColSubj"/>
+                      <ColumnDefinition Width="Auto" SharedSizeGroup="ColGrade"/>
+                      <ColumnDefinition Width="Auto" SharedSizeGroup="ColClass"/>
+                      <ColumnDefinition Width="Auto" SharedSizeGroup="ColNum"/>
+                      <ColumnDefinition Width="Auto" SharedSizeGroup="ColName"/>
+                      <ColumnDefinition Width="Auto" SharedSizeGroup="ColDate"/>
+                      <ColumnDefinition Width="Auto" SharedSizeGroup="ColTopic"/>
+                      <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <CheckBox Grid.Column="0"
+                              HorizontalAlignment="Left" VerticalAlignment="Top"
+                              Margin="4,0,0,0"
+                              IsChecked="{Binding IsSelected, Mode=TwoWay}"/>
+
+                    <TextBlock Grid.Column="1" Text="{Binding Year}"
+                               IsVisible="{Binding YearColumnVisibility}"
+                               VerticalAlignment="Top" HorizontalAlignment="Center"
+                               FontSize="12" Margin="0,4,0,0"/>
+
+                    <TextBlock Grid.Column="2" Text="{Binding Semester}"
+                               IsVisible="{Binding SemesterColumnVisibility}"
+                               VerticalAlignment="Top" HorizontalAlignment="Center"
+                               FontSize="12" Margin="0,4,0,0"/>
+
+                    <Border Grid.Column="3"
+                            Background="{Binding CategoryColor, Converter={StaticResource HexToBrush}}"
+                            CornerRadius="3" Padding="4,2"
+                            HorizontalAlignment="Center" VerticalAlignment="Top"
+                            Margin="0,2,0,0"
+                            IsVisible="{Binding CategoryColumnVisibility}">
+                      <TextBlock Text="{Binding CategoryLabel}"
+                                 FontSize="9" FontWeight="SemiBold" Foreground="White"/>
+                    </Border>
+
+                    <TextBlock Grid.Column="4" Text="{Binding SubjectName}"
+                               IsVisible="{Binding SubjectColumnVisibility}"
+                               VerticalAlignment="Top" HorizontalAlignment="Center"
+                               FontSize="12" Margin="0,4,0,0"
+                               TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+
+                    <TextBlock Grid.Column="5" Text="{Binding Grade}"
+                               IsVisible="{Binding GradeColumnVisibility}"
+                               VerticalAlignment="Top" HorizontalAlignment="Center"
+                               FontSize="12" Margin="0,4,0,0"/>
+
+                    <TextBlock Grid.Column="6" Text="{Binding Class}"
+                               IsVisible="{Binding ClassColumnVisibility}"
+                               VerticalAlignment="Top" HorizontalAlignment="Center"
+                               FontSize="12" Margin="0,4,0,0"/>
+
+                    <TextBlock Grid.Column="7" Text="{Binding Number}"
+                               IsVisible="{Binding NumberColumnVisibility}"
+                               VerticalAlignment="Top" HorizontalAlignment="Center"
+                               FontSize="12" Margin="0,4,0,0"/>
+
+                    <TextBlock Grid.Column="8" Text="{Binding Name}"
+                               IsVisible="{Binding NameColumnVisibility}"
+                               VerticalAlignment="Top" HorizontalAlignment="Center"
+                               FontSize="12" Margin="0,4,0,0" FontWeight="SemiBold"/>
+
+                    <TextBlock Grid.Column="9" Text="{Binding DateString}"
+                               VerticalAlignment="Top" HorizontalAlignment="Center"
+                               FontSize="12" Margin="0,4,0,0" TextWrapping="NoWrap"/>
+
+                    <TextBox Grid.Column="10" Text="{Binding Topic, Mode=TwoWay}"
+                             VerticalAlignment="Top"
+                             FontSize="{Binding #Root.LogFontSize}"
+                             PlaceholderText="주제"
+                             TextChanged="OnTopicChanged"/>
+
+                    <TextBox Grid.Column="11" Text="{Binding Log, Mode=TwoWay}"
+                             AcceptsReturn="True" TextWrapping="Wrap"
+                             MinHeight="60" MaxHeight="200"
+                             FontSize="{Binding #Root.LogFontSize}"
+                             PlaceholderText="기록 내용 입력"
+                             TextChanged="OnLogChanged"/>
+                  </Grid>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Grid>
+  </Border>
+</UserControl>

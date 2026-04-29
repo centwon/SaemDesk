@@ -1,82 +1,134 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:SaemDesk.ViewModels.Pages"
+             xmlns:ctrl="using:SaemDesk.Views.Controls"
+             xmlns:models="using:SaemDesk.Models"
              x:Class="SaemDesk.Views.Pages.ClubHomePage"
              x:DataType="vm:ClubHomePageVM"
              Classes="page">
 
-  <Grid RowDefinitions="Auto,*" Margin="20,16">
+  <Border Padding="16">
+    <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
 
-    <!-- 헤더 -->
-    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="14" Margin="0,0,0,12">
-      <TextBlock Text="🎭 동아리홈" FontSize="22" FontWeight="SemiBold"
-                 VerticalAlignment="Center"/>
-      <TextBlock Text="학년도" VerticalAlignment="Center" Margin="14,0,4,0"/>
-      <NumericUpDown Value="{Binding Year, Mode=TwoWay}" Minimum="2000" Maximum="2100"
-                     Width="100"/>
-      <Button Content="새로고침" Padding="10,6"
-              Command="{Binding ReloadCommand}"/>
-      <ProgressBar Width="100" IsIndeterminate="True"
-                   IsVisible="{Binding IsBusy}"
-                   VerticalAlignment="Center"/>
-      <TextBlock Text="{Binding StatusText}"
-                 VerticalAlignment="Center"
-                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+    <!-- ── 헤더 ─────────────────────────────────────────── -->
+    <StackPanel Grid.Row="0" Spacing="8" Margin="0,0,0,16">
+      <TextBlock Text="동아리 홈" FontSize="22" FontWeight="Bold"/>
+      <TextBlock Text="내 동아리 현황"
+                 FontSize="14"
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
     </StackPanel>
 
-    <!-- 본문 -->
-    <Grid Grid.Row="1">
+    <!-- ── 본문: 좌(동아리 정보 + 부원) / 우(자료실) ───── -->
+    <Grid Grid.Row="1" ColumnDefinitions="320,*">
 
-      <StackPanel IsVisible="{Binding IsEmpty}"
-                  HorizontalAlignment="Center" VerticalAlignment="Center"
-                  Spacing="6">
-        <TextBlock Text="등록된 동아리가 없습니다."
-                   FontSize="15"
-                   Foreground="{DynamicResource SystemBaseMediumColor}"/>
-        <TextBlock Text="‘동아리 관리’ 메뉴에서 동아리를 추가하세요."
-                   FontSize="12"
-                   Foreground="{DynamicResource SystemBaseMediumLowColor}"/>
-      </StackPanel>
+      <!-- 좌측: 동아리 선택 + 부원 명단 -->
+      <Grid Grid.Column="0" Margin="0,0,16,0" RowDefinitions="Auto,*">
 
-      <ScrollViewer IsVisible="{Binding !IsEmpty}">
-        <ItemsControl ItemsSource="{Binding Clubs}" Margin="0,4">
-          <ItemsControl.ItemsPanel>
-            <ItemsPanelTemplate>
-              <WrapPanel Orientation="Horizontal"/>
-            </ItemsPanelTemplate>
-          </ItemsControl.ItemsPanel>
-          <ItemsControl.ItemTemplate>
-            <DataTemplate DataType="vm:ClubCardVM">
-              <Border Width="240" Height="120"
-                      Margin="0,0,12,12"
-                      Padding="14,10"
-                      Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-                      BorderBrush="CornflowerBlue"
-                      BorderThickness="1"
-                      CornerRadius="8">
-                <StackPanel Spacing="4">
-                  <TextBlock Text="{Binding Name}"
-                             FontWeight="SemiBold" FontSize="15"
-                             TextTrimming="CharacterEllipsis"/>
-                  <TextBlock Text="{Binding YearText}"
-                             FontSize="11"
-                             Foreground="{DynamicResource SystemBaseMediumColor}"/>
-                  <TextBlock Text="{Binding Room}"
-                             FontSize="12"/>
-                  <TextBlock Text="{Binding MemberText}"
-                             FontSize="12"
-                             Foreground="#5B7FB8"
-                             FontWeight="SemiBold"/>
-                  <TextBlock Text="{Binding Remark}"
-                             FontSize="11"
-                             TextTrimming="CharacterEllipsis"
-                             Foreground="{DynamicResource SystemBaseMediumLowColor}"/>
-                </StackPanel>
-              </Border>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
-      </ScrollViewer>
+        <!-- 동아리 선택 카드 -->
+        <Border Grid.Row="0"
+                Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                BorderThickness="1" CornerRadius="8"
+                Padding="16" Margin="0,0,0,12">
+          <StackPanel Spacing="12">
+            <StackPanel Spacing="4">
+              <TextBlock Text="동아리 선택" FontSize="11"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+              <ComboBox Name="CBoxClub"
+                        ItemsSource="{Binding Clubs}"
+                        SelectedItem="{Binding SelectedClub, Mode=TwoWay}"
+                        HorizontalAlignment="Stretch"
+                        SelectionChanged="OnClubChanged">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate DataType="models:Club">
+                    <TextBlock Text="{Binding ClubName}"/>
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+            </StackPanel>
+
+            <TextBlock Name="TxtClubInfo" Text=""
+                       FontSize="13"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+            <TextBlock Name="TxtMemberCount" Text=""
+                       FontSize="13"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+
+            <Button Content="활동 기록"
+                    Classes="accent"
+                    HorizontalAlignment="Stretch"
+                    Click="OnActivityClick"/>
+          </StackPanel>
+        </Border>
+
+        <!-- 부원 명단 -->
+        <Border Grid.Row="1"
+                Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                BorderThickness="1" CornerRadius="8">
+          <Grid RowDefinitions="Auto,*">
+            <Border Grid.Row="0"
+                    Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+                    Padding="16,12" CornerRadius="8,8,0,0">
+              <TextBlock Text="👥 부원 명단" FontWeight="SemiBold"/>
+            </Border>
+
+            <ListBox Grid.Row="1"
+                     Name="MemberListView"
+                     ItemsSource="{Binding Members}"
+                     SelectionMode="Single"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     Padding="8">
+              <ListBox.ItemTemplate>
+                <DataTemplate DataType="models:ClubEnrollment">
+                  <Grid ColumnDefinitions="*" Margin="4,2">
+                    <TextBlock Text="{Binding StudentID}"
+                               FontSize="13" VerticalAlignment="Center"/>
+                  </Grid>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+
+            <!-- 빈 상태 -->
+            <StackPanel Grid.Row="1"
+                        Name="EmptyMemberState"
+                        IsVisible="False"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Spacing="8">
+              <TextBlock Text="👥" FontSize="36" HorizontalAlignment="Center"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+              <TextBlock Text="등록된 부원이 없습니다"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+      </Grid>
+
+      <!-- 우측: 자료실 -->
+      <Border Grid.Column="1"
+              Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+              BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+              BorderThickness="1" CornerRadius="8">
+        <Grid RowDefinitions="Auto,*">
+          <Border Grid.Row="0"
+                  Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+                  Padding="12,8" CornerRadius="8,8,0,0">
+            <TextBlock Text="📋 동아리 자료실" FontWeight="SemiBold"/>
+          </Border>
+          <TextBlock Grid.Row="1"
+                     Text="동아리를 선택하면 관련 게시글이 표시됩니다."
+                     HorizontalAlignment="Center" VerticalAlignment="Center"
+                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                     FontSize="13"/>
+        </Grid>
+      </Border>
     </Grid>
-  </Grid>
+    </Grid>
+  </Border>
 </UserControl>

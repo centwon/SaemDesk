@@ -1,0 +1,71 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="SaemDesk.Views.Controls.TimetableControl">
+  <Border BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+          BorderThickness="1"
+          CornerRadius="8">
+    <Grid Name="TimetableGrid"
+          Background="{DynamicResource SystemControlForegroundBaseLowBrush}"
+          ColumnSpacing="1" RowSpacing="1">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="30"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <!-- 헤더 -->
+      <Border Grid.Row="0" Grid.Column="0" Padding="4" Background="{DynamicResource SystemControlBackgroundListLowBrush}"/>
+      <Border Grid.Row="0" Grid.Column="1" Padding="4" Background="{DynamicResource SystemControlBackgroundListLowBrush}">
+        <TextBlock Text="월" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold"/>
+      </Border>
+      <Border Grid.Row="0" Grid.Column="2" Padding="4" Background="{DynamicResource SystemControlBackgroundListLowBrush}">
+        <TextBlock Text="화" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold"/>
+      </Border>
+      <Border Grid.Row="0" Grid.Column="3" Padding="4" Background="{DynamicResource SystemControlBackgroundListLowBrush}">
+        <TextBlock Text="수" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold"/>
+      </Border>
+      <Border Grid.Row="0" Grid.Column="4" Padding="4" Background="{DynamicResource SystemControlBackgroundListLowBrush}">
+        <TextBlock Text="목" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold"/>
+      </Border>
+      <Border Grid.Row="0" Grid.Column="5" Padding="4" Background="{DynamicResource SystemControlBackgroundListLowBrush}">
+        <TextBlock Text="금" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold"/>
+      </Border>
+
+      <!-- 교시 열 -->
+      <Border Grid.Row="1" Grid.Column="0" Padding="4" Background="{DynamicResource SystemControlBackgroundListLowBrush}">
+        <TextBlock Text="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12"/>
+      </Border>
+      <Border Grid.Row="2" Grid.Column="0" Padding="4" Background="{DynamicResource SystemControlBackgroundListLowBrush}">
+        <TextBlock Text="2" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12"/>
+      </Border>
+      <Border Grid.Row="3" Grid.Column="0" Padding="4" Background="{DynamicResource SystemControlBackgroundListLowBrush}">
+        <TextBlock Text="3" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12"/>
+      </Border>
+      <Border Grid.Row="4" Grid.Column="0" Padding="4" Background="{DynamicResource SystemControlBackgroundListLowBrush}">
+        <TextBlock Text="4" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12"/>
+      </Border>
+      <Border Grid.Row="5" Grid.Column="0" Padding="4" Background="{DynamicResource SystemControlBackgroundListLowBrush}">
+        <TextBlock Text="5" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12"/>
+      </Border>
+      <Border Grid.Row="6" Grid.Column="0" Padding="4" Background="{DynamicResource SystemControlBackgroundListLowBrush}">
+        <TextBlock Text="6" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12"/>
+      </Border>
+      <Border Grid.Row="7" Grid.Column="0" Padding="4" Background="{DynamicResource SystemControlBackgroundListLowBrush}">
+        <TextBlock Text="7" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12"/>
+      </Border>
+    </Grid>
+  </Border>
+</UserControl>

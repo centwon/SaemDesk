@@ -134,36 +134,34 @@ namespace SaemDesk.Helpers
 
             var rows = new List<Dictionary<string, object>>();
 
-            // 제목 행
+            // MiniExcel은 첫 번째 Dictionary의 키를 헤더(3행)로 자동 출력
+            // 따라서 rows[0]=1행(제목), rows[1]=2행(부제목), 헤더=3행, rows[2~]=4행~데이터
+
+            // 1행: 제목 (첫 번째 콼럼에만 값)
             if (!string.IsNullOrWhiteSpace(title))
             {
                 var titleRow = new Dictionary<string, object>();
                 for (int i = 0; i < data.Columns.Count; i++)
-                {
-                    titleRow[data.Columns[i].ColumnName] = i == 0 ? title : "";
-                }
+                    titleRow[data.Columns[i].ColumnName] = i == 0 ? (object)title! : "";
                 rows.Add(titleRow);
             }
 
-            // 부제목 행
+            // 2행: 부제목 (마지막 콼럼에만 값 — 오른쪽 정렬 효과)
             if (!string.IsNullOrWhiteSpace(subtitle))
             {
                 var subtitleRow = new Dictionary<string, object>();
                 for (int i = 0; i < data.Columns.Count; i++)
-                {
-                    subtitleRow[data.Columns[i].ColumnName] = i == 0 ? subtitle : "";
-                }
+                    subtitleRow[data.Columns[i].ColumnName] = i == data.Columns.Count - 1 ? (object)subtitle! : "";
                 rows.Add(subtitleRow);
             }
 
-            // 데이터 행
+            // 3행: 헤더 — MiniExcel이 자동 출력 (Dictionary 키 = ColumnName)
+            // 4행~: 데이터
             foreach (DataRow row in data.Rows)
             {
                 var rowData = new Dictionary<string, object>();
                 for (int i = 0; i < data.Columns.Count; i++)
-                {
                     rowData[data.Columns[i].ColumnName] = row[i];
-                }
                 rows.Add(rowData);
             }
 

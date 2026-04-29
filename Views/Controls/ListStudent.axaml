@@ -1,0 +1,151 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:models="using:SaemDesk.Models"
+             x:Class="SaemDesk.Views.Controls.ListStudent"
+             x:Name="Root">
+
+  <Border BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+          BorderThickness="1"
+          CornerRadius="8"
+          Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+    <Grid RowDefinitions="Auto,*,Auto">
+
+      <!-- 헤더 -->
+      <Border Grid.Row="0"
+              Padding="4,8"
+              Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+              BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+              BorderThickness="0,0,0,1">
+        <Grid Name="HeaderGrid">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0"/>
+            <ColumnDefinition Width="0"/>
+            <ColumnDefinition Width="0"/>
+            <ColumnDefinition Width="50"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+
+          <CheckBox Name="ChkSelectAll"
+                    Grid.Column="0"
+                    IsThreeState="True"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    IsVisible="False"/>
+
+          <TextBlock Grid.Column="1" Name="TxtGradeHeader"
+                     Text="학년" FontSize="13" FontWeight="SemiBold"
+                     VerticalAlignment="Center" HorizontalAlignment="Center"/>
+          <TextBlock Grid.Column="2" Name="TxtClassHeader"
+                     Text="반" FontSize="13" FontWeight="SemiBold"
+                     VerticalAlignment="Center" HorizontalAlignment="Center"/>
+          <TextBlock Grid.Column="3" Name="TxtNumberHeader"
+                     Text="번호" FontSize="13" FontWeight="SemiBold"
+                     VerticalAlignment="Center" HorizontalAlignment="Center"/>
+          <TextBlock Grid.Column="4" Name="TxtNameHeader"
+                     Text="이름" FontSize="13" FontWeight="SemiBold"
+                     VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        </Grid>
+      </Border>
+
+      <!-- 학생 목록 -->
+      <ListBox Name="StudentListView"
+               Grid.Row="1"
+               SelectionMode="Single"
+               Background="Transparent"
+               BorderThickness="0">
+
+        <ListBox.ItemContainerTheme>
+          <ControlTheme TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="4,2"/>
+            <Setter Property="Margin" Value="0,0"/>
+            <Setter Property="MinHeight" Value="30"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseLowBrush}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="Template">
+              <ControlTemplate>
+                <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        Padding="{TemplateBinding Padding}">
+                  <ContentPresenter Content="{TemplateBinding Content}"
+                                    ContentTemplate="{TemplateBinding ContentTemplate}"
+                                    HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                    VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                </Border>
+              </ControlTemplate>
+            </Setter>
+            <Style Selector="^:pointerover">
+              <Setter Property="Background" Value="#E3F2FD"/>
+            </Style>
+            <Style Selector="^:selected">
+              <Setter Property="Background" Value="{DynamicResource SystemAccentColor}"/>
+              <Setter Property="Foreground" Value="White"/>
+            </Style>
+            <Style Selector="^:selected:pointerover">
+              <Setter Property="Background" Value="{DynamicResource SystemAccentColorDark1}"/>
+              <Setter Property="Foreground" Value="White"/>
+            </Style>
+          </ControlTheme>
+        </ListBox.ItemContainerTheme>
+
+        <ListBox.ItemTemplate>
+          <DataTemplate DataType="models:Enrollment">
+            <Grid Name="ItemGrid">
+              <Grid.ColumnDefinitions>
+                <!-- Col 0: 체크박스 — ShowCheckBox StyledProperty 로 너비 제어 -->
+                <ColumnDefinition Width="{Binding #Root.CheckColumnWidth}"/>
+                <!-- Col 1: 학년 -->
+                <ColumnDefinition Width="{Binding #Root.GradeColumnWidth}"/>
+                <!-- Col 2: 반 -->
+                <ColumnDefinition Width="{Binding #Root.ClassColumnWidth}"/>
+                <!-- Col 3: 번호 -->
+                <ColumnDefinition Width="{Binding #Root.NumberColumnWidth}"/>
+                <!-- Col 4: 이름 -->
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+
+              <CheckBox Grid.Column="0"
+                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                        IsVisible="{Binding #Root.ShowCheckBox}"
+                        IsChecked="{Binding $parent[ListBoxItem].IsSelected, Mode=TwoWay}"/>
+
+              <TextBlock Grid.Column="1" Text="{Binding Grade}"
+                         FontSize="13"
+                         IsVisible="{Binding #Root.ShowGradeColumn}"
+                         VerticalAlignment="Center" HorizontalAlignment="Center"/>
+              <TextBlock Grid.Column="2" Text="{Binding Class}"
+                         FontSize="13"
+                         IsVisible="{Binding #Root.ShowClassColumn}"
+                         VerticalAlignment="Center" HorizontalAlignment="Center"/>
+              <TextBlock Grid.Column="3" Text="{Binding Number}"
+                         FontSize="13"
+                         VerticalAlignment="Center" HorizontalAlignment="Center"/>
+              <TextBlock Grid.Column="4" Text="{Binding Name}"
+                         FontSize="13"
+                         VerticalAlignment="Center" HorizontalAlignment="Center"
+                         TextTrimming="CharacterEllipsis"
+                         ToolTip.Tip="{Binding Name}"/>
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <!-- 하단 선택 정보 -->
+      <Border Name="PnlSelectionInfo"
+              Grid.Row="2"
+              Padding="12,6"
+              Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+              BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+              BorderThickness="0,1,0,0"
+              IsVisible="False">
+        <TextBlock Name="TxtSelectionInfo"
+                   FontSize="13" FontWeight="SemiBold"
+                   Foreground="{DynamicResource SystemAccentColor}"/>
+      </Border>
+    </Grid>
+  </Border>
+</UserControl>

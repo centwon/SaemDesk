@@ -1,0 +1,67 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:boardCtrl="using:SaemDesk.Board.Views.Controls"
+             xmlns:ctrl="using:SaemDesk.Views.Controls"
+             x:Class="SaemDesk.Board.Views.Pages.PostEditPage">
+
+  <Grid RowDefinitions="Auto,*,Auto">
+
+    <!-- ── 툴바 ─────────────────────────────────────────── -->
+    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="6"
+                Margin="16,10,16,0">
+      <TextBlock x:Name="PageTitle" Text="새 글 쓰기"
+                 FontSize="18" FontWeight="SemiBold"
+                 VerticalAlignment="Center"/>
+    </StackPanel>
+
+    <!-- ── 폼 ───────────────────────────────────────────── -->
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                  Margin="16,8,16,0">
+      <StackPanel Spacing="10">
+
+        <!-- 카테고리 + 주제 -->
+        <StackPanel Orientation="Horizontal" Spacing="10">
+          <StackPanel Spacing="2">
+            <TextBlock Text="카테고리" FontSize="10"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"/>
+            <ComboBox x:Name="CBoxCategory" MinWidth="140"
+                      SelectionChanged="OnCategoryChanged"/>
+          </StackPanel>
+          <StackPanel Spacing="2">
+            <TextBlock Text="주제" FontSize="10"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"/>
+            <ComboBox x:Name="CBoxSubject" MinWidth="160"/>
+          </StackPanel>
+        </StackPanel>
+
+        <!-- 제목 -->
+        <StackPanel Spacing="2">
+          <TextBlock Text="제목" FontSize="10"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+          <TextBox x:Name="TxtTitle" PlaceholderText="제목을 입력하세요"/>
+        </StackPanel>
+
+        <!-- 내용 (JoditEditor) -->
+        <StackPanel Spacing="2">
+          <TextBlock Text="내용" FontSize="10"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+          <ctrl:JoditEditor x:Name="ContentEditor" MinHeight="300"/>
+        </StackPanel>
+
+        <!-- 첨부파일 -->
+        <boardCtrl:PostFileListBox x:Name="FileListBox"/>
+
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- ── 하단 버튼 ─────────────────────────────────────── -->
+    <StackPanel Grid.Row="2" Orientation="Horizontal"
+                HorizontalAlignment="Right" Spacing="8"
+                Margin="16,8,16,12">
+      <Button Content="취소"  Padding="14,7" Click="BtnCancel_Click"/>
+      <Button x:Name="BtnSave" Content="저장" Classes="accent"
+              Padding="14,7" Click="BtnSave_Click"/>
+    </StackPanel>
+
+  </Grid>
+</UserControl>

@@ -1,0 +1,103 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SaemDesk.ViewModels.Pages"
+             xmlns:ctrl="using:SaemDesk.Views.Controls"
+             x:Class="SaemDesk.Views.Pages.StudentInfoPage"
+             x:DataType="vm:StudentInfoPageVM"
+             Classes="page">
+
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="180"/>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+
+    <!-- ── 상단 헤더: 필터 + 버튼 ──────────────────────── -->
+    <Border Grid.Row="0" Grid.ColumnSpan="2"
+            Padding="8,6"
+            Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BorderThickness="0,0,0,1">
+      <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+        <!-- 필터: 전체 반 없음, 담임 학년반으로 초기화 -->
+        <ctrl:ClassFilterBar x:Name="FilterBar" IncludeAllClass="False"/>
+        <!-- 구분선 -->
+        <Separator Width="1" Height="20" Background="{DynamicResource SystemControlForegroundBaseLowBrush}" Margin="4,0"/>
+        <!-- 학생카드 버튼 -->
+        <Button Name="BtnSave"  Content="💾 저장"  Padding="10,4"
+                IsEnabled="False" Click="BtnSave_Click" Classes="accent"/>
+        <Button Name="BtnPrint" Content="📄 PDF"   Padding="10,4"
+                IsEnabled="False" Click="BtnPrint_Click"/>
+        <Button Name="BtnReset" Content="초기화"    Padding="10,4"
+                IsEnabled="False" Click="BtnReset_Click"/>
+        <!-- 구분선 -->
+        <Separator Width="1" Height="20" Background="{DynamicResource SystemControlForegroundBaseLowBrush}" Margin="4,0"/>
+        <!-- 엑셀 일괄 버튼 -->
+        <Button Name="BtnDownloadTemplate" Content="📥 양식" ToolTip.Tip="학생정보 엑셀 양식 다운로드"
+                Padding="10,4" Click="BtnDownloadTemplate_Click"/>
+        <Button Name="BtnBulkImport" Content="📤 일괄입력" ToolTip.Tip="엑셀 파일로 학생정보 일괄 입력"
+                Padding="10,4" Click="BtnBulkImport_Click"/>
+      </StackPanel>
+    </Border>
+
+    <!-- ── 좌: 학생 목록 ──────────────────────────────── -->
+    <ctrl:ListStudent Name="StudentList"
+                      Grid.Row="1" Grid.Column="0"
+                      ViewMode="NumName"
+                      ShowCheckBox="False"
+                      Margin="4"/>
+
+    <!-- ── 우: StudentCard + 누가기록 (스크롤 가능) ──── -->
+    <ScrollViewer Grid.Row="1" Grid.Column="1"
+                  HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
+      <!-- 창 960 - 목록 180 - 여백 8 - 스크롤바 17 = 755 -->
+      <StackPanel Width="755"
+                  Margin="4" Spacing="4">
+
+        <!-- 학생 카드 (둥근 테두리) -->
+        <Border BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                BorderThickness="1" CornerRadius="8"
+                ClipToBounds="True"
+                Padding="8">
+          <ctrl:StudentCard Name="SCard"/>
+        </Border>
+
+        <!-- 누가기록 -->
+        <Border BorderBrush="CornflowerBlue"
+                BorderThickness="1" CornerRadius="8"
+                Padding="4" MinHeight="260">
+          <Grid Background="AliceBlue">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Padding="8,4" Background="#E3F2FD">
+              <Grid>
+                <TextBlock Text="누가기록" FontWeight="SemiBold" FontSize="14"
+                           VerticalAlignment="Center"/>
+                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="4">
+                  <Button Name="BtnNewLog"    Content="＋기록"  Padding="8,2" FontSize="12"
+                          IsEnabled="False" Click="BtnNewLog_Click"/>
+                  <Button Name="BtnSaveLog"   Content="💾 저장" Padding="8,2" FontSize="12"
+                          IsEnabled="False" Click="BtnSaveLog_Click"/>
+                  <Button Name="BtnDeleteLog" Content="🗑 삭제" Padding="8,2" FontSize="12"
+                          IsEnabled="False" Click="BtnDeleteLog_Click"/>
+                </StackPanel>
+              </Grid>
+            </Border>
+
+            <ctrl:LogListViewer Name="LogList" Grid.Row="1" Margin="4"
+                                MinHeight="200"/>
+          </Grid>
+        </Border>
+
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</UserControl>

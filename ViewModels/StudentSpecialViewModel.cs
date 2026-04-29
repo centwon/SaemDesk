@@ -23,6 +23,18 @@ public class StudentSpecialViewModel : INotifyPropertyChanged
     private int _number;
     private string _studentName = string.Empty;
 
+    // 콜럼 너비 배열 (단위: px, 0=숨김, -1=*)
+    public double[] ColWidths { get; } = new double[10] { 40, 60, 100, 100, 40, 40, 40, 60, -1, 120 };
+
+    public void SetColWidth(int col, double w)
+    {
+        if (col >= 0 && col < ColWidths.Length)
+        {
+            ColWidths[col] = w;
+            OnPropertyChanged(nameof(ColWidths));
+        }
+    }
+
     public StudentSpecialViewModel(StudentSpecial special)
     {
         _special = special;

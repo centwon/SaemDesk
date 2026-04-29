@@ -266,7 +266,27 @@ public static class Settings
     /// <summary>
     /// 창 높이
     /// </summary>
-    public static SettingProperty<int> WindowHeight { get; private set; } = null!;   
+    public static SettingProperty<int> WindowHeight { get; private set; } = null!;
+
+    /// <summary>
+    /// 창 X 위치
+    /// </summary>
+    public static SettingProperty<int> WindowX { get; private set; } = null!;
+
+    /// <summary>
+    /// 창 Y 위치
+    /// </summary>
+    public static SettingProperty<int> WindowY { get; private set; } = null!;
+
+    /// <summary>
+    /// 창 최대화 여부
+    /// </summary>
+    public static SettingProperty<bool> WindowIsMaximized { get; private set; } = null!;
+
+    /// <summary>
+    /// 마지막으로 열린 페이지
+    /// </summary>
+    public static SettingProperty<string> LastPage { get; private set; } = null!;
 
     /// <summary>
     /// 설정 초기화 (앱 시작 시 한 번 호출)
@@ -382,6 +402,10 @@ public static class Settings
     /// </summary>
     WindowWidth = new SettingProperty<int>("WindowWidth", 1400, int.Parse, i => i.ToString());
     WindowHeight = new SettingProperty<int>("WindowHeight", 900, int.Parse, i => i.ToString());
+    WindowX = new SettingProperty<int>("WindowX", -1, int.Parse, i => i.ToString());
+    WindowY = new SettingProperty<int>("WindowY", -1, int.Parse, i => i.ToString());
+    WindowIsMaximized = new SettingProperty<bool>("WindowIsMaximized", false, bool.Parse, b => b.ToString().ToLower());
+    LastPage = new SettingProperty<string>("LastPage", "", s => s, s => s);
 
 
 
@@ -454,6 +478,10 @@ public static class Settings
         Language.Reload();
         WindowWidth.Reload();
         WindowHeight.Reload();
+        WindowX.Reload();
+        WindowY.Reload();
+        WindowIsMaximized.Reload();
+        LastPage.Reload();
 
 
     }

@@ -1,4 +1,4 @@
-<Application xmlns="https://github.com/avaloniaui"
+﻿<Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="SaemDesk.App"
              xmlns:local="clr-namespace:SaemDesk"
@@ -9,7 +9,7 @@
   </Application.DataTemplates>
 
   <Application.Styles>
-    <FluentTheme />
+    <FluentTheme DensityStyle="Compact"/>
     <StyleInclude Source="avares://SaemDesk/Assets/Styles/CommonStyles.axaml" />
   </Application.Styles>
 
@@ -18,6 +18,10 @@
       <ResourceDictionary.MergedDictionaries>
         <ResourceInclude Source="avares://SaemDesk/Assets/Styles/Colors.axaml" />
       </ResourceDictionary.MergedDictionaries>
+
+      <!-- DatePicker 전역 너비 제한 해제: MinWidth=0 설정 후 Width 직접 지정 가능 -->
+      <x:Double x:Key="DatePickerThemeMinWidth">0</x:Double>
+      <x:Double x:Key="DatePickerThemeMaxWidth">9999</x:Double>
     </ResourceDictionary>
   </Application.Resources>
 </Application>

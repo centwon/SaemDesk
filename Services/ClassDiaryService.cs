@@ -451,10 +451,10 @@ namespace SaemDesk.Services
         {
             // 해당 날짜의 로그 조회 (작업 학년도 사용)
             var logs = await StudentLogService.GetByClassAsync(
-                Settings.SchoolCode.Value, 
-                Settings.WorkYear,  // date.Year 대신 Settings.WorkYear 사용
-                grade, 
-                classNum, 
+                Settings.SchoolCode.Value,
+                Settings.WorkYear.Value,
+                grade,
+                classNum,
                 date);
 
             // StudentLogViewModel으로 변환

@@ -1,0 +1,42 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:models="using:SaemDesk.Models"
+             xmlns:ctrl="using:SaemDesk.Views.Controls"
+             x:Class="SaemDesk.Views.Controls.SchoolScheduleListControl">
+  <UserControl.Resources>
+    <ctrl:BoolToVacationColorConverter x:Key="VacationColor"/>
+  </UserControl.Resources>
+
+  <Border BorderBrush="CornflowerBlue"
+          BorderThickness="1" CornerRadius="8"
+          Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+          MinHeight="80">
+    <Grid RowDefinitions="Auto,*">
+      <Border Grid.Row="0" Padding="16,12" Background="Lavender" CornerRadius="8,8,0,0">
+        <TextBlock Text="📅 학사일정" FontWeight="Bold" VerticalAlignment="Center" FontSize="14"/>
+      </Border>
+
+      <ListBox Name="ScheduleItemsRepeater" Grid.Row="1"
+               Padding="4,4,4,8" SelectionMode="Single"
+               Background="Transparent" BorderThickness="0">
+        <ListBox.Styles>
+          <Style Selector="ListBoxItem">
+            <Setter Property="MinHeight" Value="0"/>
+            <Setter Property="Padding" Value="8,2"/>
+          </Style>
+        </ListBox.Styles>
+        <ListBox.ItemTemplate>
+          <DataTemplate DataType="models:SchoolScheduleGroup">
+            <Grid ColumnDefinitions="Auto,*" Margin="0,2">
+              <TextBlock Grid.Column="0" Text="📆" FontSize="14"
+                         Margin="0,0,8,0" VerticalAlignment="Top"/>
+              <TextBlock Grid.Column="1" Text="{Binding DateText}"
+                         Foreground="{Binding IsVacation, Converter={StaticResource VacationColor}}"
+                         TextWrapping="Wrap" FontSize="12"/>
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </Grid>
+  </Border>
+</UserControl>

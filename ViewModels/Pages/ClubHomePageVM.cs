@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -11,70 +9,55 @@ using SaemDesk.Repositories;
 namespace SaemDesk.ViewModels.Pages;
 
 /// <summary>
-/// 동아리 홈 — 담임 동아리 카드 목록 + 부원 수 + 활동실.
+/// 동아리 홈 ViewModel.
+/// 원본 NewSchool ClubHomePage 와 동등 —
+/// 동아리 선택 + 부원 명단 표시. 자료실은 추후 Board 임베드.
 /// </summary>
 public partial class ClubHomePageVM : ViewModelBase
 {
-    public ObservableCollection<ClubCardVM> Clubs { get; } = new();
+    public ObservableCollection<Club>           Clubs   { get; } = new();
+    public ObservableCollection<ClubEnrollment> Members { get; } = new();
 
-    [ObservableProperty]
-    private bool _isBusy;
+    [ObservableProperty] private Club?  _selectedClub;
+    [ObservableProperty] private bool   _isBusy;
+    [ObservableProperty] private string _statusText = string.Empty;
+    [ObservableProperty] private int    _year = Settings.WorkYear.Value;
 
-    [ObservableProperty]
-    private string _statusText = string.Empty;
-
-    [ObservableProperty]
-    private string _errorText = string.Empty;
-
-    [ObservableProperty]
-    private int _year = Settings.WorkYear;
-
-    public bool IsEmpty => Clubs.Count == 0 && !IsBusy;
-
-    public ClubHomePageVM() { _ = ReloadAsync(); }
+    public ClubHomePageVM() => _ = LoadClubsAsync();
 
     [RelayCommand]
-    private async Task ReloadAsync()
+    private async Task LoadClubsAsync()
     {
-        if (IsBusy) return;
         IsBusy = true;
-        ErrorText = string.Empty;
         try
         {
-            using var clubRepo = new ClubRepository(SchoolDatabase.DbPath);
-            using var enrollRepo = new ClubEnrollmentRepository(SchoolDatabase.DbPath);
-            var teacherId = Settings.UserName.Value;
-            var schoolCode = Settings.SchoolCode.Value;
-            List<Club> rows;
-            if (!string.IsNullOrWhiteSpace(teacherId))
-                rows = (await clubRepo.GetByTeacherAsync(teacherId, Year)).ToList();
-            else if (!string.IsNullOrWhiteSpace(schoolCode))
-                rows = await clubRepo.GetBySchoolAsync(schoolCode, Year);
-            else
-                rows = (await clubRepo.GetAllAsync()).Where(c => c.Year == Year).ToList();
-
+            using var repo = new ClubRepository(SchoolDatabase.DbPath);
+            var list = await repo.GetBySchoolAsync(Settings.SchoolCode.Value, Year);
             Clubs.Clear();
-            foreach (var c in rows)
-            {
-                var members = await enrollRepo.GetByClubAsync(c.No);
-                Clubs.Add(new ClubCardVM(c, members.Count));
-            }
-            StatusText = $"동아리 {Clubs.Count}개";
-            OnPropertyChanged(nameof(IsEmpty));
+            foreach (var c in list) Clubs.Add(c);
+            if (Clubs.Count > 0) SelectedClub = Clubs[0];
         }
-        catch (Exception ex) { ErrorText = ex.Message; }
-        finally { IsBusy = false; OnPropertyChanged(nameof(IsEmpty)); }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ClubHomePageVM] {ex.Message}");
+        }
+        finally { IsBusy = false; }
     }
-}
 
-public sealed class ClubCardVM
-{
-    public Club Source { get; }
-    public int MemberCount { get; }
-    public ClubCardVM(Club c, int n) { Source = c; MemberCount = n; }
-    public string Name => Source.ClubName;
-    public string Room => string.IsNullOrEmpty(Source.ActivityRoom) ? "활동실 미지정" : Source.ActivityRoom;
-    public string YearText => $"{Source.Year}학년도";
-    public string MemberText => $"부원 {MemberCount}명";
-    public string Remark => Source.Remark ?? string.Empty;
+    public async Task LoadMembersAsync()
+    {
+        if (SelectedClub is null) return;
+        try
+        {
+            using var repo = new ClubEnrollmentRepository(SchoolDatabase.DbPath);
+            var list = await repo.GetByClubAsync(SelectedClub.No);
+            Members.Clear();
+            foreach (var m in list) Members.Add(m);
+            StatusText = $"부원 {Members.Count}명";
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ClubHomePageVM] Members: {ex.Message}");
+        }
+    }
 }

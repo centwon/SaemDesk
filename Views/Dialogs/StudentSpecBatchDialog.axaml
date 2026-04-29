@@ -1,0 +1,174 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ctrl="using:SaemDesk.Views.Controls"
+        xmlns:models="using:SaemDesk.Models"
+        xmlns:dlg="using:SaemDesk.Views.Dialogs"
+        x:Class="SaemDesk.Views.Dialogs.StudentSpecBatchDialog"
+        x:DataType="dlg:StudentSpecBatchDialog"
+        Title="학생부 특기사항 일괄 입력"
+        Width="1000" Height="700"
+        MinWidth="840" MinHeight="580"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="16">
+
+    <!-- ── 상단 필터 ──────────────────────────────────────── -->
+    <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,*,Auto" Margin="0,0,0,10">
+
+      <!-- 영역 선택 -->
+      <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+        <StackPanel Spacing="2">
+          <TextBlock Text="영역" FontSize="11"
+                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+          <ComboBox x:Name="CBoxType" MinWidth="130"
+                    SelectionChanged="CBoxType_SelectionChanged"/>
+        </StackPanel>
+
+        <!-- 과목 선택 (교과활동/개인별세특) -->
+        <StackPanel x:Name="CoursePanel" Spacing="2" IsVisible="False">
+          <TextBlock Text="과목" FontSize="11"
+                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+          <ComboBox x:Name="CBoxCourse" MinWidth="140"
+                    ItemsSource="{Binding Courses}"
+                    SelectionChanged="CBoxCourse_SelectionChanged">
+            <ComboBox.ItemTemplate>
+              <DataTemplate x:DataType="models:Course">
+                <TextBlock Text="{Binding Subject}"/>
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+        </StackPanel>
+      </StackPanel>
+
+      <!-- 학급 정보 -->
+      <TextBlock Grid.Column="1" x:Name="TxtClassInfo"
+                 VerticalAlignment="Center"
+                 FontWeight="SemiBold"
+                 Foreground="#5B7FB8"
+                 Margin="16,0,0,0"/>
+
+      <!-- 진행 상황 -->
+      <TextBlock Grid.Column="2" x:Name="TxtProgress"
+                 FontSize="12"
+                 HorizontalAlignment="Right"
+                 VerticalAlignment="Center"
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+
+      <!-- 맞춤법 검사 -->
+      <Button Grid.Column="3" Content="맞춤법 검사"
+              Padding="10,6" Margin="8,0,0,0"
+              VerticalAlignment="Bottom"
+              Click="BtnSpellCheck_Click"/>
+    </Grid>
+
+    <!-- ── 메인: 학생 목록(좌) + 편집(우) ────────────────── -->
+    <Grid Grid.Row="1" ColumnDefinitions="200,12,*">
+
+      <!-- 좌: 학생 목록 -->
+      <ctrl:ListStudent x:Name="StudentList" Grid.Column="0" ViewMode="NumName"/>
+
+      <!-- 우: 편집 + 참조 -->
+      <Grid Grid.Column="2" RowDefinitions="*,Auto,Auto">
+
+        <!-- 편집 영역 -->
+        <Border Grid.Row="0"
+                Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                BorderThickness="1" CornerRadius="8" Padding="16">
+          <Grid RowDefinitions="Auto,*,Auto">
+
+            <!-- 학생 정보 + 바이트 -->
+            <Grid Grid.Row="0" Margin="0,0,0,8">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                <TextBlock x:Name="TxtStudentName"
+                           Text="학생을 선택하세요"
+                           FontSize="16" FontWeight="SemiBold"
+                           VerticalAlignment="Center"/>
+                <TextBlock x:Name="TxtStudentNum"
+                           FontSize="13"
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                           VerticalAlignment="Center"/>
+                <TextBlock x:Name="IconModified"
+                           Text="●" FontSize="10"
+                           Foreground="#E08F2A"
+                           IsVisible="False"
+                           VerticalAlignment="Center"
+                           ToolTip.Tip="수정됨 (미저장)"/>
+              </StackPanel>
+              <TextBlock Grid.Column="1" x:Name="TxtByteInfo"
+                         Text="0 / 0 Byte (0자)"
+                         FontSize="12" VerticalAlignment="Center"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+            </Grid>
+
+            <!-- 텍스트 에디터 -->
+            <TextBox Grid.Row="1" x:Name="TxtContent"
+                     AcceptsReturn="True" TextWrapping="Wrap"
+                     PlaceholderText="학생부 특기사항을 입력하세요..."
+                     IsEnabled="False"
+                     TextChanged="TxtContent_TextChanged"/>
+
+            <!-- 안내 -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,6,0,0">
+              <TextBlock Text="↑↓ 방향키로 학생 전환" FontSize="11"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+              <TextBlock Text="Ctrl+S 저장" FontSize="11"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <!-- 참조 토글 버튼 + 초안 자동 생성 -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
+          <ToggleButton x:Name="BtnToggleRef"
+                        Content="📋 누가기록 참조"
+                        IsCheckedChanged="BtnToggleRef_Changed"
+                        Padding="10,4"/>
+          <Button x:Name="BtnAutoGenerate"
+                  Content="✨ 초안 자동 생성"
+                  Padding="10,4"
+                  Click="BtnAutoGenerate_Click"
+                  ToolTip.Tip="누가기록의 학생부 초안을 병합하여 자동 생성"/>
+        </StackPanel>
+
+        <!-- 누가기록 참조 패널 -->
+        <Border Grid.Row="2" x:Name="RefPanel" IsVisible="False"
+                Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                BorderThickness="1" CornerRadius="8" Padding="12"
+                MaxHeight="200" Margin="0,4,0,0">
+          <Grid RowDefinitions="Auto,*">
+            <TextBlock Grid.Row="0" Text="누가기록 학생부 초안"
+                       FontSize="12" FontWeight="SemiBold"
+                       Foreground="#5B7FB8" Margin="0,0,0,6"/>
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+              <TextBlock x:Name="TxtLogReference"
+                         Text="학생을 선택하면 해당 학생의 누가기록 초안이 표시됩니다."
+                         FontSize="12" TextWrapping="Wrap"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+            </ScrollViewer>
+          </Grid>
+        </Border>
+      </Grid>
+    </Grid>
+
+    <!-- ── 하단 버튼 ──────────────────────────────────────── -->
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" Margin="0,10,0,0">
+      <TextBlock Grid.Column="0" x:Name="TxtSaveStatus"
+                 FontSize="12" VerticalAlignment="Center"
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+      <Button Grid.Column="1" Content="전체 저장" Classes="accent"
+              Padding="14,6" Margin="0,0,6,0"
+              Click="BtnSaveAll_Click"/>
+      <Button Grid.Column="2" Content="닫기"
+              Padding="14,6"
+              Click="BtnClose_Click"/>
+    </Grid>
+
+  </Grid>
+</Window>

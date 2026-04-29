@@ -1,0 +1,122 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:models="using:SaemDesk.Models"
+        x:Class="SaemDesk.Views.Dialogs.RosterTableDialog"
+        Title="명렬표 삽입"
+        Width="500" Height="520"
+        MinWidth="440" MinHeight="460"
+        WindowStartupLocation="CenterOwner"
+        CanResize="True"
+        ShowInTaskbar="False">
+
+  <Grid RowDefinitions="*,Auto" Margin="20">
+
+    <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+      <StackPanel Spacing="14">
+
+        <!-- 표 제목 -->
+        <StackPanel Spacing="4">
+          <TextBlock Text="표 제목" FontWeight="SemiBold" FontSize="13"/>
+          <TextBox x:Name="TableTitleBox" PlaceholderText="예) 가정통신문 취합"/>
+        </StackPanel>
+
+        <!-- 대상 선택 -->
+        <StackPanel Spacing="4">
+          <TextBlock Text="대상" FontWeight="SemiBold" FontSize="13"/>
+          <ComboBox x:Name="ScopeComboBox" HorizontalAlignment="Stretch"
+                    SelectionChanged="ScopeComboBox_SelectionChanged" SelectedIndex="0">
+            <ComboBoxItem Tag="Class">학급</ComboBoxItem>
+            <ComboBoxItem Tag="Course">수업</ComboBoxItem>
+            <ComboBoxItem Tag="Club">동아리</ComboBoxItem>
+          </ComboBox>
+        </StackPanel>
+
+        <!-- ════ 학급 패널 ════ -->
+        <StackPanel x:Name="ClassPanel" Spacing="8">
+          <StackPanel Spacing="4">
+            <TextBlock Text="학년 / 반" FontWeight="SemiBold" FontSize="13"/>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <NumericUpDown x:Name="GradeBox"
+                             Minimum="1" Maximum="6" Increment="1" Value="1"
+                             Width="100" ValueChanged="GradeBox_ValueChanged"/>
+              <TextBlock Text="학년" VerticalAlignment="Center"/>
+              <ComboBox x:Name="ClassComboBox" MinWidth="120"
+                        PlaceholderText="반 선택"
+                        SelectionChanged="ClassComboBox_SelectionChanged"/>
+            </StackPanel>
+          </StackPanel>
+
+          <!-- 레이아웃 (전체 반 선택 시) -->
+          <StackPanel x:Name="ClassLayoutPanel" Spacing="4" IsVisible="False">
+            <TextBlock Text="레이아웃" FontWeight="SemiBold" FontSize="13"/>
+            <StackPanel Orientation="Horizontal" Spacing="16">
+              <RadioButton x:Name="RbClassVertical"   Content="세로 (반별 구분)" IsChecked="True" GroupName="ClassLayout"/>
+              <RadioButton x:Name="RbClassHorizontal" Content="가로 (반별 칼럼)"                  GroupName="ClassLayout"/>
+            </StackPanel>
+          </StackPanel>
+        </StackPanel>
+
+        <!-- ════ 수업 패널 ════ -->
+        <StackPanel x:Name="CoursePanel" Spacing="4" IsVisible="False">
+          <TextBlock Text="수업 선택" FontWeight="SemiBold" FontSize="13"/>
+          <ComboBox x:Name="CourseComboBox" HorizontalAlignment="Stretch"
+                    PlaceholderText="수업을 선택하세요"
+                    SelectionChanged="CourseComboBox_SelectionChanged">
+            <ComboBox.ItemTemplate>
+              <DataTemplate DataType="models:Course">
+                <TextBlock Text="{Binding DisplayName}"/>
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+          <ComboBox x:Name="RoomComboBox" HorizontalAlignment="Stretch"
+                    PlaceholderText="강의실 선택"
+                    IsVisible="False"
+                    SelectionChanged="RoomComboBox_SelectionChanged"/>
+          <!-- 레이아웃 (전체 강의실 선택 시) -->
+          <StackPanel x:Name="CourseLayoutPanel" Spacing="4" IsVisible="False" Margin="0,4,0,0">
+            <TextBlock Text="레이아웃" FontWeight="SemiBold" FontSize="13"/>
+            <StackPanel Orientation="Horizontal" Spacing="16">
+              <RadioButton x:Name="RbCourseVertical"   Content="세로 (강의실별 구분)" IsChecked="True" GroupName="CourseLayout"/>
+              <RadioButton x:Name="RbCourseHorizontal" Content="가로 (강의실별 칼럼)"                  GroupName="CourseLayout"/>
+            </StackPanel>
+          </StackPanel>
+        </StackPanel>
+
+        <!-- ════ 동아리 패널 ════ -->
+        <StackPanel x:Name="ClubPanel" Spacing="4" IsVisible="False">
+          <TextBlock Text="동아리 선택" FontWeight="SemiBold" FontSize="13"/>
+          <ComboBox x:Name="ClubComboBox" HorizontalAlignment="Stretch"
+                    PlaceholderText="동아리를 선택하세요">
+            <ComboBox.ItemTemplate>
+              <DataTemplate DataType="models:Club">
+                <TextBlock Text="{Binding ClubName}"/>
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+        </StackPanel>
+
+        <!-- 컬럼 헤더 -->
+        <StackPanel Spacing="4">
+          <TextBlock Text="컬럼 (쉼표로 구분)" FontWeight="SemiBold" FontSize="13"/>
+          <TextBox x:Name="ColumnsBox"
+                   PlaceholderText="예) 건강조사, 행정정보, 교육과정, 비고"/>
+        </StackPanel>
+
+        <!-- 오류 메시지 -->
+        <Border x:Name="ErrorBar" IsVisible="False"
+                Background="#FFF3E0" CornerRadius="4" Padding="10,6">
+          <TextBlock x:Name="ErrorText" FontSize="12" Foreground="#E65100" TextWrapping="Wrap"/>
+        </Border>
+
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- 버튼 바 -->
+    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right"
+                Spacing="8" Margin="0,12,0,0">
+      <Button Content="취소" Padding="14,8" Click="OnCancel"/>
+      <Button Content="삽입" Classes="accent" Padding="16,8" Click="OnInsert"/>
+    </StackPanel>
+
+  </Grid>
+</Window>

@@ -1,0 +1,109 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SaemDesk.ViewModels"
+             xmlns:ctrl="using:SaemDesk.Views.Controls"
+             xmlns:helpers="using:SaemDesk.Helpers"
+             x:Class="SaemDesk.Views.Controls.ClassDiaryBox"
+             x:DataType="vm:ClassDiaryViewModel">
+
+  <Grid RowDefinitions="Auto,Auto,*" ColumnDefinitions="*,280">
+
+    <!-- 시간표 (우측, 출결+메모 상하 두 줄에 걸침) -->
+    <Border Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BorderThickness="1" CornerRadius="8"
+            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+            Padding="8" Margin="4,4,8,6">
+      <Grid RowDefinitions="Auto,*">
+        <TextBlock Grid.Row="0" Text="학급 시간표" FontWeight="Bold" FontSize="12" Margin="0,0,0,2"/>
+        <ctrl:TimetableControl Name="ClassTimeTable" Grid.Row="1"
+                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+      </Grid>
+    </Border>
+
+    <!-- 출결 -->
+    <Border Grid.Row="0" Grid.Column="0"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BorderThickness="1" CornerRadius="8"
+            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+            Padding="8" Margin="0,0,0,6">
+      <Grid ColumnDefinitions="Auto,*">
+        <TextBlock Grid.Column="0" Text="출결" FontWeight="Bold" FontSize="12" Margin="0,0,8,0"/>
+        <Grid Grid.Column="1" RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,*">
+          <TextBlock Grid.Row="0" Grid.Column="0" Text="결석" VerticalAlignment="Center" Margin="0,0,8,0" MinWidth="40"/>
+          <TextBox Name="TBoxAbsent" Grid.Row="0" Grid.Column="1"
+                   Text="{Binding Absent, Mode=TwoWay}"
+                   AcceptsReturn="True" TextWrapping="Wrap"
+                   PlaceholderText="결석 학생 이름 입력 (쉼표로 구분)"
+                   Padding="8" MinHeight="40" Margin="0,4"
+                   helpers:TextBoxDropHelper.EnableTextDrop="True"
+                   TextChanged="OnAttendanceTextChanged"/>
+
+          <TextBlock Grid.Row="1" Grid.Column="0" Text="지각" VerticalAlignment="Center" Margin="0,0,8,0" MinWidth="40"/>
+          <TextBox Name="TBoxLate" Grid.Row="1" Grid.Column="1"
+                   Text="{Binding Late, Mode=TwoWay}"
+                   AcceptsReturn="True" TextWrapping="Wrap"
+                   PlaceholderText="지각 학생 이름 입력 (쉼표로 구분)"
+                   Padding="8" MinHeight="40" Margin="0,4"
+                   helpers:TextBoxDropHelper.EnableTextDrop="True"
+                   TextChanged="OnAttendanceTextChanged"/>
+
+          <TextBlock Grid.Row="2" Grid.Column="0" Text="조퇴" VerticalAlignment="Center" Margin="0,0,8,0" MinWidth="40"/>
+          <TextBox Name="TBoxLeaveEarly" Grid.Row="2" Grid.Column="1"
+                   Text="{Binding LeaveEarly, Mode=TwoWay}"
+                   AcceptsReturn="True" TextWrapping="Wrap"
+                   PlaceholderText="조퇴 학생 이름 입력 (쉼표로 구분)"
+                   Padding="8" MinHeight="40" Margin="0,4"
+                   helpers:TextBoxDropHelper.EnableTextDrop="True"
+                   TextChanged="OnAttendanceTextChanged"/>
+        </Grid>
+      </Grid>
+    </Border>
+
+    <!-- 메모 -->
+    <Border Grid.Row="1" Grid.Column="0"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BorderThickness="1" CornerRadius="8"
+            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+            Padding="8" Margin="0,0,0,6">
+      <Grid ColumnDefinitions="Auto,*">
+        <TextBlock Grid.Column="0" Text="메모" FontWeight="Bold" FontSize="12" Margin="0,0,12,0"/>
+        <TextBox Name="TBoxMemo" Grid.Column="1"
+                 Text="{Binding Memo, Mode=TwoWay}"
+                 AcceptsReturn="True" TextWrapping="Wrap"
+                 Padding="8" MinHeight="60" MaxHeight="100"
+                 PlaceholderText="메모 입력..."
+                 helpers:TextBoxDropHelper.EnableTextDrop="True"
+                 TextChanged="OnMemoTextChanged"/>
+      </Grid>
+    </Border>
+
+    <!-- 알림장 (Expander) -->
+    <Expander Name="NoticeExpander" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+              HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+              IsExpanded="False" Padding="0">
+      <Expander.Header>
+        <Grid ColumnDefinitions="*,Auto" Margin="0,4">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="📢 알림장" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
+            <TextBlock Name="TxtNoticePreview" Text=""
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       FontSize="12" VerticalAlignment="Center"
+                       MaxWidth="500" TextTrimming="CharacterEllipsis"/>
+          </StackPanel>
+          <Button Name="BtnNoticeEdit" Grid.Column="1"
+                  Click="BtnNoticeEdit_Click"
+                  Background="Transparent" BorderThickness="0"
+                  Padding="8,4" Margin="0,0,8,0"
+                  ToolTip.Tip="알림장 편집 모드 전환"
+                  Content="✏ 편집" FontSize="12"/>
+        </Grid>
+      </Expander.Header>
+      <Border BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+              BorderThickness="0,1,0,0"
+              MinHeight="150" MaxHeight="300">
+        <ctrl:JoditEditor Name="NoticeBox" Mode="ReadOnly"/>
+      </Border>
+    </Expander>
+  </Grid>
+</UserControl>

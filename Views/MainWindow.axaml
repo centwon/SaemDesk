@@ -4,136 +4,118 @@
         x:Class="SaemDesk.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="샘Desk"
-        Width="1200" Height="760"
-        MinWidth="900" MinHeight="600">
+        Width="1280" Height="780"
+        MinWidth="960" MinHeight="600">
 
-  <Grid>
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="220" />
-      <ColumnDefinition Width="Auto" />
-      <ColumnDefinition Width="*" />
-    </Grid.ColumnDefinitions>
+  <Grid RowDefinitions="Auto,*">
 
-    <!-- ══════════════════════════════════════
-         좌측 네비게이션 패널
-         ══════════════════════════════════════ -->
-    <Border Grid.Column="0"
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- 상단 네비게이션 바 (NewSchool PaneDisplayMode=Top) -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <Border Grid.Row="0"
+            MinHeight="48"
             Background="{DynamicResource NavBackgroundBrush}"
-            BorderThickness="0,0,1,0"
-            BorderBrush="{DynamicResource ContentSeparatorBrush}">
-      <DockPanel>
+            BorderBrush="{DynamicResource ContentSeparatorBrush}"
+            BorderThickness="0,0,0,1">
+      <DockPanel LastChildFill="True" MinHeight="48">
 
-        <!-- 앱 헤더 -->
-        <Border DockPanel.Dock="Top"
-                Padding="16,20,16,12"
-                BorderThickness="0,0,0,1"
-                BorderBrush="{DynamicResource ContentSeparatorBrush}">
-          <StackPanel Spacing="2">
-            <TextBlock Text="샘Desk"
-                       FontSize="22" FontWeight="Bold"
-                       Foreground="{StaticResource BrandPrimaryBrush}" />
-            <TextBlock Text="학급 관리 시스템"
-                       FontSize="11"
-                       Foreground="{DynamicResource SystemBaseMediumColor}" />
-          </StackPanel>
+        <!-- ── 앱 로고/제목 ─────────────────────────── -->
+        <Border DockPanel.Dock="Left"
+                Padding="16,0"
+                MinHeight="48"
+                BorderBrush="{DynamicResource ContentSeparatorBrush}"
+                BorderThickness="0,0,1,0">
+          <TextBlock Text="샘Desk"
+                     FontSize="18" FontWeight="Bold"
+                     VerticalAlignment="Center"
+                     Foreground="{StaticResource BrandPrimaryBrush}"/>
         </Border>
 
-        <!-- 하단 버튼 (설정) -->
-        <ListBox DockPanel.Dock="Bottom"
-                 ItemsSource="{x:Static vm:MainWindowViewModel.BottomNavItems}"
-                 SelectedItem="{Binding SelectedBottomNavItem}"
-                 Background="Transparent"
-                 BorderThickness="0"
-                 Padding="8,4">
-          <ListBox.ItemTemplate>
-            <DataTemplate x:DataType="vm:NavItem">
-              <Grid ColumnDefinitions="32,*" Height="38">
-                <TextBlock Grid.Column="0"
-                           Text="{Binding Icon}"
-                           FontSize="14"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center" />
-                <TextBlock Grid.Column="1"
-                           Text="{Binding Title}"
-                           FontSize="13"
-                           VerticalAlignment="Center" />
-              </Grid>
-            </DataTemplate>
-          </ListBox.ItemTemplate>
-          <ListBox.Styles>
-            <Style Selector="ListBoxItem">
-              <Setter Property="Padding" Value="8,2" />
-              <Setter Property="CornerRadius" Value="6" />
-            </Style>
-            <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
-              <Setter Property="Background" Value="{DynamicResource NavItemHoverBrush}" />
-            </Style>
-            <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
-              <Setter Property="Background" Value="{DynamicResource NavItemSelectedBrush}" />
-            </Style>
-          </ListBox.Styles>
-        </ListBox>
-
-        <!-- 버전 텍스트 -->
-        <TextBlock DockPanel.Dock="Bottom"
-                   Text="v0.1.0-alpha"
+        <!-- ── 우측: 버전 표시 ───────────────────────── -->
+        <TextBlock DockPanel.Dock="Right"
+                   Text="v0.2.0-alpha"
                    FontSize="10"
-                   Margin="16,0,16,4"
-                   Foreground="{DynamicResource SystemBaseMediumLowColor}" />
+                   VerticalAlignment="Center"
+                   Margin="0,0,16,0"
+                   Foreground="{DynamicResource SystemBaseMediumLowColor}"/>
 
-        <!-- 상단 네비게이션 (트리) -->
-        <TreeView ItemsSource="{x:Static vm:MainWindowViewModel.AllNavItems}"
-                  SelectedItem="{Binding SelectedNavItem}"
-                  Background="Transparent"
-                  BorderThickness="0"
-                  Padding="8,8">
-          <TreeView.ItemTemplate>
-            <TreeDataTemplate DataType="vm:NavItem"
-                              ItemsSource="{Binding Children}">
-              <Grid ColumnDefinitions="28,*" Height="34">
-                <TextBlock Grid.Column="0"
-                           Text="{Binding Icon}"
-                           FontSize="14"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center" />
-                <TextBlock Grid.Column="1"
-                           Text="{Binding Title}"
-                           FontSize="13"
-                           VerticalAlignment="Center" />
-              </Grid>
-            </TreeDataTemplate>
-          </TreeView.ItemTemplate>
-          <TreeView.Styles>
-            <Style Selector="TreeViewItem">
-              <Setter Property="Padding" Value="2,2" />
-              <Setter Property="CornerRadius" Value="6" />
-              <Setter Property="IsExpanded" Value="True" />
+        <!-- ── 수평 메뉴 ─────────────────────────────── -->
+        <Menu Background="Transparent"
+              Margin="4,0"
+              VerticalAlignment="Stretch">
+          <Menu.Styles>
+            <!-- 최상위 MenuItem: 높이 48px 고정, 세로 가운데 정렬 -->
+            <Style Selector="MenuItem">
+              <Setter Property="Padding"   Value="14,0"/>
+              <Setter Property="MinHeight" Value="48"/>
+              <Setter Property="FontSize"  Value="13"/>
             </Style>
-            <Style Selector="TreeViewItem:pointerover /template/ Border#PART_Header">
-              <Setter Property="Background" Value="{DynamicResource NavItemHoverBrush}" />
+            <Style Selector="MenuItem.selected">
+              <Setter Property="Background" Value="{DynamicResource NavItemSelectedBrush}"/>
             </Style>
-            <Style Selector="TreeViewItem:selected /template/ Border#PART_Header">
-              <Setter Property="Background" Value="{DynamicResource NavItemSelectedBrush}" />
-            </Style>
-          </TreeView.Styles>
-        </TreeView>
+          </Menu.Styles>
 
+          <!-- 홈 -->
+          <MenuItem Header="🏠 홈" Click="OnMenuClick" Tag="Home"/>
+
+          <!-- 달력 -->
+          <MenuItem Header="📅 달력" Click="OnMenuClick" Tag="Calendar"/>
+
+          <!-- 학급 -->
+          <MenuItem Header="👥 학급">
+            <MenuItem Header="📓 학급 일지"        Click="OnMenuClick" Tag="ClassDiary"/>
+            <MenuItem Header="👤 학생 정보"        Click="OnMenuClick" Tag="StudentInfo"/>
+            <MenuItem Header="✏ 학생 기록"        Click="OnMenuClick" Tag="StudentLog"/>
+            <MenuItem Header="📋 학생부 관리"      Click="OnMenuClick" Tag="StudentSpec"/>
+            <MenuItem Header="🪑 자리 배정"        Click="OnMenuClick" Tag="Seats"/>
+            <MenuItem Header="📌 학급 게시판"      Click="OnMenuClick" Tag="ClassBoard"/>
+            <MenuItem Header="🖨 학생정보 출력"    Click="OnMenuClick" Tag="StudentInfoExport"/>
+            <MenuItem Header="📤 통합 내보내기"    Click="OnMenuClick" Tag="UnifiedExport"/>
+            <MenuItem Header="🗓 학급 시간표 관리" Click="OnMenuClick" Tag="Timetable_ClassManagement"/>
+          </MenuItem>
+
+          <!-- 수업 -->
+          <MenuItem Header="📚 수업">
+            <MenuItem Header="🏠 수업홈"           Click="OnMenuClick" Tag="LessonHome"/>
+            <MenuItem Header="📅 연간 수업 계획"   Click="OnMenuClick" Tag="AnnualLessonPlan"/>
+            <MenuItem Header="📊 진도 관리"        Click="OnMenuClick" Tag="ProgressMatrix"/>
+            <MenuItem Header="✏ 누가 기록"        Click="OnMenuClick" Tag="LessonActivity"/>
+            <MenuItem Header="🗓 수업 시간표"      Click="OnMenuClick" Tag="Timetable_Teacher"/>
+            <MenuItem Header="🎭 동아리 활동 기록" Click="OnMenuClick" Tag="ClubActivity"/>
+            <MenuItem Header="📌 수업 게시판"      Click="OnMenuClick" Tag="LessonBoard"/>
+            <MenuItem Header="🎪 동아리 관리"      Click="OnMenuClick" Tag="ClubManagement"/>
+            <MenuItem Header="📚 수업 관리"        Click="OnMenuClick" Tag="CourseManagement"/>
+          </MenuItem>
+
+          <!-- 업무 -->
+          <MenuItem Header="💼 업무">
+            <MenuItem Header="💼 업무 관리"    Click="OnMenuClick" Tag="SchoolWork"/>
+            <MenuItem Header="📌 업무 게시판"  Click="OnMenuClick" Tag="WorkBoard"/>
+          </MenuItem>
+
+          <!-- 아카이브 -->
+          <MenuItem Header="🗃 아카이브" Click="OnMenuClick" Tag="Archive"/>
+
+          <!-- 설정 -->
+          <MenuItem Header="⚙ 설정">
+            <MenuItem Header="🏫 학교 설정"     Click="OnMenuClick" Tag="Settings_School"/>
+            <MenuItem Header="🗓 학사일정 관리" Click="OnMenuClick" Tag="Settings_SchoolSchedule"/>
+            <MenuItem Header="👤 학생 관리"     Click="OnMenuClick" Tag="Settings_Student"/>
+            <MenuItem Header="⚙ 앱 설정"       Click="OnMenuClick" Tag="Settings_App"/>
+            <MenuItem Header="❓ 도움말"        Click="OnMenuClick" Tag="Help"/>
+            <MenuItem Header="🔄 업데이트 확인" Click="OnMenuClick" Tag="CheckUpdate"/>
+          </MenuItem>
+
+        </Menu>
       </DockPanel>
     </Border>
 
-    <!-- 구분선 -->
-    <GridSplitter Grid.Column="1"
-                  Width="1"
-                  ResizeBehavior="PreviousAndNext"
-                  ResizeDirection="Columns"
-                  Background="{DynamicResource ContentSeparatorBrush}" />
-
-    <!-- ══════════════════════════════════════
-         콘텐츠 영역
-         ══════════════════════════════════════ -->
-    <TransitioningContentControl Grid.Column="2"
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- 콘텐츠 영역                                         -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <TransitioningContentControl Grid.Row="1"
                                  Content="{Binding CurrentPage}"
-                                 Background="{DynamicResource ContentBackgroundBrush}" />
+                                 Background="{DynamicResource ContentBackgroundBrush}"/>
 
   </Grid>
 </Window>

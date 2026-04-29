@@ -32,13 +32,13 @@
                      SelectedItem="{Binding SelectedYear, Mode=TwoWay}"
                      HorizontalAlignment="Stretch"/>
           <TextBlock Grid.Column="3" Text="시작일" VerticalAlignment="Center" Margin="0,0,8,0"/>
-          <DatePicker Grid.Column="4"
-                      SelectedDate="{Binding StartDate, Mode=TwoWay}"
-                      HorizontalAlignment="Stretch"/>
+          <CalendarDatePicker Grid.Column="4"
+                              SelectedDate="{Binding StartDate, Mode=TwoWay}"
+                              HorizontalAlignment="Stretch"/>
           <TextBlock Grid.Column="6" Text="종료일" VerticalAlignment="Center" Margin="0,0,8,0"/>
-          <DatePicker Grid.Column="7"
-                      SelectedDate="{Binding EndDate, Mode=TwoWay}"
-                      HorizontalAlignment="Stretch"/>
+          <CalendarDatePicker Grid.Column="7"
+                              SelectedDate="{Binding EndDate, Mode=TwoWay}"
+                              HorizontalAlignment="Stretch"/>
         </Grid>
 
         <StackPanel Orientation="Horizontal" Spacing="6">

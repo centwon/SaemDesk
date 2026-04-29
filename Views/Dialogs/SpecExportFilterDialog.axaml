@@ -1,0 +1,77 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SaemDesk.Views.Dialogs.SpecExportFilterDialog"
+        Title="학생부 일괄 출력"
+        Width="420" Height="340"
+        MinWidth="380" MinHeight="300"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        ShowInTaskbar="False">
+
+  <Grid RowDefinitions="*,Auto" Margin="20">
+
+    <StackPanel Grid.Row="0" Spacing="14">
+      <TextBlock Text="출력할 학생부 특기사항의 조건을 설정하세요."
+                 FontSize="13"
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+
+      <Separator/>
+
+      <!-- 출력 형식 -->
+      <Grid ColumnDefinitions="80,*">
+        <TextBlock Grid.Column="0" Text="형식" FontWeight="SemiBold" VerticalAlignment="Center"/>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16">
+          <RadioButton x:Name="RbPdf"   Content="PDF"   GroupName="Format" IsChecked="True"/>
+          <RadioButton x:Name="RbExcel" Content="엑셀"  GroupName="Format"/>
+        </StackPanel>
+      </Grid>
+
+      <Separator/>
+
+      <!-- 영역 필터 -->
+      <Grid ColumnDefinitions="80,*">
+        <TextBlock Grid.Column="0" Text="영역" FontWeight="SemiBold" VerticalAlignment="Center"/>
+        <ComboBox Grid.Column="1" x:Name="CBoxType" HorizontalAlignment="Stretch" SelectedIndex="0">
+          <ComboBoxItem Tag="전체">전체</ComboBoxItem>
+          <ComboBoxItem Tag="자율활동">자율활동</ComboBoxItem>
+          <ComboBoxItem Tag="진로활동">진로활동</ComboBoxItem>
+          <ComboBoxItem Tag="동아리활동">동아리활동</ComboBoxItem>
+          <ComboBoxItem Tag="봉사활동">봉사활동</ComboBoxItem>
+          <ComboBoxItem Tag="교과활동">교과활동</ComboBoxItem>
+          <ComboBoxItem Tag="개인별세특">개인별세특</ComboBoxItem>
+          <ComboBoxItem Tag="종합의견">종합의견</ComboBoxItem>
+        </ComboBox>
+      </Grid>
+
+      <!-- 마감 상태 필터 -->
+      <Grid ColumnDefinitions="80,*">
+        <TextBlock Grid.Column="0" Text="상태" FontWeight="SemiBold" VerticalAlignment="Center"/>
+        <ComboBox Grid.Column="1" x:Name="CBoxStatus" HorizontalAlignment="Stretch" SelectedIndex="0">
+          <ComboBoxItem Tag="all">전체</ComboBoxItem>
+          <ComboBoxItem Tag="draft">작성중만</ComboBoxItem>
+          <ComboBoxItem Tag="finalized">마감만</ComboBoxItem>
+        </ComboBox>
+      </Grid>
+
+      <!-- 빈 항목 제외 -->
+      <CheckBox x:Name="ChkExcludeEmpty"
+                Content="내용이 비어있는 항목 제외"
+                IsChecked="True"/>
+
+      <Separator/>
+
+      <TextBlock Text="선택한 조건에 맞는 학생부 특기사항을 하나의 문서로 출력합니다."
+                 FontSize="12"
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+                 TextWrapping="Wrap"/>
+    </StackPanel>
+
+    <!-- 버튼 바 -->
+    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right"
+                Spacing="8" Margin="0,12,0,0">
+      <Button Content="취소" Padding="14,8" Click="OnCancel"/>
+      <Button Content="출력" Classes="accent" Padding="16,8" Click="OnExport"/>
+    </StackPanel>
+
+  </Grid>
+</Window>

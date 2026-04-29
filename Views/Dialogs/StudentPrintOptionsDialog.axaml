@@ -1,0 +1,63 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SaemDesk.Views.Dialogs.StudentPrintOptionsDialog"
+        Title="인쇄 옵션 선택"
+        Width="400" Height="360"
+        MinWidth="360" MinHeight="320"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        ShowInTaskbar="False">
+
+  <Grid RowDefinitions="*,Auto" Margin="20">
+
+    <StackPanel Grid.Row="0" Spacing="14">
+      <TextBlock Text="출력할 내용을 선택하세요."
+                 FontSize="14"
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+
+      <!-- 기본 정보 (항상 포함, 비활성) -->
+      <CheckBox x:Name="ChkBasicInfo"
+                Content="기본 정보 (이름, 생년월일, 연락처 등)"
+                IsChecked="True" IsEnabled="False"/>
+
+      <!-- 세부 정보 -->
+      <CheckBox x:Name="ChkDetailInfo"
+                Content="세부 정보 (보호자, 가족, 진로, 건강 정보 등)"
+                IsChecked="True"/>
+
+      <!-- 학생 생활 기록 -->
+      <CheckBox x:Name="ChkStudentLogs"
+                Content="학생 생활 기록 (누가기록)"
+                IsCheckedChanged="OnLogsCheckChanged"/>
+
+      <!-- 생활 기록 추가 옵션 (IsVisible ChkStudentLogs와 연동) -->
+      <StackPanel x:Name="LogOptionsPanel" Margin="28,0,0,0" Spacing="8" IsVisible="False">
+        <TextBlock Text="생활 기록 출력 범위:"
+                   FontSize="12"
+                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+
+        <RadioButton x:Name="RbAllLogs"
+                     Content="전체 기록"
+                     IsChecked="True" GroupName="LogRange"/>
+        <RadioButton x:Name="RbSelectedLogs"
+                     Content="선택한 기록만"
+                     GroupName="LogRange"/>
+
+        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
+          <TextBlock Text="최대 출력 개수:" VerticalAlignment="Center" FontSize="12"/>
+          <NumericUpDown x:Name="MaxLogCount"
+                         Value="50" Minimum="1" Maximum="500" Increment="10"
+                         Width="120"/>
+        </StackPanel>
+      </StackPanel>
+    </StackPanel>
+
+    <!-- 버튼 바 -->
+    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right"
+                Spacing="8" Margin="0,12,0,0">
+      <Button Content="취소" Padding="14,8" Click="OnCancel"/>
+      <Button Content="인쇄" Classes="accent" Padding="16,8" Click="OnPrint"/>
+    </StackPanel>
+
+  </Grid>
+</Window>

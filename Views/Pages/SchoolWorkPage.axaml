@@ -29,10 +29,15 @@
                  Foreground="{DynamicResource SystemBaseMediumColor}"/>
     </StackPanel>
 
-    <!-- 좌: 업무 메모 -->
-    <Border Grid.Row="1" Grid.Column="0" Margin="0,0,10,0">
-      <ctrl:MemoBoard/>
-    </Border>
+    <!-- 좌: 업무 어젠다 + 메모 -->
+    <Grid Grid.Row="1" Grid.Column="0" Margin="0,0,10,0" RowDefinitions="Auto,*">
+      <ctrl:KAgendaControl Name="AgendaControl"
+                           Grid.Row="0"
+                           FixedCalendarName="업무"
+                           Height="260"
+                           Margin="0,0,0,8"/>
+      <ctrl:MemoBoard Grid.Row="1" Name="WorkMemoBoard"/>
+    </Grid>
 
     <!-- 우: 업무 게시판 -->
     <Border Grid.Row="1" Grid.Column="1"

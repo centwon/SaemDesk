@@ -358,10 +358,9 @@ namespace SaemDesk.Services
             if (string.IsNullOrEmpty(student.Name))
                 throw new ArgumentException("학생 이름은 필수입니다.");
 
-            if (string.IsNullOrEmpty(student.Sex))
-                throw new ArgumentException("성별은 필수입니다.");
-
-            if (student.Sex != "남" && student.Sex != "여")
+            // 성별은 비어있어도 허용 (사진만 등록하는 등 일부 필드만 수정 시)
+            if (!string.IsNullOrEmpty(student.Sex) &&
+                student.Sex != "남" && student.Sex != "여")
                 throw new ArgumentException("성별은 '남' 또는 '여'만 가능합니다.");
         }
 

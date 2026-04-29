@@ -1,0 +1,188 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SaemDesk.Views.Dialogs.CourseSectionDialog"
+        Title="소단원 추가"
+        Width="620" Height="740"
+        MinWidth="560" MinHeight="640"
+        WindowStartupLocation="CenterOwner"
+        CanResize="True"
+        ShowInTaskbar="False">
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="20">
+
+    <!-- ── 헤더 ──────────────────────────────────────────── -->
+    <StackPanel Grid.Row="0" Margin="0,0,0,12" Spacing="4">
+      <StackPanel Orientation="Horizontal" Spacing="12">
+        <TextBlock x:Name="TxtCourseName" FontSize="16" FontWeight="SemiBold"/>
+        <TextBlock x:Name="TxtCourseInfo" FontSize="13"
+                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                   VerticalAlignment="Center"/>
+      </StackPanel>
+      <Separator/>
+    </StackPanel>
+
+    <!-- ── 폼 ────────────────────────────────────────────── -->
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+      <StackPanel Spacing="14">
+
+        <!-- 대단원 -->
+        <StackPanel Spacing="6">
+          <TextBlock Text="대단원" FontSize="13" FontWeight="SemiBold"/>
+          <Grid ColumnDefinitions="120,*" ColumnSpacing="10">
+            <StackPanel Grid.Column="0" Spacing="4">
+              <TextBlock Text="번호" FontSize="11"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+              <NumericUpDown x:Name="NumUnitNo"
+                             Minimum="0" Maximum="20" Value="1" Increment="1"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Spacing="4">
+              <TextBlock Text="대단원명" FontSize="11"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+              <TextBox x:Name="TxtUnitName" PlaceholderText="예) 수와 연산"/>
+            </StackPanel>
+          </Grid>
+        </StackPanel>
+
+        <!-- 중단원 -->
+        <StackPanel Spacing="6">
+          <TextBlock Text="중단원" FontSize="13" FontWeight="SemiBold"/>
+          <Grid ColumnDefinitions="120,*" ColumnSpacing="10">
+            <StackPanel Grid.Column="0" Spacing="4">
+              <TextBlock Text="번호" FontSize="11"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+              <NumericUpDown x:Name="NumChapterNo"
+                             Minimum="0" Maximum="20" Value="1" Increment="1"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Spacing="4">
+              <TextBlock Text="중단원명" FontSize="11"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+              <TextBox x:Name="TxtChapterName" PlaceholderText="예) 자연수의 혼합 계산"/>
+            </StackPanel>
+          </Grid>
+        </StackPanel>
+
+        <!-- 소단원 (필수) -->
+        <StackPanel Spacing="6">
+          <TextBlock Text="소단원 *" FontSize="13" FontWeight="SemiBold" Foreground="#5B7FB8"/>
+          <Grid ColumnDefinitions="120,*" ColumnSpacing="10">
+            <StackPanel Grid.Column="0" Spacing="4">
+              <TextBlock Text="번호" FontSize="11"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+              <NumericUpDown x:Name="NumSectionNo"
+                             Minimum="1" Maximum="50" Value="1" Increment="1"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Spacing="4">
+              <TextBlock Text="소단원명 (필수)" FontSize="11"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+              <TextBox x:Name="TxtSectionName"
+                       PlaceholderText="예) 덧셈과 뺄셈의 혼합 계산"/>
+            </StackPanel>
+          </Grid>
+        </StackPanel>
+
+        <Separator/>
+
+        <!-- 유형 및 기본 정보 -->
+        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="10">
+
+          <StackPanel Grid.Row="0" Grid.Column="0" Spacing="4">
+            <TextBlock Text="유형" FontSize="11"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+            <ComboBox x:Name="CmbSectionType" HorizontalAlignment="Stretch"
+                      SelectionChanged="OnSectionTypeChanged" SelectedIndex="0">
+              <ComboBoxItem Tag="Normal">일반수업</ComboBoxItem>
+              <ComboBoxItem Tag="Exam">지필고사</ComboBoxItem>
+              <ComboBoxItem Tag="Assessment">수행평가</ComboBoxItem>
+              <ComboBoxItem Tag="Event">행사/기타</ComboBoxItem>
+            </ComboBox>
+          </StackPanel>
+
+          <StackPanel Grid.Row="0" Grid.Column="1" Spacing="4">
+            <TextBlock Text="예상 차시" FontSize="11"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+            <NumericUpDown x:Name="NumEstimatedHours"
+                           Minimum="1" Maximum="20" Value="1" Increment="1"/>
+          </StackPanel>
+
+          <StackPanel Grid.Row="1" Grid.Column="0" Spacing="4">
+            <TextBlock Text="시작 페이지" FontSize="11"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+            <NumericUpDown x:Name="NumStartPage"
+                           Minimum="0" Maximum="500" Value="0" Increment="1"/>
+          </StackPanel>
+
+          <StackPanel Grid.Row="1" Grid.Column="1" Spacing="4">
+            <TextBlock Text="끝 페이지" FontSize="11"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+            <NumericUpDown x:Name="NumEndPage"
+                           Minimum="0" Maximum="500" Value="0" Increment="1"/>
+          </StackPanel>
+        </Grid>
+
+        <!-- 고정 날짜 (평가용) -->
+        <StackPanel x:Name="PinnedDatePanel" Spacing="6" IsVisible="False">
+          <TextBlock Text="고정 날짜 (평가 일정)" FontSize="13" FontWeight="SemiBold"/>
+          <CalendarDatePicker x:Name="DpPinnedDate"
+                              PlaceholderText="날짜 선택"
+                              HorizontalAlignment="Left" MinWidth="200"/>
+        </StackPanel>
+
+        <Separator/>
+
+        <!-- 학습 목표 -->
+        <StackPanel Spacing="4">
+          <TextBlock Text="학습 목표" FontSize="13" FontWeight="SemiBold"/>
+          <TextBox x:Name="TxtLearningObjective"
+                   PlaceholderText="예) 자연수의 혼합 계산 순서를 알고 계산할 수 있다"
+                   AcceptsReturn="True" TextWrapping="Wrap" Height="60"/>
+        </StackPanel>
+
+        <!-- 수업 계획 메모 -->
+        <StackPanel Spacing="4">
+          <TextBlock Text="수업 계획 메모" FontSize="13" FontWeight="SemiBold"/>
+          <TextBox x:Name="TxtLessonPlan"
+                   PlaceholderText="예) 개념 도입 → 모둠 활동 → 평가"
+                   AcceptsReturn="True" TextWrapping="Wrap" Height="70"/>
+        </StackPanel>
+
+        <!-- 자료 파일 -->
+        <StackPanel Spacing="4">
+          <TextBlock Text="자료 파일 경로 (PPT, PDF 등)" FontSize="13" FontWeight="SemiBold"/>
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <TextBox Grid.Column="0" x:Name="TxtMaterialPath" IsReadOnly="True"
+                     PlaceholderText="파일 경로"/>
+            <Button Grid.Column="1" Content="찾아보기..." Padding="12,6"
+                    Click="OnBrowseMaterial"/>
+          </Grid>
+        </StackPanel>
+
+        <!-- 자료 웹 링크 -->
+        <StackPanel Spacing="4">
+          <TextBlock Text="자료 웹 링크" FontSize="13" FontWeight="SemiBold"/>
+          <TextBox x:Name="TxtMaterialUrl" PlaceholderText="https://..."/>
+        </StackPanel>
+
+        <!-- 수업 후기/메모 -->
+        <StackPanel Spacing="4">
+          <TextBlock Text="수업 후기/메모 (차년도 참고용)" FontSize="13" FontWeight="SemiBold"/>
+          <TextBox x:Name="TxtMemo"
+                   PlaceholderText="수업 후 작성"
+                   AcceptsReturn="True" TextWrapping="Wrap" Height="80"/>
+        </StackPanel>
+
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- ── 푸터 ──────────────────────────────────────────── -->
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0">
+      <TextBlock Grid.Column="0" x:Name="ErrorText" IsVisible="False"
+                 FontSize="12" Foreground="#D9372A"
+                 VerticalAlignment="Center" TextWrapping="Wrap"/>
+      <Button Grid.Column="1" Content="취소" Padding="14,8"
+              Margin="0,0,6,0" Click="OnCancel"/>
+      <Button Grid.Column="2" Content="저장" Classes="accent"
+              Padding="16,8" Click="OnSave"/>
+    </Grid>
+
+  </Grid>
+</Window>

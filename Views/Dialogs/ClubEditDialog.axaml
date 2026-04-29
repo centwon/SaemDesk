@@ -1,0 +1,55 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SaemDesk.Views.Dialogs.ClubEditDialog"
+        Title="동아리 추가"
+        Width="440" Height="320"
+        MinWidth="380" MinHeight="280"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        ShowInTaskbar="False">
+
+  <Grid RowDefinitions="*,Auto" Margin="20">
+
+    <!-- 폼 -->
+    <StackPanel Grid.Row="0" Spacing="12">
+
+      <!-- 오류 메시지 -->
+      <Border x:Name="ErrorBar" IsVisible="False"
+              Background="#FFF3E0" CornerRadius="4" Padding="10,6">
+        <TextBlock x:Name="ErrorText" FontSize="12" Foreground="#E65100" TextWrapping="Wrap"/>
+      </Border>
+
+      <!-- 동아리명 -->
+      <StackPanel Spacing="4">
+        <TextBlock Text="동아리명 *" FontSize="11"
+                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+        <TextBox x:Name="TxtClubName" PlaceholderText="동아리 이름을 입력하세요"/>
+      </StackPanel>
+
+      <!-- 활동실 -->
+      <StackPanel Spacing="4">
+        <TextBlock Text="활동실" FontSize="11"
+                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+        <TextBox x:Name="TxtActivityRoom" PlaceholderText="예) 3층 동아리실"/>
+      </StackPanel>
+
+      <!-- 비고 -->
+      <StackPanel Spacing="4">
+        <TextBlock Text="비고" FontSize="11"
+                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+        <TextBox x:Name="TxtRemark"
+                 PlaceholderText="추가 설명"
+                 AcceptsReturn="True" TextWrapping="Wrap" Height="80"/>
+      </StackPanel>
+
+    </StackPanel>
+
+    <!-- 버튼 바 -->
+    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right"
+                Spacing="8" Margin="0,12,0,0">
+      <Button Content="취소" Padding="14,8" Click="OnCancel"/>
+      <Button Content="저장" Classes="accent" Padding="16,8" Click="OnSave"/>
+    </StackPanel>
+
+  </Grid>
+</Window>

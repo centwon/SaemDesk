@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MiniExcelLibs;
+using SaemDesk.Helpers;
 using SaemDesk.Models;
 using SaemDesk.Repositories;
 using SaemDesk.Services;
@@ -159,61 +160,145 @@ public partial class AddStudentsPageVM : ViewModelBase
         }
     }
 
-    /// <summary>Excel(.xlsx) 에서 학생 명렬을 일괄 가져오기.</summary>
+    /// <summary>Excel(.xlsx) 에서 학생 명렬을 일괄 가져오기 — NewSchool 견고 파서 이식.</summary>
     [RelayCommand]
     private async Task ImportFromExcelAsync()
     {
         ErrorText = string.Empty;
+        StatusText = string.Empty;
         try
         {
-            string? path = await SaemDesk.App.FilePicker.OpenFileAsync("xlsx");
+            string? path = await SaemDesk.App.FilePicker.OpenFileAsync(".xlsx");
             if (string.IsNullOrEmpty(path) || !File.Exists(path)) return;
 
-            int imported = 0;
-            int skipped  = 0;
-            var rows = MiniExcel.Query(path, useHeaderRow: true).Cast<IDictionary<string, object>>();
-
-            foreach (var row in rows)
+            // 구 형식(.xls BIFF) 차단 — MiniExcel 은 OpenXML(.xlsx) 만 처리
+            if (!path.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase))
             {
-                int year  = TryGetInt(row, "학년도") ?? (int)Year;
-                int grade = TryGetInt(row, "학년")   ?? 0;
-                int cls   = TryGetInt(row, "반")     ?? 0;
-                int num   = TryGetInt(row, "번호")   ?? 0;
-                string name = (TryGetString(row, "이름") ?? string.Empty).Trim();
-
-                if (year <= 0 || grade <= 0 || cls <= 0 || num <= 0 || string.IsNullOrEmpty(name))
-                {
-                    skipped++;
-                    continue;
-                }
-
-                if (Pending.Any(p => p.Grade == grade && p.Class == cls && p.Number == num))
-                {
-                    skipped++;
-                    continue;
-                }
-
-                Pending.Add(new PendingStudent
-                {
-                    TempId = $"{year}-{grade}-{cls}-{num}",
-                    Year   = year,
-                    Grade  = grade,
-                    Class  = cls,
-                    Number = num,
-                    Name   = name,
-                });
-                imported++;
+                ErrorText = "구 형식(.xls)은 지원되지 않습니다. Excel 에서 .xlsx 로 다시 저장해 주세요.";
+                return;
             }
 
-            StatusText = skipped == 0
-                ? $"Excel 가져오기 완료: {imported}명"
-                : $"Excel 가져오기 완료: {imported}명 / 건너뜀 {skipped}건";
+            int yearForImport = (int)Year;
+            int totalImported = 0, totalSkipped = 0;
+
+            // ExcelHelper.DataToText: List<string[,]> — 시트별 1-based 인덱스 배열
+            var sheets = ExcelHelper.DataToText(path);
+            foreach (var sheetData in sheets)
+            {
+                var (imp, skip) = ProcessWorksheetData(sheetData, yearForImport);
+                totalImported += imp;
+                totalSkipped  += skip;
+            }
+
+            if (totalImported == 0 && totalSkipped == 0)
+            {
+                ErrorText = "필수 열('번호', '이름' 또는 '성명')을 찾을 수 없습니다.";
+                return;
+            }
+
+            StatusText = totalSkipped == 0
+                ? $"Excel 가져오기 완료: {totalImported}명"
+                : $"Excel 가져오기 완료: {totalImported}명 / 건너뜀 {totalSkipped}건";
         }
         catch (Exception ex)
         {
             ErrorText = $"가져오기 실패: {ex.Message}";
             Debug.WriteLine($"[AddStudentsVM.Import] {ex}");
         }
+    }
+
+    /// <summary>워크시트 1장 처리 — 헤더 자동 탐색 + "1학년/1반/1번" 접미사 파싱.</summary>
+    private (int imported, int skipped) ProcessWorksheetData(string[,] sheetData, int year)
+    {
+        int rowCount = sheetData.GetLength(0);
+        int colCount = sheetData.GetLength(1);
+        if (rowCount < 2 || colCount < 2) return (0, 0);
+
+        // 1-based 인덱스 (NewSchool과 동일)
+        int gradeCol = -1, classCol = -1, numberCol = -1, nameCol = -1, titleRow = -1;
+
+        // 처음 10행 이내에서 헤더 자동 탐색
+        for (int row = 1; row <= Math.Min(10, rowCount - 1); row++)
+        {
+            for (int col = 1; col <= colCount - 1; col++)
+            {
+                var cell = (sheetData[row, col] ?? string.Empty).Replace(" ", string.Empty);
+
+                if (cell.Equals("학년", StringComparison.OrdinalIgnoreCase))
+                    gradeCol = col;
+                else if (cell.Equals("반", StringComparison.OrdinalIgnoreCase) ||
+                         cell.Equals("학급", StringComparison.OrdinalIgnoreCase))
+                    classCol = col;
+                else if (cell.Equals("번호", StringComparison.OrdinalIgnoreCase))
+                    numberCol = col;
+                else if (cell.Equals("이름", StringComparison.OrdinalIgnoreCase) ||
+                         cell.Equals("성명", StringComparison.OrdinalIgnoreCase))
+                {
+                    nameCol = col;
+                    titleRow = row;
+                }
+            }
+            if (titleRow > 0) break;
+        }
+
+        if (titleRow == -1 || numberCol == -1 || nameCol == -1)
+            return (0, 0);
+
+        // 학년/반 컬럼이 누락된 경우 — 화면의 현재 학년/반 입력값을 기본값으로 사용
+        int defaultGrade = gradeCol == -1 ? (int)Grade   : 0;
+        int defaultClass = classCol == -1 ? (int)ClassNo : 0;
+
+        int imported = 0, skipped = 0;
+
+        for (int row = titleRow + 1; row < rowCount; row++)
+        {
+            if (!TryParseNumberFromText(sheetData[row, numberCol], out int number) || number < 1)
+            { skipped++; continue; }
+
+            string name = (sheetData[row, nameCol] ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(name)) { skipped++; continue; }
+
+            int grade = defaultGrade;
+            if (gradeCol != -1 &&
+                TryParseNumberFromText(sheetData[row, gradeCol], out int g) && g >= 1 && g <= 6)
+                grade = g;
+            if (grade <= 0) { skipped++; continue; }
+
+            int cls = defaultClass;
+            if (classCol != -1 &&
+                TryParseNumberFromText(sheetData[row, classCol], out int c) && c >= 1)
+                cls = c;
+            if (cls <= 0) { skipped++; continue; }
+
+            if (Pending.Any(p => p.Grade == grade && p.Class == cls && p.Number == number))
+            { skipped++; continue; }
+
+            Pending.Add(new PendingStudent
+            {
+                TempId = $"{year}-{grade}-{cls}-{number}",
+                Year   = year,
+                Grade  = grade,
+                Class  = cls,
+                Number = number,
+                Name   = name,
+            });
+            imported++;
+        }
+
+        return (imported, skipped);
+    }
+
+    /// <summary>"1학년" → 1, "3반" → 3, "1" → 1 — NewSchool 파서 동등.</summary>
+    private static bool TryParseNumberFromText(string? text, out int result)
+    {
+        result = 0;
+        if (string.IsNullOrWhiteSpace(text)) return false;
+
+        text = text.Trim();
+        if (int.TryParse(text, out result)) return true;
+
+        var digits = new string(text.Where(char.IsDigit).ToArray());
+        return !string.IsNullOrEmpty(digits) && int.TryParse(digits, out result);
     }
 
     private static int? TryGetInt(IDictionary<string, object> row, string key)
@@ -243,6 +328,29 @@ public partial class AddStudentsPageVM : ViewModelBase
             {
                 ErrorText = "학교 코드가 설정되어 있지 않습니다. 설정에서 학교를 먼저 등록하세요.";
                 return;
+            }
+
+            // School 테이블에 해당 SchoolCode 가 없으면 Enrollment FK가 깨짐 → 자동 등록
+            using (var schoolRepo = new SaemDesk.Repositories.SchoolRepository(SchoolDatabase.DbPath))
+            {
+                var existing = await schoolRepo.GetBySchoolCodeAsync(sc);
+                if (existing == null)
+                {
+                    string sname = Settings.SchoolName.Value;
+                    if (string.IsNullOrWhiteSpace(sname))
+                    {
+                        ErrorText = $"학교({sc}) 정보가 등록되어 있지 않습니다. 설정에서 학교를 먼저 등록해 주세요.";
+                        return;
+                    }
+
+                    await schoolRepo.CreateAsync(new SaemDesk.Models.School
+                    {
+                        SchoolCode = sc,
+                        SchoolName = sname,
+                        Address    = Settings.SchoolAddress.Value ?? string.Empty,
+                        IsActive   = true,
+                    });
+                }
             }
 
             int success = 0;

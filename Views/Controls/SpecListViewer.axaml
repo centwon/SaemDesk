@@ -1,0 +1,157 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SaemDesk.ViewModels"
+             xmlns:conv="using:SaemDesk.Converters"
+             x:Class="SaemDesk.Views.Controls.SpecListViewer"
+             x:Name="Root">
+  <UserControl.Resources>
+    <conv:DoubleToGridLengthConverter x:Key="DblToGL"/>
+  </UserControl.Resources>
+  <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+          BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+          BorderThickness="1" CornerRadius="8">
+
+    <Grid RowDefinitions="Auto,*">
+
+      <!-- ── 헤더 ─────────────────────────────────────── -->
+      <Border Grid.Row="0"
+              Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+              BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+              BorderThickness="0,0,0,1">
+        <Grid Name="HeaderGrid" MinHeight="40">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="40"/>   <!-- C0: 체크박스 -->
+            <ColumnDefinition Width="60"/>   <!-- C1: 학년도 -->
+            <ColumnDefinition Width="100"/>  <!-- C2: 유형 -->
+            <ColumnDefinition Width="100"/>  <!-- C3: 세부영역 -->
+            <ColumnDefinition Width="40"/>   <!-- C4: 학년 -->
+            <ColumnDefinition Width="40"/>   <!-- C5: 반 -->
+            <ColumnDefinition Width="40"/>   <!-- C6: 번호 -->
+            <ColumnDefinition Width="60"/>   <!-- C7: 이름 -->
+            <ColumnDefinition Width="*"/>    <!-- C8: 기록 내용 (남은 전체) -->
+            <ColumnDefinition Width="120"/>  <!-- C9: Byte/글자수 -->
+          </Grid.ColumnDefinitions>
+
+          <CheckBox Name="ChkSelectAll" Grid.Column="0"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="1" Name="TxtYearHeader"    Text="학년도"
+                     FontWeight="SemiBold" FontSize="12"
+                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="2" Name="TxtTypeHeader"    Text="유형"
+                     FontWeight="SemiBold" FontSize="12"
+                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="3" Name="TxtSubjectHeader" Text="세부영역"
+                     FontWeight="SemiBold" FontSize="12"
+                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="4" Name="TxtGradeHeader"   Text="학년"
+                     FontWeight="SemiBold" FontSize="12"
+                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="5" Name="TxtClassHeader"   Text="반"
+                     FontWeight="SemiBold" FontSize="12"
+                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="6" Name="TxtNumberHeader"  Text="번호"
+                     FontWeight="SemiBold" FontSize="12"
+                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="7" Name="TxtNameHeader"    Text="이름"
+                     FontWeight="SemiBold" FontSize="12"
+                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="8" Text="기록 내용"
+                     FontWeight="SemiBold" FontSize="12"
+                     HorizontalAlignment="Left" VerticalAlignment="Center"
+                     Margin="8,0,0,0"/>
+          <TextBlock Grid.Column="9" Text="Byte/글자수"
+                     FontWeight="SemiBold" FontSize="12"
+                     HorizontalAlignment="Right" VerticalAlignment="Center"
+                     Margin="0,0,8,0"/>
+        </Grid>
+      </Border>
+
+      <!-- ── 목록 ─────────────────────────────────────── -->
+      <ScrollViewer Grid.Row="1"
+                    VerticalScrollBarVisibility="Auto"
+                    HorizontalScrollBarVisibility="Disabled">
+        <ItemsControl Name="SpecItems">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate><StackPanel/></ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+
+          <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="vm:StudentSpecialViewModel">
+              <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                      BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                      BorderThickness="0,0,0,1"
+                      Padding="0,6">
+                <!--
+                  헤더와 동일한 컬럼 정의 — Width="*" 컬럼이 있으므로 SharedSizeGroup 불가.
+                  대신 헤더와 동일한 고정값 + * 구조를 직접 명시.
+                -->
+                <Grid MinHeight="40">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="{Binding ColWidths[0], Converter={StaticResource DblToGL}}"/>
+                    <ColumnDefinition Width="{Binding ColWidths[1], Converter={StaticResource DblToGL}}"/>
+                    <ColumnDefinition Width="{Binding ColWidths[2], Converter={StaticResource DblToGL}}"/>
+                    <ColumnDefinition Width="{Binding ColWidths[3], Converter={StaticResource DblToGL}}"/>
+                    <ColumnDefinition Width="{Binding ColWidths[4], Converter={StaticResource DblToGL}}"/>
+                    <ColumnDefinition Width="{Binding ColWidths[5], Converter={StaticResource DblToGL}}"/>
+                    <ColumnDefinition Width="{Binding ColWidths[6], Converter={StaticResource DblToGL}}"/>
+                    <ColumnDefinition Width="{Binding ColWidths[7], Converter={StaticResource DblToGL}}"/>
+                    <ColumnDefinition Width="{Binding ColWidths[8], Converter={StaticResource DblToGL}}"/>
+                    <ColumnDefinition Width="{Binding ColWidths[9], Converter={StaticResource DblToGL}}"/>
+                  </Grid.ColumnDefinitions>
+
+                  <!-- 체크박스: 수직 중앙 -->
+                  <CheckBox Grid.Column="0"
+                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                            IsChecked="{Binding IsSelected, Mode=TwoWay}"/>
+
+                  <!-- 메타 셀: 모두 체크박스와 동일 수직 중앙 -->
+                  <TextBlock Grid.Column="1" Text="{Binding Year}"
+                             VerticalAlignment="Center" HorizontalAlignment="Center"
+                             FontSize="12"/>
+                  <TextBlock Grid.Column="2" Text="{Binding Type}"
+                             VerticalAlignment="Center" HorizontalAlignment="Center"
+                             FontSize="12"
+                             TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                  <TextBlock Grid.Column="3" Text="{Binding SubjectName}"
+                             VerticalAlignment="Center" HorizontalAlignment="Center"
+                             FontSize="12"
+                             TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                  <TextBlock Grid.Column="4" Text="{Binding Grade}"
+                             VerticalAlignment="Center" HorizontalAlignment="Center"
+                             FontSize="12"/>
+                  <TextBlock Grid.Column="5" Text="{Binding ClassNum}"
+                             VerticalAlignment="Center" HorizontalAlignment="Center"
+                             FontSize="12"/>
+                  <TextBlock Grid.Column="6" Text="{Binding Number}"
+                             VerticalAlignment="Center" HorizontalAlignment="Center"
+                             FontSize="12"/>
+                  <TextBlock Grid.Column="7" Text="{Binding StudentName}"
+                             VerticalAlignment="Center" HorizontalAlignment="Center"
+                             FontSize="12" FontWeight="SemiBold"/>
+
+                  <!-- 기록 내용: Width="*" 컬럼 전체 사용 -->
+                  <TextBox Grid.Column="8"
+                           Text="{Binding Content, Mode=TwoWay}"
+                           AcceptsReturn="True" TextWrapping="Wrap"
+                           MinHeight="60" MaxHeight="300"
+                           FontSize="{Binding #Root.SpecFontSize}"
+                           HorizontalAlignment="Stretch"
+                           VerticalAlignment="Center"
+                           Margin="6,0,6,0"
+                           PlaceholderText="기록 내용 입력"/>
+
+                  <!-- Byte/글자수 -->
+                  <TextBlock Grid.Column="9" Text="{Binding ByteInfo}"
+                             FontSize="10"
+                             Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                             HorizontalAlignment="Right" VerticalAlignment="Center"
+                             Margin="0,0,8,0" TextAlignment="Right"/>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Grid>
+  </Border>
+</UserControl>

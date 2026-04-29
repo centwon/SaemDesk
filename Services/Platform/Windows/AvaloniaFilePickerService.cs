@@ -101,17 +101,19 @@ public class AvaloniaFilePickerService : IFilePickerService
 
     private static List<FilePickerFileType> BuildFileTypes(string[] extensions)
     {
-        // 확장자별로 묶기 (예: .pdf / .xlsx / .xls)
-        var patterns = extensions
-            .Select(e => e.StartsWith('*') ? e : $"*{e}")
-            .ToList();
+        // "xlsx", ".xlsx", "*.xlsx" 모두 받아 항상 "*.xlsx" 형태로 정규화.
+        var patterns = extensions.Select(NormalizeExt).ToList();
+        var label = string.Join("/", patterns.Select(p => p.TrimStart('*', '.')));
 
         return
         [
-            new FilePickerFileType(string.Join("/", extensions))
-            {
-                Patterns = patterns
-            }
+            new FilePickerFileType(label) { Patterns = patterns }
         ];
+    }
+
+    private static string NormalizeExt(string ext)
+    {
+        var e = ext.TrimStart('*').TrimStart('.');
+        return $"*.{e}";
     }
 }

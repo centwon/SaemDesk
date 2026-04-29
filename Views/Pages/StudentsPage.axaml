@@ -1,202 +1,231 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:SaemDesk.ViewModels.Pages"
-             xmlns:vms="using:SaemDesk.ViewModels"
+             xmlns:ctrl="using:SaemDesk.Views.Controls"
              x:Class="SaemDesk.Views.Pages.StudentsPage"
              x:DataType="vm:StudentsPageVM"
              Classes="page">
 
-  <Grid RowDefinitions="Auto,Auto,*">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>  <!-- 필터 + 버튼 카드 -->
+      <RowDefinition Height="*"/>     <!-- 테이블 -->
+    </Grid.RowDefinitions>
 
-    <!-- ── 헤더 ──────────────────────────────────────────── -->
-    <StackPanel Grid.Row="0" Margin="20,20,20,0" Spacing="4">
-      <StackPanel Orientation="Horizontal" Spacing="10">
-        <TextBlock Text="◉"
-                   FontSize="22"
-                   Foreground="{StaticResource BrandPrimaryBrush}"
-                   VerticalAlignment="Center"/>
-        <TextBlock Text="{Binding ClassHeaderText}"
-                   FontSize="22"
-                   FontWeight="SemiBold"
-                   VerticalAlignment="Center"/>
-        <TextBlock Text="{Binding StatusText}"
-                   FontSize="13"
-                   Foreground="{DynamicResource SystemBaseMediumColor}"
-                   VerticalAlignment="Center"
-                   Margin="6,0,0,0"/>
-      </StackPanel>
-      <TextBlock Text="{Binding SchoolYearText}"
-                 FontSize="13"
-                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
-    </StackPanel>
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- 필터 + 버튼 카드                                    -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <Border Grid.Row="0"
+            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BorderThickness="1" CornerRadius="8"
+            Margin="16,16,16,0" Padding="16,12">
+      <StackPanel Spacing="10">
 
-    <!-- ── 툴바 ─────────────────────────────────────────── -->
-    <Grid Grid.Row="1" Margin="20,12,20,0" ColumnDefinitions="*,Auto">
+        <!-- 1행: 필터 -->
+        <StackPanel Orientation="Horizontal" Spacing="8">
 
-      <!-- 왼쪽: 검색 -->
-      <TextBox Grid.Column="0"
-               Text="{Binding SearchText, Mode=TwoWay}"
-               PlaceholderText="이름 또는 번호로 검색…"/>
+          <!-- 학년도/학년/반 공통 필터 -->
+          <ctrl:ClassFilterBar x:Name="FilterBar"/>
 
-      <!-- 오른쪽: 액션 버튼들 -->
-      <StackPanel Grid.Column="1"
-                  Orientation="Horizontal"
-                  Spacing="6"
-                  Margin="8,0,0,0">
+          <!-- 조회 버튼 -->
+          <Button Content="조회"
+                  Classes="accent"
+                  Padding="20,6"
+                  VerticalAlignment="Bottom"
+                  Click="OnQueryClick"/>
+        </StackPanel>
 
-        <!-- 학생 추가 -->
-        <Button Content="학생 추가"
-                Command="{Binding AddStudentCommand}"
-                Classes="accent"
-                Padding="12,6"/>
+        <!-- 2행: 액션 버튼 -->
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Button Name="BtnSave"   Content="저장"   Padding="20,6" Click="OnSaveClick"/>
+          <Button Name="BtnDelete" Content="삭제"   Padding="20,6" Click="OnDeleteClick"/>
+          <Button Name="BtnAdd"    Content="학생 추가" Padding="20,6" Click="OnAddStudentClick"
+                  Classes="accent"/>
 
-        <!-- 상세 (선택 시만 활성) -->
-        <Button Content="상세"
-                Command="{Binding ViewSelectedStudentDetailCommand}"
-                IsEnabled="{Binding HasSelection}"
-                Padding="12,6"/>
-
-        <!-- 수정 (선택 시만 활성) -->
-        <Button Content="수정"
-                Command="{Binding EditSelectedStudentCommand}"
-                IsEnabled="{Binding HasSelection}"
-                Padding="12,6"/>
-
-        <!-- 삭제 (선택 시만 활성) -->
-        <Button Content="삭제"
-                Command="{Binding DeleteSelectedStudentCommand}"
-                IsEnabled="{Binding HasSelection}"
-                Padding="12,6"/>
-
-        <!-- 내보내기 -->
-        <Button Content="내보내기"
-                Command="{Binding ExportClassCommand}"
-                Padding="12,6"/>
-
-        <!-- 새로고침 -->
-        <Button Content="새로고침"
-                Command="{Binding LoadStudentsCommand}"
-                Padding="12,6"/>
+          <TextBlock Name="TxtStudentCount"
+                     Text="{Binding StatusText}"
+                     VerticalAlignment="Center"
+                     Margin="16,0,0,0"
+                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+        </StackPanel>
 
       </StackPanel>
-    </Grid>
+    </Border>
 
-    <!-- ── 본문 ──────────────────────────────────────────── -->
-    <Panel Grid.Row="2">
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- 테이블 영역                                         -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <Border Grid.Row="1"
+            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BorderThickness="1" CornerRadius="8"
+            Margin="16,10,16,16">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>  <!-- 고정 헤더 -->
+          <RowDefinition Height="*"/>     <!-- 데이터 행 -->
+        </Grid.RowDefinitions>
 
-      <!-- 로딩 중 -->
-      <ProgressBar IsVisible="{Binding IsLoading}"
-                   IsIndeterminate="True"
-                   VerticalAlignment="Top"
-                   Margin="20,8,20,0"/>
-
-      <!-- 오류 메시지 -->
-      <TextBlock IsVisible="{Binding ErrorText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                 Text="{Binding ErrorText}"
-                 HorizontalAlignment="Center"
-                 VerticalAlignment="Center"
-                 Foreground="{DynamicResource SystemErrorTextColor}"
-                 FontSize="13"/>
-
-      <!-- 빈 상태 -->
-      <StackPanel IsVisible="{Binding IsEmpty}"
-                  HorizontalAlignment="Center"
-                  VerticalAlignment="Center"
-                  Spacing="8">
-        <TextBlock Text="등록된 학생이 없습니다."
-                   FontSize="15"
-                   HorizontalAlignment="Center"
-                   Foreground="{DynamicResource SystemBaseMediumColor}"/>
-        <TextBlock Text="'학생 추가' 버튼으로 학생을 등록하세요."
-                   FontSize="12"
-                   HorizontalAlignment="Center"
-                   Foreground="{DynamicResource SystemBaseMediumLowColor}"/>
-      </StackPanel>
-
-      <!-- 학생 목록 (ListBox — 선택 지원) -->
-      <ListBox IsVisible="{Binding HasStudents}"
-               ItemsSource="{Binding Students}"
-               SelectedItem="{Binding SelectedStudent, Mode=TwoWay}"
-               Background="Transparent"
-               BorderThickness="0"
-               Margin="20,4,20,20">
-        <ListBox.ItemTemplate>
-          <DataTemplate x:DataType="vms:StudentListItemViewModel">
-            <Grid ColumnDefinitions="40,*,Auto" Margin="0,3">
-
-              <!-- 번호 원형 배지 -->
-              <Border Grid.Column="0"
-                      Width="32" Height="32"
-                      CornerRadius="16"
-                      Background="{StaticResource BrandPrimaryBrush}"
+        <!-- ── 고정 헤더 ────────────────────────────────── -->
+        <Border Grid.Row="0"
+                Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="12,8">
+          <Grid ColumnDefinitions="44,148,80,60,60,60,*,80,*">
+            <CheckBox Name="ChkSelectAll"
+                      Grid.Column="0"
+                      Click="OnSelectAllClick"
                       HorizontalAlignment="Left"
-                      VerticalAlignment="Center">
-                <TextBlock Text="{Binding Number}"
-                           FontSize="13"
-                           FontWeight="SemiBold"
-                           Foreground="White"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"/>
-              </Border>
+                      VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="1" Text="학생ID"  FontWeight="SemiBold" VerticalAlignment="Center" FontSize="12"/>
+            <TextBlock Grid.Column="2" Text="학년도"  FontWeight="SemiBold" VerticalAlignment="Center" FontSize="12"/>
+            <TextBlock Grid.Column="3" Text="학년"    FontWeight="SemiBold" VerticalAlignment="Center" FontSize="12"/>
+            <TextBlock Grid.Column="4" Text="반"      FontWeight="SemiBold" VerticalAlignment="Center" FontSize="12"/>
+            <TextBlock Grid.Column="5" Text="번호"    FontWeight="SemiBold" VerticalAlignment="Center" FontSize="12"/>
+            <TextBlock Grid.Column="6" Text="이름"    FontWeight="SemiBold" VerticalAlignment="Center" FontSize="12"/>
+            <TextBlock Grid.Column="7" Text="상태"    FontWeight="SemiBold" VerticalAlignment="Center" FontSize="12"/>
+            <TextBlock Grid.Column="8" Text="비고"    FontWeight="SemiBold" VerticalAlignment="Center" FontSize="12"/>
+          </Grid>
+        </Border>
 
-              <!-- 이름 + 성별 -->
-              <StackPanel Grid.Column="1"
-                          Margin="12,0,8,0"
+        <!-- ── 빈 상태 ──────────────────────────────────── -->
+        <StackPanel Grid.Row="1"
+                    Name="EmptyState"
+                    IsVisible="True"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Spacing="10">
+          <TextBlock Text="👥" FontSize="48"
+                     HorizontalAlignment="Center"
+                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+          <TextBlock Text="조회된 학생이 없습니다."
+                     FontSize="15" HorizontalAlignment="Center"
+                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+          <TextBlock Text="학년도·학년·반을 선택하고 조회 버튼을 눌러주세요."
+                     FontSize="12" HorizontalAlignment="Center"
+                     Foreground="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"/>
+        </StackPanel>
+
+        <!-- ── 데이터 행 (ListBox 기반 인라인 편집) ──────── -->
+        <ListBox Grid.Row="1"
+                 Name="StudentList"
+                 IsVisible="False"
+                 ItemsSource="{Binding Students}"
+                 Background="Transparent"
+                 BorderThickness="0"
+                 SelectionMode="Multiple">
+          <ListBox.ItemContainerTheme>
+            <ControlTheme TargetType="ListBoxItem">
+              <Setter Property="Padding" Value="0"/>
+              <Setter Property="Margin"  Value="0"/>
+              <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+              <Setter Property="Template">
+                <ControlTemplate>
+                  <Border Background="Transparent"
+                          BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                          BorderThickness="0,0,0,1">
+                    <ContentPresenter Content="{TemplateBinding Content}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                                      HorizontalAlignment="Stretch"/>
+                  </Border>
+                </ControlTemplate>
+              </Setter>
+            </ControlTheme>
+          </ListBox.ItemContainerTheme>
+
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:StudentManagementViewModel">
+              <Grid ColumnDefinitions="44,148,80,60,60,60,*,80,*"
+                    Margin="12,6" Background="Transparent">
+
+                <!-- 체크박스 -->
+                <CheckBox Grid.Column="0"
+                          IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                          HorizontalAlignment="Left"
                           VerticalAlignment="Center"
-                          Spacing="2">
-                <TextBlock Text="{Binding Name}"
-                           FontSize="15"
-                           FontWeight="SemiBold"/>
-                <TextBlock Text="{Binding Sex}"
+                          Click="OnStudentCheckBoxClick"/>
+
+                <!-- 학생ID (읽기전용) -->
+                <TextBlock Grid.Column="1"
+                           Text="{Binding StudentID}"
+                           FontFamily="Consolas" FontSize="11"
+                           VerticalAlignment="Center"/>
+
+                <!-- 학년도 (편집가능) -->
+                <TextBox Grid.Column="2"
+                         Text="{Binding Year, Mode=TwoWay}"
+                         VerticalAlignment="Center"
+                         Background="Transparent"
+                         BorderThickness="0,0,0,1"
+                         Padding="2,1"
+                         FontSize="13"
+                         TextChanged="OnStudentDataChanged"/>
+
+                <!-- 학년 -->
+                <TextBox Grid.Column="3"
+                         Text="{Binding Grade, Mode=TwoWay}"
+                         VerticalAlignment="Center"
+                         Background="Transparent"
+                         BorderThickness="0,0,0,1"
+                         Padding="2,1"
+                         FontSize="13"
+                         TextChanged="OnStudentDataChanged"/>
+
+                <!-- 반 -->
+                <TextBox Grid.Column="4"
+                         Text="{Binding Class, Mode=TwoWay}"
+                         VerticalAlignment="Center"
+                         Background="Transparent"
+                         BorderThickness="0,0,0,1"
+                         Padding="2,1"
+                         FontSize="13"
+                         TextChanged="OnStudentDataChanged"/>
+
+                <!-- 번호 -->
+                <TextBox Grid.Column="5"
+                         Text="{Binding Number, Mode=TwoWay}"
+                         VerticalAlignment="Center"
+                         Background="Transparent"
+                         BorderThickness="0,0,0,1"
+                         Padding="2,1"
+                         FontSize="13"
+                         TextChanged="OnStudentDataChanged"/>
+
+                <!-- 이름 -->
+                <TextBox Grid.Column="6"
+                         Text="{Binding Name, Mode=TwoWay}"
+                         VerticalAlignment="Center"
+                         Background="Transparent"
+                         BorderThickness="0,0,0,1"
+                         Padding="2,1"
+                         FontSize="13"
+                         TextChanged="OnStudentDataChanged"/>
+
+                <!-- 상태 (읽기전용) -->
+                <TextBlock Grid.Column="7"
+                           Text="{Binding Status}"
+                           VerticalAlignment="Center"
                            FontSize="12"
-                           Foreground="{DynamicResource SystemBaseMediumColor}"/>
-              </StackPanel>
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
 
-              <!-- 재학 상태 배지 -->
-              <Border Grid.Column="2"
-                      VerticalAlignment="Center"
-                      Padding="8,3"
-                      CornerRadius="4"
-                      Background="{DynamicResource SystemListLowColor}">
-                <TextBlock Text="{Binding Status}"
-                           FontSize="12"
-                           Foreground="{DynamicResource SystemBaseMediumColor}"/>
-              </Border>
+                <!-- 비고 -->
+                <TextBox Grid.Column="8"
+                         Text="{Binding Memo, Mode=TwoWay}"
+                         VerticalAlignment="Center"
+                         Background="Transparent"
+                         BorderThickness="0,0,0,1"
+                         Padding="2,1"
+                         FontSize="13"
+                         PlaceholderText="비고"
+                         TextChanged="OnStudentDataChanged"/>
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
 
-            </Grid>
-          </DataTemplate>
-        </ListBox.ItemTemplate>
-
-        <!-- ListBox 항목 스타일 — card 느낌으로 -->
-        <ListBox.ItemContainerTheme>
-          <ControlTheme TargetType="ListBoxItem">
-            <Setter Property="Padding" Value="14,10"/>
-            <Setter Property="Margin" Value="0,3"/>
-            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Template">
-              <ControlTemplate>
-                <Border Background="{TemplateBinding Background}"
-                        CornerRadius="{TemplateBinding CornerRadius}"
-                        Padding="{TemplateBinding Padding}"
-                        BoxShadow="0 2 8 0 #20000000">
-                  <ContentPresenter Content="{TemplateBinding Content}"
-                                    ContentTemplate="{TemplateBinding ContentTemplate}"/>
-                </Border>
-              </ControlTemplate>
-            </Setter>
-            <Style Selector="^:selected /template/ Border">
-              <Setter Property="Background" Value="{DynamicResource SystemListLowColor}"/>
-              <Setter Property="BoxShadow" Value="0 2 8 0 #40000000"/>
-            </Style>
-            <Style Selector="^:pointerover /template/ Border">
-              <Setter Property="Background" Value="{DynamicResource SystemListMediumColor}"/>
-            </Style>
-          </ControlTheme>
-        </ListBox.ItemContainerTheme>
-
-      </ListBox>
-
-    </Panel>
+      </Grid>
+    </Border>
   </Grid>
 </UserControl>

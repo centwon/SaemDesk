@@ -1,6 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -9,195 +9,189 @@ using SaemDesk.Services;
 
 namespace SaemDesk.ViewModels.Pages;
 
-/// <summary>학생 관리 페이지.</summary>
+/// <summary>
+/// 학생 관리 페이지 ViewModel.
+/// 원본 NewSchool.Pages.StudentManagementPage 와 동등.
+/// 필터(학년도/학년/반) → 조회 → 인라인 편집 표 → 저장/삭제.
+/// </summary>
 public partial class StudentsPageVM : ViewModelBase
 {
-    // ── 내부 전체 목록 (검색 필터링용) ────────────────────
-    private readonly List<StudentListItemViewModel> _allStudents = [];
+    // ────────────────────────────────────────────────────
+    //  필터 프로퍼티
+    // ────────────────────────────────────────────────────
 
-    // ── 바인딩 속성 ───────────────────────────────────────
-    public ObservableCollection<StudentListItemViewModel> Students { get; } = [];
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasStudents))]
-    [NotifyPropertyChangedFor(nameof(IsEmpty))]
-    private bool _isLoading;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasSelection))]
-    private StudentListItemViewModel? _selectedStudent;
-
-    [ObservableProperty] private string _searchText = string.Empty;
-    [ObservableProperty] private string _statusText = string.Empty;
-    [ObservableProperty] private string _errorText  = string.Empty;
-
-    // ── 계산 속성 ─────────────────────────────────────────
-    public bool HasStudents => Students.Count > 0;
-    public bool IsEmpty     => !IsLoading && !HasStudents && string.IsNullOrEmpty(ErrorText);
-    public bool HasSelection => SelectedStudent is not null;
-
-    public string ClassHeaderText =>
-        $"{Settings.HomeGrade}학년 {Settings.HomeRoom}반";
-
-    public string SchoolYearText =>
-        $"{Settings.WorkYear}학년도 {Settings.WorkSemester}학기";
-
-    // ── 생성자 ────────────────────────────────────────────
-    public StudentsPageVM()
-    {
-        _ = LoadStudentsAsync();
-    }
+    [ObservableProperty] private int _filterYear  = Settings.WorkYear.Value;
+    [ObservableProperty] private int _filterGrade = 0;   // 0 = 전체
+    [ObservableProperty] private int _filterClass = 0;   // 0 = 전체
 
     // ────────────────────────────────────────────────────
-    //  목록 로드
+    //  데이터
+    // ────────────────────────────────────────────────────
+
+    public ObservableCollection<StudentManagementViewModel> Students { get; } = new();
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SelectedCount))]
+    [NotifyPropertyChangedFor(nameof(HasSelection))]
+    private bool _isAllSelected;
+
+    public int  SelectedCount => Students.Count(s => s.IsSelected);
+    public bool HasSelection  => SelectedCount > 0;
+
+    [ObservableProperty] private string _statusText = string.Empty;
+    [ObservableProperty] private bool   _isBusy;
+
+    // ────────────────────────────────────────────────────
+    //  생성자
+    // ────────────────────────────────────────────────────
+
+    public StudentsPageVM() { }
+
+    // ────────────────────────────────────────────────────
+    //  조회
     // ────────────────────────────────────────────────────
 
     [RelayCommand]
-    private async Task LoadStudentsAsync()
+    public async Task LoadStudentsAsync()
     {
-        IsLoading  = true;
-        ErrorText  = string.Empty;
-        StatusText = "불러오는 중…";
+        if (FilterYear <= 0) return;
+
+        IsBusy = true;
+        StatusText = "조회 중…";
 
         try
         {
-            using var repo = new EnrollmentRepository(SchoolDatabase.DbPath);
-            var enrollments = await repo.GetByClassAsync(
-                Settings.SchoolCode.Value,
-                Settings.WorkYear.Value,
-                Settings.HomeGrade.Value,
-                Settings.HomeRoom.Value);
+            using var svc = new EnrollmentService();
 
-            _allStudents.Clear();
-            foreach (var e in enrollments)
+            var enrollments = FilterGrade == 0
+                ? await svc.GetEnrollmentsAsync(
+                    Settings.SchoolCode.Value, FilterYear, 0)
+                : FilterClass == 0
+                    ? await svc.GetEnrollmentsAsync(
+                        Settings.SchoolCode.Value, FilterYear, 0, FilterGrade)
+                    : await svc.GetClassRosterAsync(
+                        Settings.SchoolCode.Value, FilterYear, FilterGrade, FilterClass);
+
+            Students.Clear();
+            foreach (var e in enrollments
+                .OrderBy(e => e.Grade).ThenBy(e => e.Class).ThenBy(e => e.Number))
             {
-                _allStudents.Add(new StudentListItemViewModel
+                Students.Add(new StudentManagementViewModel
                 {
                     EnrollmentNo = e.No,
                     StudentID    = e.StudentID,
-                    SchoolCode   = e.SchoolCode,
                     Year         = e.Year,
-                    Semester     = e.Semester,
                     Grade        = e.Grade,
                     Class        = e.Class,
                     Number       = e.Number,
                     Name         = e.Name,
-                    Sex          = e.Sex,
                     Status       = e.Status,
+                    IsSelected   = false,
+                    IsModified   = false,
                 });
             }
 
-            ApplyFilter(SearchText);
-            StatusText = $"총 {_allStudents.Count}명";
+            StatusText = $"총 {Students.Count}명";
+            IsAllSelected = false;
         }
         catch (Exception ex)
         {
-            StatusText = string.Empty;
-            ErrorText  = "학생 목록을 불러오지 못했습니다.";
-            System.Diagnostics.Debug.WriteLine($"[StudentsPageVM] 로드 오류: {ex.Message}");
+            StatusText = "조회 실패";
+            System.Diagnostics.Debug.WriteLine($"[StudentsPageVM] Load: {ex.Message}");
         }
-        finally
-        {
-            IsLoading = false;
-            OnPropertyChanged(nameof(HasStudents));
-            OnPropertyChanged(nameof(IsEmpty));
-        }
+        finally { IsBusy = false; }
     }
 
     // ────────────────────────────────────────────────────
-    //  학생 추가
+    //  전체 선택/해제
     // ────────────────────────────────────────────────────
 
-    [RelayCommand]
-    private async Task AddStudentAsync()
+    public void ToggleSelectAll(bool select)
     {
-        bool saved = await DialogService.ShowStudentEditAsync(null);
-        if (saved) await LoadStudentsAsync();
+        foreach (var s in Students) s.IsSelected = select;
+        NotifySelectionChanged();
+    }
+
+    public void NotifySelectionChanged()
+    {
+        OnPropertyChanged(nameof(SelectedCount));
+        OnPropertyChanged(nameof(HasSelection));
     }
 
     // ────────────────────────────────────────────────────
-    //  학생 수정 (선택된 항목)
+    //  저장
     // ────────────────────────────────────────────────────
 
     [RelayCommand]
-    private async Task EditSelectedStudentAsync()
+    public async Task SaveSelectedAsync()
     {
-        if (SelectedStudent is null) return;
-        bool saved = await DialogService.ShowStudentEditAsync(SelectedStudent);
-        if (saved) await LoadStudentsAsync();
-    }
+        var selected = Students.Where(s => s.IsSelected && s.IsModified).ToList();
+        if (!selected.Any()) return;
 
-    // ────────────────────────────────────────────────────
-    //  학생 상세 보기 (선택된 항목)
-    // ────────────────────────────────────────────────────
-
-    [RelayCommand]
-    private async Task ViewSelectedStudentDetailAsync()
-    {
-        if (SelectedStudent is null) return;
-        await DialogService.ShowStudentDetailAsync(
-            SelectedStudent.StudentID,
-            SelectedStudent.Name);
-    }
-
-    // ────────────────────────────────────────────────────
-    //  학생 삭제 (선택된 항목)
-    // ────────────────────────────────────────────────────
-
-    [RelayCommand]
-    private async Task DeleteSelectedStudentAsync()
-    {
-        if (SelectedStudent is null) return;
-
-        bool ok = await DialogService.ShowConfirmAsync(
-            "학생 삭제",
-            $"'{SelectedStudent.Name}' 학생을 삭제하시겠습니까?\n삭제된 학생은 복구할 수 없습니다.");
-        if (!ok) return;
+        IsBusy = true;
+        int ok = 0, fail = 0;
 
         try
         {
             using var repo = new EnrollmentRepository(SchoolDatabase.DbPath);
-            await repo.DeleteAsync(SelectedStudent.EnrollmentNo);
-            SelectedStudent = null;
-            await LoadStudentsAsync();
+            foreach (var vm in selected)
+            {
+                try
+                {
+                    var e = await repo.GetByIdAsync(vm.EnrollmentNo);
+                    if (e is null) { fail++; continue; }
+
+                    e.Year  = vm.Year;
+                    e.Grade = vm.Grade;
+                    e.Class = vm.Class;
+                    e.Number = vm.Number;
+                    e.Name   = vm.Name;
+                    e.UpdatedAt = DateTime.Now;
+
+                    if (await repo.UpdateAsync(e)) { ok++; vm.IsModified = false; }
+                    else fail++;
+                }
+                catch { fail++; }
+            }
+
+            StatusText = fail > 0 ? $"{ok}건 저장, {fail}건 실패" : $"{ok}건 저장 완료";
         }
-        catch (Exception ex)
-        {
-            ErrorText = $"삭제 실패: {ex.Message}";
-            System.Diagnostics.Debug.WriteLine($"[StudentsPageVM] 삭제 오류: {ex.Message}");
-        }
+        finally { IsBusy = false; }
     }
 
     // ────────────────────────────────────────────────────
-    //  내보내기
+    //  삭제
     // ────────────────────────────────────────────────────
 
     [RelayCommand]
-    private async Task ExportClassAsync()
+    public async Task DeleteSelectedAsync()
     {
-        await DialogService.ShowExportAsync();
-    }
+        var selected = Students.Where(s => s.IsSelected).ToList();
+        if (!selected.Any()) return;
 
-    // ────────────────────────────────────────────────────
-    //  검색 처리
-    // ────────────────────────────────────────────────────
+        IsBusy = true;
+        int ok = 0;
 
-    partial void OnSearchTextChanged(string value) => ApplyFilter(value);
+        try
+        {
+            using var repo = new EnrollmentRepository(SchoolDatabase.DbPath);
+            foreach (var vm in selected)
+            {
+                try
+                {
+                    await repo.DeleteAsync(vm.EnrollmentNo);
+                    Students.Remove(vm);
+                    ok++;
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[StudentsPageVM] Delete {vm.Name}: {ex.Message}");
+                }
+            }
 
-    private void ApplyFilter(string keyword)
-    {
-        Students.Clear();
-
-        var source = string.IsNullOrWhiteSpace(keyword)
-            ? _allStudents
-            : _allStudents.FindAll(s =>
-                s.Name.Contains(keyword, StringComparison.CurrentCultureIgnoreCase) ||
-                s.Number.ToString().Contains(keyword));
-
-        foreach (var s in source)
-            Students.Add(s);
-
-        OnPropertyChanged(nameof(HasStudents));
-        OnPropertyChanged(nameof(IsEmpty));
+            StatusText = $"{ok}명 삭제 완료 / 총 {Students.Count}명";
+            NotifySelectionChanged();
+        }
+        finally { IsBusy = false; }
     }
 }

@@ -15,23 +15,29 @@ namespace SaemDesk.Repositories
         public ClassDiaryRepository(string dbPath) : base(dbPath)
         {
             // 기존 DB 마이그레이션: CreatedAt/UpdatedAt 컬럼 추가
-            TryAddColumn("ClassDiary", "CreatedAt", "TEXT");
-            TryAddColumn("ClassDiary", "UpdatedAt", "TEXT");
+            // pragma_table_info 로 사전 확인해 SqliteException 발생 자체를 방지
+            TryAddColumn("ClassDiary", "CreatedAt", "TEXT DEFAULT ''");
+            TryAddColumn("ClassDiary", "UpdatedAt", "TEXT DEFAULT ''");
         }
 
-        /// <summary>
-        /// 컬럼 추가 시도 (이미 존재하면 무시)
-        /// </summary>
+        /// <summary>컬럼 추가 시도 — pragma 로 존재 여부 확인 후 없을 때만 ALTER.</summary>
+        [System.Diagnostics.DebuggerHidden]
         private void TryAddColumn(string table, string columnName, string columnDef)
         {
             try
             {
-                using var cmd = CreateCommand($"ALTER TABLE {table} ADD COLUMN {columnName} {columnDef}");
+                // 컬럼 존재 여부 먼저 확인 → 있으면 ALTER 생략
+                using var check = CreateCommand(
+                    $"SELECT COUNT(*) FROM pragma_table_info('{table}') WHERE name='{columnName}'");
+                if (Convert.ToInt32(check.ExecuteScalar()) > 0) return;
+
+                using var cmd = CreateCommand(
+                    $"ALTER TABLE {table} ADD COLUMN {columnName} {columnDef}");
                 cmd.ExecuteNonQuery();
             }
             catch (SqliteException)
             {
-                // 이미 존재하는 경우 무시
+                // 동시성 경쟁으로 중복 ALTER 시 무시
             }
         }
 

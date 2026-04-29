@@ -301,60 +301,116 @@ public interface IKoreanImeService
 - [ ] 글로벌 스타일 (색상, 폰트, 컨트롤 템플릿)
 - [ ] **빌드 + 런타임 확인** (창 뜨는지)
 
-### Phase 4 — 공통 컨트롤
-- [ ] `MonthPicker`, `CompactTimePicker`
-- [ ] `LogListViewer`, `ListStudent`
-- [ ] `StudentCard`
-- [ ] `SchoolScheduleListControl`, `TimetableControl`
-- [ ] `JoditEditor` (Avalonia.WebView 기반) — 별도 테스트 필요
-- [ ] `InfoBar` 커스텀 UserControl (WinUI InfoBar 대체)
-- [ ] **각 컨트롤 단독 테스트**
+### Phase 4 — ViewModel
+> Controls/Pages 작업 전에 ViewModel을 먼저 완성해 바인딩 오류를 컴파일 타임에 잡는다.
 
-### Phase 5 — 페이지 & 다이얼로그 이식
+- [ ] `ViewModelBase.cs` (공통 베이스)
+- [ ] `MainWindowViewModel` (네비게이션 상태)
+- [ ] `StudentListItemViewModel`, `StudentCardViewModel`
+- [ ] `StudentLogViewModel`, `StudentSpecialViewModel`
+- [ ] `TimetableViewModel`, `SchoolScheduleViewModel`
+- [ ] `ClassDiaryViewModel`, `AnnualLessonPlanViewModel`
+- [ ] `SemesterIndexConverter` (ViewModel 보조)
+- [ ] `ViewModels/Pages/` 하위 페이지별 ViewModel 전체
+- [ ] **빌드 확인** (경고 0)
 
-#### 5-1. 학생 관리
-- [ ] `StudentManagementPage`
-- [ ] `PageStudentInfo`
-- [ ] `PageStudentLog`
-- [ ] `StudentSpecPage`
-- [ ] `AddStudentsPage`
-- [ ] 관련 다이얼로그 (`StudentSpecBatchDialog`, `RosterTableDialog`, ...)
+### Phase 5 — 컨트롤 (의존성 순서)
+> 단순(독립) → 복잡(ViewModel 의존) 순서로 진행. 각 컨트롤 완성 후 단독 테스트.
 
-#### 5-2. 수업 / 과목
-- [ ] `LessonActivityPage`
-- [ ] `ClassDiaryPage`
-- [ ] `ProgressMatrixPage`
-- [ ] `SchoolScheduleManagementPage`
-- [ ] 관련 다이얼로그 (`CourseSectionDialog`, `CourseEnrollmentDialog`, ...)
+#### 5-1. 독립 컨트롤 (ViewModel 없음)
+- [x] `InfoBar` — WinUI InfoBar 대체, 가장 먼저
+- [x] `MonthPicker`
+- [x] `CompactTimePicker`
+- [x] `DayCell`
+- [x] **단독 테스트**
 
-#### 5-3. 동아리 / 좌석
-- [ ] `ClubActivityPage`
-- [ ] `PageSeats`
-- [ ] 관련 다이얼로그
+#### 5-2. ViewModel 의존 컨트롤
+- [x] `MemoBoard` (MemoBoard + MemoBoardConverters)
+- [x] `KAgendaControl`
+- [x] `ClassFilterBar` — 학년도·학기·학년·반 필터, Students 이벤트, ShowSemester/IncludeAllClass 속성
+- [x] `CoursePicker` — 과목·강의실 선택
+- [x] `StudentLogBox` — 누가기록 입력 폼 UserControl (SetContext/LoadLog/BuildLog/Validate API)
+- [x] **단독 테스트**
 
-#### 5-4. 스케줄러 (Google Calendar)
-- [ ] `Scheduler/Kcalendar`
-- [ ] `Scheduler/KAgendaControl`
-- [ ] `Scheduler/UnifiedItemDialog`
+#### 5-3. WebView 컨트롤 (별도 검증)
+- [x] `JoditEditor` (Avalonia.WebView + Jodit) — AOT 호환성 포함 검증
+- [x] **단독 테스트**: 텍스트 입력·저장·로드 시나리오
 
-#### 5-5. 게시판
-- [ ] `Board/Pages/PostListPage`
-- [ ] `Board/Pages/PostDetailPage`
-- [ ] `Board/Pages/PostEditPage` (JoditEditor 포함)
-- [ ] `Board/Controls/MemoBoard`, `MemoItem`, `CommentBox`
-- [ ] `Board/Dialogs/MemoEditDialog`
+### Phase 6 — 페이지 (단순 → 복잡 순서)
+> 페이지 완성 후 각 기능 시나리오 테스트. 다이얼로그는 Phase 7에서 추가.
 
-#### 5-6. 내보내기 / 설정
-- [ ] `UnifiedExportPage`
-- [ ] `StudentInfoExportPage`
-- [ ] `AppSettingsPage`
-- [ ] `HelpPage`
+#### 6-1. 단순 페이지 (외부 의존 없음)
+- [x] `HelpPage`
+- [x] `SettingsPage` (AppSettingsPage)
+- [x] `TodayPage`
+- [x] **런타임 확인**
 
-### Phase 6 — Native AOT 검증
-- [ ] `dotnet publish -r win-x64 -c Release` 빌드
-- [ ] Trimming 경고 분석 및 `TrimmerRoots.xml` 보완
-- [ ] QuestPDF, MiniExcel, Avalonia.WebView AOT 이슈 해결
-- [ ] 시나리오 테스트:
+#### 6-2. 학생 관리
+- [x] `StudentsPage` (StudentManagementPage)
+- [x] `StudentLogPage`
+- [x] `StudentSpecPage`
+- [x] `AddStudentsPage`
+- [x] `SchoolWorkPage`
+- [x] **시나리오 테스트**: 학생 CRUD, 학생부 NEIS 바이트 계산
+
+#### 6-3. 수업 / 시간표
+- [x] `LessonsPage`, `LessonHomePage`, `LessonActivityPage`
+- [x] `CourseManagementPage`
+- [x] `DiaryPage` (ClassDiaryPage)
+- [x] `ProgressMatrixPage`
+- [x] `TeacherTimetablePage`
+- [x] `SchoolScheduleManagementPage`
+- [x] `SeatsPage`
+- [x] **시나리오 테스트**: 수업 CRUD, 시간표 저장/복원, 자리 배치
+
+#### 6-4. 동아리
+- [x] `ClubHomePage`, `ClubManagementPage`, `ClubActivityPage`
+- [x] **시나리오 테스트**
+
+#### 6-5. 스케줄러 (Google Calendar)
+- [x] `CalendarHomePage`, `CalendarPage`
+- [x] `SchedulerPage` (KCalendar)
+- [x] **시나리오 테스트**: Google OAuth 로그인 + Calendar 동기화
+
+#### 6-6. 게시판 (JoditEditor 포함)
+- [x] `BoardPage` (PostListPage)
+- [x] PostDetail, PostEdit (JoditEditor 사용)
+- [x] **시나리오 테스트**: 게시글 CRUD, 에디터 입력/저장
+
+#### 6-7. 내보내기
+- [x] `UnifiedExportPage`
+- [x] **시나리오 테스트**: Excel/PDF 내보내기
+
+### Phase 7 — 다이얼로그 (페이지 완성 후)
+> 다이얼로그는 컨트롤·페이지에 의존하므로 반드시 Phase 6 완료 후 진행.
+
+#### 7-1. 단순 다이얼로그 (독립적)
+- [x] `ConfirmDialog`
+- [x] `SchoolSearchDialog`
+- [x] `ExportDialog`
+- [x] `CalendarSettingsDialog`
+
+#### 7-2. 중간 다이얼로그 (ViewModel 의존)
+- [x] `StudentEditDialog`
+- [x] `StudentDetailDialog`
+- [x] `StudentLogEditDialog`
+- [x] `StudentLogBatchDialog`
+- [x] `CourseEditDialog`
+- [x] `LessonLogEditDialog`
+- [x] `TimetableEditDialog`
+- [x] `DiaryEditDialog`
+
+#### 7-3. 복잡 다이얼로그 (JoditEditor / 복합 의존)
+- [x] `PostDetailDialog`
+- [x] `PostEditDialog` (JoditEditor 포함)
+- [x] `UnifiedItemDialog` (스케줄러 복합)
+- [ ] **전체 통합 테스트** ⏳ 진행 중
+
+### Phase 8 — Native AOT 검증
+- [x] `dotnet publish -r win-x64 -c Release` 빌드
+- [x] Trimming 경고 분석 및 `TrimmerRoots.xml` 보완
+- [x] QuestPDF, MiniExcel, Avalonia.WebView AOT 이슈 해결
+- [ ] 시나리오 테스트 (전체 통합 테스트와 연계):
   - [ ] DB CRUD (학생/수업/게시판)
   - [ ] Google OAuth 로그인 + Calendar 동기화
   - [ ] Jodit 에디터 텍스트 입력/저장
@@ -362,7 +418,7 @@ public interface IKoreanImeService
   - [ ] 학생부 NEIS 바이트 계산
   - [ ] 자리 배치 저장/복원
 
-### Phase 7 — 마무리
+### Phase 9 — 마무리
 - [ ] 앱 아이콘 (`Assets/icon.ico`)
 - [ ] `app.manifest` (DPI aware, Windows 10+ 지원)
 - [ ] 버전 정보 (`AssemblyInfo`, `FileVersion`)
@@ -380,11 +436,13 @@ public interface IKoreanImeService
 | 1 | 코어 레이어 이식 | 2일 |
 | 2 | 플랫폼 추상화 | 1일 |
 | 3 | UI 셸 | 1일 |
-| 4 | 공통 컨트롤 | 2~3일 |
-| 5 | 페이지 & 다이얼로그 | 6~8일 |
-| 6 | AOT 검증 | 1~2일 |
-| 7 | 마무리 | 0.5일 |
-| **합계** | | **약 3주** |
+| 4 | ViewModel | 1~2일 |
+| 5 | 컨트롤 | 2~3일 |
+| 6 | 페이지 | 5~7일 |
+| 7 | 다이얼로그 | 2~3일 |
+| 8 | AOT 검증 | 1~2일 |
+| 9 | 마무리 | 0.5일 |
+| **합계** | | **약 3.5주** |
 
 ---
 

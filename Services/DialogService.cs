@@ -77,9 +77,10 @@ public static class DialogService
     }
 
     /// <summary>학생 상세 다이얼로그(상세 정보 + 활동 기록). 닫기만 있는 viewer.</summary>
-    public static async Task ShowStudentDetailAsync(string studentId, string studentName)
+    public static async Task ShowStudentDetailAsync(
+        string studentId, string classInfo, string studentName, int year = 0)
     {
-        var dialog = new StudentDetailDialog(studentId, studentName);
+        var dialog = new StudentDetailDialog(studentId, classInfo, studentName, year);
         var owner  = MainWindow;
         if (owner is null) return;
         await dialog.ShowDialog(owner);

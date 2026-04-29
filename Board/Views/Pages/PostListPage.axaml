@@ -1,0 +1,186 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SaemDesk.Board.ViewModels"
+             x:Class="SaemDesk.Board.Views.Pages.PostListPage"
+             x:DataType="vm:PostListViewModel">
+
+  <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+    <!-- ── 제목 ────────────────────────────────────────── -->
+    <StackPanel Grid.Row="0" x:Name="TitlePanel" Margin="16,12,16,0" Spacing="4">
+      <TextBlock x:Name="TitleText" FontSize="20" FontWeight="SemiBold"/>
+    </StackPanel>
+
+    <!-- ── 필터/검색 툴바 ─────────────────────────────── -->
+    <Grid Grid.Row="1" Margin="16,8,16,0" ColumnDefinitions="Auto,Auto,*,Auto">
+
+      <!-- 카테고리 -->
+      <ComboBox x:Name="CBoxCategory" Grid.Column="0" MinWidth="130"
+                PlaceholderText="전체"
+                SelectionChanged="OnCategoryChanged"/>
+
+      <!-- 주제 필터 (ShowSubjectFilter 시 표시) -->
+      <ComboBox x:Name="CBoxSubject" Grid.Column="1" MinWidth="110"
+                PlaceholderText="주제"
+                Margin="6,0,0,0" IsVisible="False"
+                SelectionChanged="OnSubjectChanged"/>
+
+      <!-- 검색 -->
+      <TextBox  Grid.Column="2"
+                Text="{Binding SearchText, Mode=TwoWay}"
+                PlaceholderText="검색…"
+                Margin="6,0,0,0"/>
+
+      <!-- 액션 버튼 -->
+      <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" Margin="6,0,0,0">
+        <Button Content="검색"      Padding="10,5" Click="BtnSearch_Click"/>
+        <Button Content="새 글"     Padding="10,5" Classes="accent" Click="BtnNewPost_Click"/>
+        <Button Content="새로고침"  Padding="10,5" Click="BtnRefresh_Click"/>
+        <!-- 뷰 모드 전환 -->
+        <Button x:Name="BtnViewMode" Content="⊞" Padding="10,5"
+                ToolTip.Tip="뷰 전환 (표 / 카드 / 갤러리)"
+                Click="BtnViewMode_Click" IsVisible="True"/>
+      </StackPanel>
+    </Grid>
+
+    <!-- ── 본문 ─────────────────────────────────────────── -->
+    <Grid Grid.Row="2" Margin="16,8,16,0">
+
+      <ProgressBar IsVisible="{Binding IsLoading}"
+                   IsIndeterminate="True"
+                   VerticalAlignment="Top"/>
+
+      <!-- 빈 상태 -->
+      <StackPanel IsVisible="{Binding IsEmpty}"
+                  HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+        <TextBlock Text="등록된 게시글이 없습니다."
+                   FontSize="15" HorizontalAlignment="Center"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"/>
+        <TextBlock Text="'새 글' 버튼으로 첫 글을 작성하세요."
+                   FontSize="12" HorizontalAlignment="Center"
+                   Foreground="{DynamicResource SystemBaseMediumLowColor}"/>
+      </StackPanel>
+
+      <!-- ─ Table 뷰 ─ -->
+      <Border x:Name="TableViewContainer"
+              IsVisible="{Binding HasPosts}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+          <Grid RowDefinitions="Auto,*">
+
+            <!-- 헤더 -->
+            <Border Grid.Row="0"
+                    Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+                    BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                    BorderThickness="0,0,0,1" Padding="12,8">
+              <Grid ColumnDefinitions="80,*,80,90,60,60">
+                <TextBlock Grid.Column="0" Text="카테고리"  FontWeight="SemiBold" FontSize="11"/>
+                <TextBlock Grid.Column="1" Text="제목"      FontWeight="SemiBold" FontSize="11" Margin="8,0,0,0"/>
+                <TextBlock Grid.Column="2" Text="주제"      FontWeight="SemiBold" FontSize="11"/>
+                <TextBlock Grid.Column="3" Text="작성자"    FontWeight="SemiBold" FontSize="11"/>
+                <TextBlock Grid.Column="4" Text="조회"      FontWeight="SemiBold" FontSize="11" HorizontalAlignment="Right"/>
+                <TextBlock Grid.Column="5" Text="날짜"      FontWeight="SemiBold" FontSize="11" HorizontalAlignment="Right"/>
+              </Grid>
+            </Border>
+
+            <!-- 목록 -->
+            <ItemsControl Grid.Row="1" x:Name="PostsRepeater">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="vm:PostItemViewModel">
+                  <Border BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                          BorderThickness="0,0,0,1" Padding="12,8"
+                          Background="Transparent">
+                    <Border.Styles>
+                      <Style Selector="Border:pointerover">
+                        <Setter Property="Background" Value="{DynamicResource SystemListLowColor}"/>
+                      </Style>
+                    </Border.Styles>
+                    <Grid ColumnDefinitions="80,*,80,90,60,60"
+                          Tapped="OnPostTapped">
+                      <!-- 카테고리 배지 -->
+                      <Border Grid.Column="0" CornerRadius="3" Padding="5,2"
+                              Background="{DynamicResource BrandPrimaryBrush}"
+                              HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Category}" FontSize="10" Foreground="White"/>
+                      </Border>
+                      <!-- 제목 -->
+                      <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="8,0,0,0" Spacing="1">
+                        <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                          <TextBlock Text="📎" FontSize="10" IsVisible="{Binding HasFile}"/>
+                          <TextBlock Text="💬" FontSize="10" IsVisible="{Binding HasComment}"/>
+                          <TextBlock Text="{Binding CommentCount, StringFormat=\{0\}개}"
+                                     FontSize="10" IsVisible="{Binding HasComment}"
+                                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+                        </StackPanel>
+                      </StackPanel>
+                      <TextBlock Grid.Column="2" Text="{Binding Subject}"
+                                 FontSize="11" VerticalAlignment="Center"
+                                 TextTrimming="CharacterEllipsis"
+                                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+                      <TextBlock Grid.Column="3" Text="{Binding User}"
+                                 FontSize="11" VerticalAlignment="Center"
+                                 TextTrimming="CharacterEllipsis"/>
+                      <TextBlock Grid.Column="4" Text="{Binding ReadCount}"
+                                 FontSize="11" VerticalAlignment="Center" HorizontalAlignment="Right"
+                                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+                      <TextBlock Grid.Column="5" Text="{Binding DateTimeDisplay}"
+                                 FontSize="11" VerticalAlignment="Center" HorizontalAlignment="Right"
+                                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </Grid>
+        </ScrollViewer>
+      </Border>
+
+      <!-- ─ Card 뷰 ─ -->
+      <ScrollViewer x:Name="CardViewContainer" IsVisible="False" VerticalScrollBarVisibility="Auto">
+        <ItemsControl x:Name="CardViewRepeater">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <WrapPanel Orientation="Horizontal"/>
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="vm:PostItemViewModel">
+              <Border Width="220" Margin="6" Padding="12"
+                      Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                      BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                      BorderThickness="1" CornerRadius="8"
+                      BoxShadow="0 1 4 0 #18000000"
+                      Tapped="OnPostTapped">
+                <StackPanel Spacing="4">
+                  <TextBlock Text="{Binding Category}" FontSize="10"
+                             Foreground="{DynamicResource BrandPrimaryBrush}"/>
+                  <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold"
+                             TextWrapping="Wrap" MaxLines="2"/>
+                  <TextBlock Text="{Binding Subject}" FontSize="11"
+                             Foreground="{DynamicResource SystemBaseMediumColor}"
+                             TextTrimming="CharacterEllipsis"/>
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="{Binding User}"          FontSize="10" Foreground="{DynamicResource SystemBaseMediumColor}"/>
+                    <TextBlock Text="{Binding DateTimeDisplay}" FontSize="10" Foreground="{DynamicResource SystemBaseMediumColor}"/>
+                  </StackPanel>
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+
+    </Grid>
+
+    <!-- ── 페이징 ────────────────────────────────────────── -->
+    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center"
+                Spacing="8" Margin="0,8,0,12">
+      <Button Content="◀" Padding="10,5" IsEnabled="{Binding HasPreviousPage}" Click="BtnPrev_Click"/>
+      <TextBlock Text="{Binding PageInfo}" VerticalAlignment="Center" FontSize="12"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+      <Button Content="▶" Padding="10,5" IsEnabled="{Binding HasNextPage}"     Click="BtnNext_Click"/>
+    </StackPanel>
+
+  </Grid>
+</UserControl>

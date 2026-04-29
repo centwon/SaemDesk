@@ -1,0 +1,131 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SaemDesk.Views.Dialogs.SeatOptionsDialog"
+        Title="좌석 배치 옵션"
+        Width="560" Height="560"
+        MinWidth="500" MinHeight="500"
+        WindowStartupLocation="CenterOwner"
+        CanResize="True"
+        ShowInTaskbar="False">
+
+  <Grid RowDefinitions="*,Auto" Margin="20">
+
+    <!-- 탭 구조 (Pivot → TabControl) -->
+    <TabControl Grid.Row="0">
+
+      <!-- ════ 탭 1: 이력 기반 ════ -->
+      <TabItem Header="이력">
+        <StackPanel Spacing="14" Margin="0,12,0,0">
+          <TextBlock Text="저장된 배치 이력을 활용해 반복을 피합니다."
+                     FontSize="12"
+                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+
+          <!-- 지난 짝 배제 -->
+          <StackPanel Spacing="6">
+            <CheckBox x:Name="ChkRecentPair" Content="지난 짝 배제"/>
+            <StackPanel Orientation="Horizontal" Spacing="8" Margin="28,0,0,0">
+              <TextBlock Text="최근" VerticalAlignment="Center"/>
+              <NumericUpDown x:Name="NbxRecentPair"
+                             Value="1" Minimum="1" Maximum="10" Increment="1"
+                             Width="100"/>
+              <TextBlock Text="회차의 짝 관계 회피" VerticalAlignment="Center"/>
+            </StackPanel>
+          </StackPanel>
+
+          <!-- 지난 자리 배제 -->
+          <StackPanel Spacing="6">
+            <CheckBox x:Name="ChkRecentPos" Content="지난 자리 배제"/>
+            <StackPanel Orientation="Horizontal" Spacing="8" Margin="28,0,0,0">
+              <TextBlock Text="최근" VerticalAlignment="Center"/>
+              <NumericUpDown x:Name="NbxRecentPos"
+                             Value="1" Minimum="1" Maximum="10" Increment="1"
+                             Width="100"/>
+              <TextBlock Text="회차의 같은 좌표 회피" VerticalAlignment="Center"/>
+            </StackPanel>
+          </StackPanel>
+
+          <!-- 이력 정보 -->
+          <Border CornerRadius="4" Padding="10,8"
+                  Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+            <TextBlock x:Name="HistoryInfo" FontSize="12" TextWrapping="Wrap"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+          </Border>
+        </StackPanel>
+      </TabItem>
+
+      <!-- ════ 탭 2: 학생 속성 ════ -->
+      <TabItem Header="속성">
+        <StackPanel Spacing="14" Margin="0,12,0,0">
+          <CheckBox x:Name="ChkMixedGender"
+                    Content="남녀 교차 짝 (짝 모드일 때 우선 적용)"/>
+
+          <StackPanel Spacing="6">
+            <TextBlock Text="앞자리 우선 학생" FontWeight="SemiBold"/>
+            <TextBlock Text="시력·집중력 이슈 학생을 앞쪽 줄 범위에 고정합니다."
+                       FontSize="11"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="허용 범위: Row 0 ~" VerticalAlignment="Center"/>
+              <NumericUpDown x:Name="NbxFrontMaxRow"
+                             Value="1" Minimum="0" Maximum="9" Increment="1"
+                             Width="100"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <ComboBox x:Name="CbxFrontStudent" PlaceholderText="학생 선택" MinWidth="200"/>
+              <Button Content="추가" Padding="10,6" Click="OnAddFront"/>
+            </StackPanel>
+            <ListBox x:Name="FrontListView" MaxHeight="140"
+                     Background="Transparent" BorderThickness="0" SelectionMode="Single"/>
+          </StackPanel>
+        </StackPanel>
+      </TabItem>
+
+      <!-- ════ 탭 3: 짝 제약 ════ -->
+      <TabItem Header="짝 제약">
+        <StackPanel Spacing="10" Margin="0,12,0,0">
+          <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+            <ComboBox Grid.Column="0" x:Name="CbxPairA" PlaceholderText="학생 A"
+                      HorizontalAlignment="Stretch"/>
+            <ComboBox Grid.Column="1" x:Name="CbxPairB" PlaceholderText="학생 B"
+                      HorizontalAlignment="Stretch"/>
+          </Grid>
+          <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+            <Button Content="🚫 분리 추가" Padding="10,6" Click="OnAddExclusion"/>
+            <Button Content="📌 고정 추가" Padding="10,6" Click="OnAddFixed"/>
+          </StackPanel>
+          <ListBox x:Name="PairListView" MaxHeight="220"
+                   Background="Transparent" BorderThickness="0" SelectionMode="Single"/>
+          <TextBlock x:Name="PairEmpty"
+                     Text="설정된 짝 조건이 없습니다." FontSize="12"
+                     HorizontalAlignment="Center"
+                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+        </StackPanel>
+      </TabItem>
+
+      <!-- ════ 탭 4: 배치 방식 ════ -->
+      <TabItem Header="방식">
+        <StackPanel Spacing="14" Margin="0,12,0,0">
+          <TextBlock Text="배치 시도 횟수" FontWeight="SemiBold"/>
+          <TextBlock Text="제약이 많을수록 더 많은 시도가 필요합니다."
+                     FontSize="11"
+                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+          <ComboBox x:Name="CbxAttempts" MinWidth="140">
+            <ComboBoxItem Tag="100">100</ComboBoxItem>
+            <ComboBoxItem Tag="500">500</ComboBoxItem>
+            <ComboBoxItem Tag="1000">1000</ComboBoxItem>
+            <ComboBoxItem Tag="3000">3000</ComboBoxItem>
+          </ComboBox>
+        </StackPanel>
+      </TabItem>
+
+    </TabControl>
+
+    <!-- 버튼 바 -->
+    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right"
+                Spacing="8" Margin="0,12,0,0">
+      <Button Content="취소" Padding="14,8" Click="OnCancel"/>
+      <Button Content="확인" Classes="accent" Padding="16,8" Click="OnConfirm"/>
+    </StackPanel>
+
+  </Grid>
+</Window>

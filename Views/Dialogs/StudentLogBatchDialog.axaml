@@ -1,0 +1,61 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ctrl="using:SaemDesk.Views.Controls"
+        x:Class="SaemDesk.Views.Dialogs.StudentLogBatchDialog"
+        Title="활동 기록 일괄 입력"
+        Width="940" Height="780"
+        MinWidth="800" MinHeight="680"
+        WindowStartupLocation="CenterOwner"
+        CanResize="True"
+        ShowInTaskbar="False">
+
+  <Border Padding="20"
+          Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+    <Grid RowDefinitions="Auto,*,Auto">
+
+      <!-- 헤더 -->
+      <Border Grid.Row="0" Margin="0,0,0,14"
+              BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+              BorderThickness="0,0,0,1" Padding="0,0,0,12">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock x:Name="SubTitleText"
+                     FontSize="20" FontWeight="Bold"/>
+          <!-- 선택 카운터 -->
+          <TextBlock Grid.Column="1"
+                     x:Name="TxtSelectedCount"
+                     VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                     FontSize="13"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+        </Grid>
+      </Border>
+
+      <!-- 본문: 좌측 학생 목록 + 우측 폼 -->
+      <Grid Grid.Row="1" ColumnDefinitions="160,12,*">
+
+        <!-- 좌측: 학생 명렬 (체크박스 모드) -->
+        <ctrl:ListStudent x:Name="StudentList"
+                          Grid.Column="0"
+                          ShowCheckBox="True"
+                          ViewMode="NumName"/>
+
+        <!-- 우측: 기록 입력 폼 (StudentLogBox 재사용) -->
+        <ctrl:StudentLogBox x:Name="LogBox" Grid.Column="2"/>
+
+      </Grid>
+
+      <!-- 버튼 바 -->
+      <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right"
+                  Spacing="8" Margin="0,14,0,0">
+        <TextBlock x:Name="TxtSaveHint"
+                   VerticalAlignment="Center"
+                   FontSize="12"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                   Margin="0,0,12,0"/>
+        <Button Content="취소" Padding="16,8" Click="OnCancel"/>
+        <Button x:Name="SaveButton" Content="선택 학생에 저장"
+                Classes="accent" Padding="16,8" Click="OnSave"/>
+      </StackPanel>
+
+    </Grid>
+  </Border>
+</Window>

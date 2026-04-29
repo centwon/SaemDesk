@@ -1,0 +1,70 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SaemDesk.Views.Dialogs.BatchExportFilterDialog"
+        Title="일괄 출력 옵션"
+        Width="440" Height="340"
+        MinWidth="400" MinHeight="300"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        ShowInTaskbar="False">
+
+  <Grid RowDefinitions="*,Auto" Margin="20">
+
+    <!-- 옵션 폼 -->
+    <StackPanel Grid.Row="0" Spacing="14">
+
+      <TextBlock Text="출력할 기록의 필터 조건을 설정하세요."
+                 FontSize="13"
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+
+      <Separator/>
+
+      <!-- 출력 형식 -->
+      <Grid ColumnDefinitions="80,*">
+        <TextBlock Grid.Column="0" Text="형식" FontWeight="SemiBold" VerticalAlignment="Center"/>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16">
+          <RadioButton x:Name="RbPdf"   Content="PDF"   GroupName="Format" IsChecked="True"/>
+          <RadioButton x:Name="RbExcel" Content="엑셀"  GroupName="Format"/>
+        </StackPanel>
+      </Grid>
+
+      <!-- 영역 (카테고리) -->
+      <Grid ColumnDefinitions="80,*">
+        <TextBlock Grid.Column="0" Text="영역" FontWeight="SemiBold" VerticalAlignment="Center"/>
+        <ComboBox  Grid.Column="1" x:Name="CBoxCategory" HorizontalAlignment="Stretch"/>
+      </Grid>
+
+      <!-- 학기 -->
+      <Grid ColumnDefinitions="80,*">
+        <TextBlock Grid.Column="0" Text="학기" FontWeight="SemiBold" VerticalAlignment="Center"/>
+        <ComboBox  Grid.Column="1" x:Name="CBoxSemester" HorizontalAlignment="Stretch">
+          <ComboBoxItem Tag="0">전체</ComboBoxItem>
+          <ComboBoxItem Tag="1">1학기</ComboBoxItem>
+          <ComboBoxItem Tag="2">2학기</ComboBoxItem>
+        </ComboBox>
+      </Grid>
+
+      <!-- 키워드 -->
+      <Grid ColumnDefinitions="80,*">
+        <TextBlock Grid.Column="0" Text="키워드" FontWeight="SemiBold" VerticalAlignment="Center"/>
+        <TextBox   Grid.Column="1" x:Name="TbKeyword"
+                   PlaceholderText="주제, 활동명, 내용에서 검색"/>
+      </Grid>
+
+      <Separator/>
+
+      <TextBlock Text="선택한 조건에 맞는 기록만 하나의 문서에 출력합니다."
+                 FontSize="12"
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+                 TextWrapping="Wrap"/>
+    </StackPanel>
+
+    <!-- 버튼 바 -->
+    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right"
+                Spacing="8" Margin="0,12,0,0">
+      <Button Content="취소" Padding="14,8" Click="OnCancel"/>
+      <Button Content="출력" Classes="accent" Padding="16,8" Click="OnExport"/>
+    </StackPanel>
+
+  </Grid>
+</Window>

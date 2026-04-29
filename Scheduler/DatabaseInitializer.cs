@@ -142,7 +142,7 @@ namespace SaemDesk.Scheduler
         private static async Task SeedDefaultListsAsync(SqliteCommand cmd)
         {
             // 기본 목록이 없으면 생성
-            cmd.CommandText = "SELECT EXISTS(SELECT 1 FROM KtaskList)";
+            cmd.CommandText = "SELECT EXISTS(SELECT 1 FROM KCalendarList)";
             var count = Convert.ToInt32(await cmd.ExecuteScalarAsync());
             if (count == 1) return;
 
@@ -151,7 +151,7 @@ namespace SaemDesk.Scheduler
             foreach (var (title, order, sync) in defaults)
             {
                 cmd.CommandText = @"
-                    INSERT INTO KtaskList (GoogleId, Title, SortOrder, IsDefault, Updated, SyncMode)
+                    INSERT INTO KCalendarList (GoogleId, Title, SortOrder, IsDefault, Updated, SyncMode)
                     VALUES ('', @Title, @Order, 1, @Updated, @SyncMode)";
                 cmd.Parameters.Clear();
                 cmd.Parameters.AddWithValue("@Title", title);

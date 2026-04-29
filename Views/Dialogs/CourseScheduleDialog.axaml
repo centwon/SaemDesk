@@ -1,0 +1,132 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:models="using:SaemDesk.Models"
+        x:Class="SaemDesk.Views.Dialogs.CourseScheduleDialog"
+        Title="시간표 배치"
+        Width="640" Height="560"
+        MinWidth="560" MinHeight="480"
+        WindowStartupLocation="CenterOwner"
+        CanResize="True"
+        ShowInTaskbar="False">
+
+  <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Margin="20">
+
+    <!-- ── 오류 메시지 ────────────────────────────────── -->
+    <Border x:Name="ErrorBar" Grid.Row="0" IsVisible="False"
+            Background="#FFF3E0" CornerRadius="4" Padding="10,6" Margin="0,0,0,8">
+      <TextBlock x:Name="ErrorBarText" FontSize="12" Foreground="#E65100" TextWrapping="Wrap"/>
+    </Border>
+
+    <!-- ── 수업 정보 ──────────────────────────────────── -->
+    <Border Grid.Row="1"
+            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,0,12">
+      <StackPanel Spacing="4">
+        <TextBlock x:Name="TxtCourseName" FontSize="16" FontWeight="SemiBold"/>
+        <TextBlock x:Name="TxtCourseInfo" FontSize="13"
+                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+      </StackPanel>
+    </Border>
+
+    <!-- ── 추가 폼 ────────────────────────────────────── -->
+    <Border Grid.Row="2"
+            Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,0,12">
+      <Grid ColumnDefinitions="*,*,*,Auto" ColumnSpacing="10">
+
+        <!-- 요일 -->
+        <StackPanel Grid.Column="0" Spacing="4">
+          <TextBlock Text="요일 *" FontSize="11"
+                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+          <ComboBox x:Name="CBoxDay" HorizontalAlignment="Stretch">
+            <ComboBoxItem Tag="1">월요일</ComboBoxItem>
+            <ComboBoxItem Tag="2">화요일</ComboBoxItem>
+            <ComboBoxItem Tag="3">수요일</ComboBoxItem>
+            <ComboBoxItem Tag="4">목요일</ComboBoxItem>
+            <ComboBoxItem Tag="5">금요일</ComboBoxItem>
+          </ComboBox>
+        </StackPanel>
+
+        <!-- 교시 -->
+        <StackPanel Grid.Column="1" Spacing="4">
+          <TextBlock Text="교시 *" FontSize="11"
+                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+          <ComboBox x:Name="CBoxPeriod" HorizontalAlignment="Stretch">
+            <ComboBoxItem Tag="1">1교시</ComboBoxItem>
+            <ComboBoxItem Tag="2">2교시</ComboBoxItem>
+            <ComboBoxItem Tag="3">3교시</ComboBoxItem>
+            <ComboBoxItem Tag="4">4교시</ComboBoxItem>
+            <ComboBoxItem Tag="5">5교시</ComboBoxItem>
+            <ComboBoxItem Tag="6">6교시</ComboBoxItem>
+            <ComboBoxItem Tag="7">7교시</ComboBoxItem>
+          </ComboBox>
+        </StackPanel>
+
+        <!-- 강의실 -->
+        <StackPanel Grid.Column="2" Spacing="4">
+          <TextBlock Text="강의실 *" FontSize="11"
+                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+          <ComboBox x:Name="CBoxRoom" IsEditable="True" HorizontalAlignment="Stretch"/>
+        </StackPanel>
+
+        <!-- 추가 버튼 -->
+        <Button Grid.Column="3" Content="추가" Classes="accent"
+                Padding="14,6" VerticalAlignment="Bottom"
+                Click="OnAdd"/>
+      </Grid>
+    </Border>
+
+    <!-- ── 시간표 목록 ────────────────────────────────── -->
+    <Grid Grid.Row="3">
+
+      <!-- 빈 상태 -->
+      <StackPanel x:Name="EmptyState" IsVisible="True"
+                  HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+        <TextBlock Text="📅" FontSize="40" HorizontalAlignment="Center"
+                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+        <TextBlock Text="시간표가 배치되지 않았습니다"
+                   FontSize="14" HorizontalAlignment="Center"
+                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+        <TextBlock Text="요일, 교시, 강의실을 선택하고 [추가] 버튼을 누르세요"
+                   FontSize="12" HorizontalAlignment="Center"
+                   Foreground="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"/>
+      </StackPanel>
+
+      <!-- 목록 -->
+      <ListBox x:Name="ScheduleList" IsVisible="False"
+               Background="Transparent" BorderThickness="0"
+               SelectionMode="Single">
+        <ListBox.ItemTemplate>
+          <DataTemplate DataType="models:Lesson">
+            <Grid ColumnDefinitions="*,Auto" Margin="12,8">
+              <StackPanel Grid.Column="0" Spacing="4">
+                <TextBlock FontSize="15" FontWeight="SemiBold">
+                  <Run Text="{Binding DayName}"/>
+                  <Run Text="요일 "/>
+                  <Run Text="{Binding Period}"/>
+                  <Run Text="교시"/>
+                </TextBlock>
+                <TextBlock Text="{Binding Room}" FontSize="13"
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+              </StackPanel>
+              <Button Grid.Column="1" Content="🗑"
+                      Padding="8,4" Background="Transparent" BorderThickness="0"
+                      Tag="{Binding}"
+                      Click="OnRemove"/>
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </Grid>
+
+    <!-- ── 버튼 바 ────────────────────────────────────── -->
+    <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right"
+                Spacing="8" Margin="0,12,0,0">
+      <Button Content="취소" Padding="14,8" Click="OnCancel"/>
+      <Button Content="저장" Classes="accent" Padding="16,8" Click="OnSave"/>
+    </StackPanel>
+
+  </Grid>
+</Window>

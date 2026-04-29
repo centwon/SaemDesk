@@ -57,7 +57,9 @@
           <TextBlock Grid.Row="2" Grid.Column="0" Text="마감"
                      HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,8,12,8"/>
           <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="10" Margin="0,4,0,4">
-            <DatePicker x:Name="TaskDuePicker" SelectedDateChanged="TaskDuePicker_DateChanged"/>
+            <DatePicker x:Name="TaskDuePicker" Width="160"
+                        YearFormat="yyyy" MonthFormat="MM" DayFormat="dd"
+                        SelectedDateChanged="TaskDuePicker_DateChanged"/>
             <ctrl:CompactTimePicker x:Name="TaskDueTimePicker"/>
             <CheckBox x:Name="ChkTaskAllday" Content="종일"
                       IsCheckedChanged="ChkTaskAllday_Changed"
@@ -85,7 +87,8 @@
               </StackPanel>
               <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding #PickerEnd.IsVisible}">
                 <TextBlock Text="반복 종료" VerticalAlignment="Center" FontSize="11"/>
-                <DatePicker x:Name="PickerEnd" IsVisible="False"/>
+                <DatePicker x:Name="PickerEnd" Width="160" IsVisible="False"
+                            YearFormat="yyyy" MonthFormat="MM" DayFormat="dd"/>
               </StackPanel>
             </StackPanel>
           </Grid>
@@ -129,7 +132,9 @@
           <TextBlock Grid.Row="2" Grid.Column="0" Text="시작"
                      HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,8,12,8"/>
           <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="10" Margin="0,4,0,4">
-            <DatePicker x:Name="EventStartDatePicker" SelectedDateChanged="EventStartDate_Changed"/>
+            <DatePicker x:Name="EventStartDatePicker" Width="160"
+                        YearFormat="yyyy" MonthFormat="MM" DayFormat="dd"
+                        SelectedDateChanged="EventStartDate_Changed"/>
             <ctrl:CompactTimePicker x:Name="EventStartTimePicker"/>
             <CheckBox x:Name="ChkEventAllday" Content="종일"
                       IsCheckedChanged="ChkEventAllday_Changed"
@@ -139,7 +144,9 @@
           <TextBlock Grid.Row="3" Grid.Column="0" Text="종료"
                      HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,8,12,8"/>
           <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="10" Margin="0,4,0,4">
-            <DatePicker x:Name="EventEndDatePicker" SelectedDateChanged="EventEndDate_Changed"/>
+            <DatePicker x:Name="EventEndDatePicker" Width="160"
+                        YearFormat="yyyy" MonthFormat="MM" DayFormat="dd"
+                        SelectedDateChanged="EventEndDate_Changed"/>
             <ctrl:CompactTimePicker x:Name="EventEndTimePicker"/>
           </StackPanel>
 

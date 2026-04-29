@@ -153,7 +153,7 @@ public class StudentCardPrintService
 
         string fullPath = Path.IsPathRooted(photoPath)
             ? photoPath
-            : Path.Combine(AppDomain.CurrentDomain.BaseDirectory, photoPath);
+            : Path.Combine(Settings.UserDataPath, photoPath);
 
         if (!File.Exists(fullPath)) { NoPhoto(container); return; }
 

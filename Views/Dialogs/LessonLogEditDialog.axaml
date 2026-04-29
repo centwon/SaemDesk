@@ -28,7 +28,8 @@
         <Grid ColumnDefinitions="*,12,120">
           <StackPanel Grid.Column="0" Spacing="4">
             <TextBlock Text="날짜 *" FontWeight="SemiBold" FontSize="13"/>
-            <DatePicker x:Name="LogDatePicker"/>
+            <DatePicker x:Name="LogDatePicker" Width="160"
+                        YearFormat="yyyy" MonthFormat="MM" DayFormat="dd"/>
           </StackPanel>
           <StackPanel Grid.Column="2" Spacing="4">
             <TextBlock Text="교시 *" FontWeight="SemiBold" FontSize="13"/>

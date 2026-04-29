@@ -10,11 +10,30 @@ using SaemDesk.Services;
 
 namespace SaemDesk.ViewModels.Pages;
 
+/// <summary>게시판 페이지 파라미터 — NewSchool PostListPageParameter 과 동등.</summary>
+public sealed class BoardPageParameter
+{
+    /// <summary>상단에 표시할 제목 (null 이면 기본 "게시판").</summary>
+    public string? Title { get; init; }
+
+    /// <summary>카테고리 변경 허용 여부. 아카이브는 true, 학급/수업 게시판은 false.</summary>
+    public bool AllowCategoryChange { get; init; } = true;
+
+    /// <summary>주제(Subject) 필터 표시 여부. 아카이브는 true.</summary>
+    public bool ShowSubjectFilter { get; init; }
+
+    /// <summary>특정 카테고리로 고정 (AllowCategoryChange=false 일 때 사용).</summary>
+    public string? FixedCategory { get; init; }
+}
+
 /// <summary>게시판 페이지 — 목록 + 카테고리 필터 + 검색.</summary>
 public partial class BoardPageVM : ViewModelBase
 {
     private readonly List<Post> _allPosts = [];
     private bool _suppressFilter;
+
+    /// <summary>현재 적용된 파라미터 — BoardPage.axaml.cs 에서 참조.</summary>
+    public BoardPageParameter? Parameter { get; private set; }
 
     public ObservableCollection<Post>   Posts      { get; } = [];
     public ObservableCollection<string> Categories { get; } = [];
@@ -37,8 +56,26 @@ public partial class BoardPageVM : ViewModelBase
     public bool IsEmpty     => !IsLoading && !HasPosts && string.IsNullOrEmpty(ErrorText);
     public bool HasSelection => SelectedPost is not null;
 
-    public BoardPageVM()
+    // ── 파라미터 프로퍼티 ──────────────────────────────
+    public string  PageTitle            { get; private set; } = "게시판";
+    public bool    AllowCategoryChange  { get; private set; } = true;
+    public bool    ShowSubjectFilter    { get; private set; }
+    private string? _fixedCategory;
+
+    // ── 기본 생성자 ────────────────────────────────────
+    public BoardPageVM() : this(null) { }
+
+    // ── 파라미터 생성자 (NewSchool WorkFrame.Navigate 파라미터 대응) ──
+    public BoardPageVM(BoardPageParameter? param)
     {
+        if (param is not null)
+        {
+            PageTitle           = param.Title ?? "게시판";
+            AllowCategoryChange = param.AllowCategoryChange;
+            ShowSubjectFilter   = param.ShowSubjectFilter;
+            _fixedCategory      = param.FixedCategory;
+        }
+
         Categories.Add("전체");
         _ = LoadPostsAsync();
     }
@@ -61,14 +98,18 @@ public partial class BoardPageVM : ViewModelBase
 
             // 카테고리 콤보 갱신 — 재빌드 중 OnSelectedCategoryChanged 가 중간 단계마다
             // 필터링을 호출하지 않도록 가드
-            string remember = SelectedCategory;
+            string remember = _fixedCategory ?? SelectedCategory;
             _suppressFilter = true;
             try
             {
                 Categories.Clear();
                 Categories.Add("전체");
                 foreach (var c in cats) Categories.Add(c);
-                SelectedCategory = Categories.Contains(remember) ? remember : "전체";
+
+                // 고정 카테고리가 있으면 해당으로 고정, 없으면 이전 선택 복원
+                SelectedCategory = (_fixedCategory is not null && Categories.Contains(_fixedCategory))
+                    ? _fixedCategory
+                    : Categories.Contains(remember) ? remember : "전체";
             }
             finally
             {
