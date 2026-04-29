@@ -58,6 +58,9 @@
           <Border Width="1" Background="{DynamicResource ContentSeparatorBrush}" Margin="4,0"/>
           <Button Content="📊 Excel" Padding="12,6"
                   Command="{Binding ExportExcelCommand}"/>
+          <Button Content="🗓 Google 업로드" Padding="12,6"
+                  Command="{Binding UploadToGoogleCommand}"
+                  ToolTip.Tip="선택 항목(없으면 전체)을 Google Calendar 종일 이벤트로 등록"/>
 
           <ProgressBar Width="120" IsIndeterminate="True"
                        IsVisible="{Binding IsBusy}"

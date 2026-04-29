@@ -146,6 +146,34 @@ public partial class ProgressMatrixPageVM : ViewModelBase
     }
 
     [RelayCommand]
+    private async Task SyncFromSchedulesAsync()
+    {
+        if (SelectedCourse is null || IsBusy) return;
+        IsBusy = true;
+        ErrorText = string.Empty;
+        try
+        {
+            using var progressRepo = new LessonProgressRepository(SchoolDatabase.DbPath);
+            using var sectionRepo = new CourseSectionRepository(SchoolDatabase.DbPath);
+            using var scheduleRepo = new ScheduleRepository(SchoolDatabase.DbPath);
+            using var mapRepo = new ScheduleUnitMapRepository(SchoolDatabase.DbPath);
+            var svc = new SaemDesk.Services.ProgressSyncService(
+                progressRepo, sectionRepo, scheduleRepo, mapRepo);
+
+            int total = 0;
+            foreach (var room in Rooms)
+            {
+                var r = await svc.SyncProgressFromSchedulesAsync(SelectedCourse.No, room);
+                total += r.AffectedCount;
+            }
+            StatusText = $"일정 동기화 완료 — {total}건 업데이트";
+            await RefreshAsync();
+        }
+        catch (Exception ex) { ErrorText = ex.Message; }
+        finally { IsBusy = false; }
+    }
+
+    [RelayCommand]
     private async Task ExportExcelAsync()
     {
         if (Rows.Count == 0) { StatusText = "내보낼 매트릭스가 없습니다."; return; }

@@ -210,6 +210,30 @@ public partial class SchoolScheduleManagementPageVM : ViewModelBase
     }
 
     [RelayCommand]
+    private async Task UploadToGoogleAsync()
+    {
+        if (App.GoogleSync is null)
+        {
+            ErrorText = "Google Calendar 가 연결되지 않았습니다. (설정 → 일정 설정 → Google 연동)";
+            return;
+        }
+        var targets = Items.Where(i => i.IsSelected).ToList();
+        if (targets.Count == 0) targets = Items.ToList();
+        if (targets.Count == 0) { StatusText = "업로드할 항목이 없습니다."; return; }
+
+        IsBusy = true;
+        StatusText = $"Google Calendar 업로드 중... ({targets.Count}건)";
+        try
+        {
+            var schedules = targets.Select(t => t.ToModel()).ToList();
+            var result = await App.GoogleSync.UploadSchoolSchedulesAsync(schedules);
+            StatusText = $"Google 업로드 — 생성 {result.Created}, 오류 {result.Errors}";
+        }
+        catch (Exception ex) { ErrorText = ex.Message; }
+        finally { IsBusy = false; }
+    }
+
+    [RelayCommand]
     private void ToggleSelectAll()
     {
         IsSelectAll = !IsSelectAll;

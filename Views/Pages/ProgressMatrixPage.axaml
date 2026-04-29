@@ -24,6 +24,9 @@
       </ComboBox>
       <Button Content="새로고침" Padding="12,6" Command="{Binding RefreshCommand}"/>
       <Button Content="격차 분석" Padding="12,6" Command="{Binding AnalyzeGapCommand}"/>
+      <Button Content="🔄 일정 동기화" Padding="12,6"
+              Command="{Binding SyncFromSchedulesCommand}"
+              ToolTip.Tip="완료 표시된 차시별 시간표 → 진도 자동 반영"/>
       <Button Content="📊 Excel" Padding="12,6" Command="{Binding ExportExcelCommand}"/>
       <ProgressBar Width="100" IsIndeterminate="True"
                    IsVisible="{Binding IsBusy}"

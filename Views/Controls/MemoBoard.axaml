@@ -1,7 +1,13 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:models="using:SaemDesk.Models"
+             xmlns:ctrl="using:SaemDesk.Views.Controls"
              x:Class="SaemDesk.Views.Controls.MemoBoard">
+  <UserControl.Resources>
+    <ctrl:CategoryColorConverter x:Key="CategoryColor"/>
+    <ctrl:HtmlToPlainConverter x:Key="HtmlToPlain"/>
+  </UserControl.Resources>
+
 
   <Border BorderBrush="CornflowerBlue"
           BorderThickness="1"
@@ -52,12 +58,12 @@
                 <Border BorderThickness="0,0,0,1"
                         BorderBrush="{DynamicResource ContentSeparatorBrush}"
                         Padding="8,6">
-                  <StackPanel Spacing="2">
+                  <StackPanel Spacing="3">
                     <Grid ColumnDefinitions="Auto,*,Auto">
                       <Border Grid.Column="0"
-                              Background="#5B7FB8"
-                              CornerRadius="3"
-                              Padding="4,1"
+                              Background="{Binding Category, Converter={StaticResource CategoryColor}}"
+                              CornerRadius="8"
+                              Padding="6,1"
                               VerticalAlignment="Center">
                         <TextBlock Text="{Binding Category}"
                                    FontSize="10"
@@ -73,6 +79,13 @@
                                  FontSize="10"
                                  Foreground="{DynamicResource SystemBaseMediumColor}"/>
                     </Grid>
+                    <TextBlock Text="{Binding Content, Converter={StaticResource HtmlToPlain}}"
+                               FontSize="11"
+                               TextTrimming="CharacterEllipsis"
+                               TextWrapping="NoWrap"
+                               MaxLines="1"
+                               Foreground="{DynamicResource SystemBaseMediumColor}"
+                               Margin="0,2,0,0"/>
                   </StackPanel>
                 </Border>
               </DataTemplate>
