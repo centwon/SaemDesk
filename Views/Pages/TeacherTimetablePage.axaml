@@ -1,143 +1,37 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="using:SaemDesk.ViewModels.Pages"
-             xmlns:rootvm="using:SaemDesk.ViewModels"
+             xmlns:ctrl="using:SaemDesk.Views.Controls"
              x:Class="SaemDesk.Views.Pages.TeacherTimetablePage"
-             x:DataType="vm:TeacherTimetablePageVM"
              Classes="page">
 
-  <Grid RowDefinitions="Auto,Auto,*" Margin="20,16">
+  <Grid RowDefinitions="Auto,12,*">
 
-    <!-- 헤더 -->
-    <StackPanel Grid.Row="0" Spacing="2" Margin="0,0,0,10">
-      <TextBlock Text="교사 시간표" FontSize="22" FontWeight="SemiBold"/>
-      <TextBlock Text="{Binding Timetable.Title}"
-                 FontSize="12"
-                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+    <!-- ── 헤더 ─────────────────────────────────────────── -->
+    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+      <TextBlock Text="교사 시간표" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
+
+      <Border Width="1" Height="20"
+              Background="{DynamicResource SystemControlForegroundBaseLowBrush}"
+              VerticalAlignment="Center"/>
+
+      <ctrl:YearSemesterPicker x:Name="YearSemPicker"
+                               ShowYear="True" ShowSemester="True"
+                               VerticalAlignment="Center"
+                               YearSemesterChanged="OnYearSemesterChanged"/>
+
+      <ProgressBar x:Name="BusyBar" Width="80" Height="4"
+                   IsIndeterminate="True" IsVisible="False"
+                   VerticalAlignment="Center"/>
     </StackPanel>
 
-    <!-- 필터 -->
-    <Border Grid.Row="1"
-            Padding="14,10"
-            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-            BorderBrush="{DynamicResource ContentSeparatorBrush}"
+    <!-- ── 시간표 ──────────────────────────────────────── -->
+    <Border Grid.Row="2"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
             BorderThickness="1"
             CornerRadius="8"
-            Margin="0,0,0,12">
-      <StackPanel Orientation="Horizontal" Spacing="10">
-        <TextBlock Text="학년도" VerticalAlignment="Center"/>
-        <ComboBox ItemsSource="{Binding Years}"
-                  SelectedItem="{Binding Year, Mode=TwoWay}"
-                  MinWidth="100"/>
-        <TextBlock Text="학기" VerticalAlignment="Center" Margin="14,0,0,0"/>
-        <ComboBox SelectedIndex="{Binding Semester, Mode=TwoWay, Converter={x:Static rootvm:SemesterIndexConverter.Instance}}"
-                  MinWidth="80">
-          <ComboBoxItem Content="1학기"/>
-          <ComboBoxItem Content="2학기"/>
-        </ComboBox>
-        <Button Content="조회" Classes="accent" Padding="14,6" Margin="14,0,0,0"
-                Command="{Binding LoadCommand}"/>
-        <ProgressBar Width="100" IsIndeterminate="True"
-                     IsVisible="{Binding IsBusy}"
-                     VerticalAlignment="Center" Margin="8,0,0,0"/>
-        <TextBlock Text="{Binding StatusText}"
-                   VerticalAlignment="Center" Margin="8,0,0,0"
-                   Foreground="{DynamicResource SystemBaseMediumColor}"/>
-      </StackPanel>
+            ClipToBounds="True">
+      <ctrl:TimetableControl x:Name="TimetableCtrl" DisplayMode="Teacher"/>
     </Border>
 
-    <!-- 시간표 그리드 5x7 -->
-    <Border Grid.Row="2"
-            BorderThickness="1"
-            BorderBrush="{DynamicResource ContentSeparatorBrush}"
-            CornerRadius="6">
-      <ScrollViewer>
-        <Grid Margin="0">
-          <StackPanel IsVisible="{Binding !HasResult}"
-                      HorizontalAlignment="Center" VerticalAlignment="Center"
-                      Spacing="6"
-                      Margin="20">
-            <TextBlock Text="배정된 수업이 없습니다."
-                       FontSize="15"
-                       Foreground="{DynamicResource SystemBaseMediumColor}"
-                       HorizontalAlignment="Center"/>
-            <TextBlock Text="조건을 선택하고 ‘조회’를 눌러주세요."
-                       FontSize="12"
-                       Foreground="{DynamicResource SystemBaseMediumLowColor}"
-                       HorizontalAlignment="Center"/>
-            <TextBlock Text="{Binding ErrorText}"
-                       FontSize="12"
-                       Foreground="#D9372A"
-                       IsVisible="{Binding ErrorText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                       TextWrapping="Wrap"
-                       MaxWidth="500"/>
-          </StackPanel>
-
-          <StackPanel IsVisible="{Binding HasResult}" Margin="10">
-            <!-- 요일 헤더 -->
-            <Grid ColumnDefinitions="60,*,*,*,*,*"
-                  Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-                  Height="36">
-              <TextBlock Grid.Column="0" Text="교시"
-                         FontWeight="SemiBold"
-                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
-              <TextBlock Grid.Column="1" Text="월" FontWeight="SemiBold"
-                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
-              <TextBlock Grid.Column="2" Text="화" FontWeight="SemiBold"
-                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
-              <TextBlock Grid.Column="3" Text="수" FontWeight="SemiBold"
-                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
-              <TextBlock Grid.Column="4" Text="목" FontWeight="SemiBold"
-                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
-              <TextBlock Grid.Column="5" Text="금" FontWeight="SemiBold"
-                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            </Grid>
-
-            <!-- 7교시 행 — 행마다 교시 라벨 + 5개 셀 -->
-            <ItemsControl ItemsSource="{Binding PeriodRows}">
-              <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="vm:PeriodRowVM">
-                  <Grid ColumnDefinitions="60,*,*,*,*,*" MinHeight="62"
-                        Background="Transparent">
-                    <Border Grid.Column="0"
-                            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-                            BorderBrush="{DynamicResource ContentSeparatorBrush}"
-                            BorderThickness="0,0,1,1">
-                      <TextBlock Text="{Binding Period}"
-                                 HorizontalAlignment="Center"
-                                 VerticalAlignment="Center"
-                                 FontWeight="SemiBold"/>
-                    </Border>
-                    <ContentControl Grid.Column="1" Content="{Binding Mon}" ContentTemplate="{DynamicResource CellTemplate}"/>
-                    <ContentControl Grid.Column="2" Content="{Binding Tue}" ContentTemplate="{DynamicResource CellTemplate}"/>
-                    <ContentControl Grid.Column="3" Content="{Binding Wed}" ContentTemplate="{DynamicResource CellTemplate}"/>
-                    <ContentControl Grid.Column="4" Content="{Binding Thu}" ContentTemplate="{DynamicResource CellTemplate}"/>
-                    <ContentControl Grid.Column="5" Content="{Binding Fri}" ContentTemplate="{DynamicResource CellTemplate}"/>
-                  </Grid>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
-          </StackPanel>
-        </Grid>
-      </ScrollViewer>
-    </Border>
   </Grid>
-
-  <UserControl.Resources>
-    <DataTemplate x:Key="CellTemplate" DataType="rootvm:TimetableItemViewModel">
-      <Border BorderBrush="{DynamicResource ContentSeparatorBrush}"
-              BorderThickness="0,0,1,0"
-              Background="Transparent">
-        <StackPanel Margin="6,4" Spacing="2"
-                    IsVisible="{Binding !IsEmpty}">
-          <TextBlock Text="{Binding SubjectName}"
-                     FontWeight="SemiBold"
-                     TextTrimming="CharacterEllipsis"/>
-          <TextBlock Text="{Binding Room}"
-                     FontSize="11"
-                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
-        </StackPanel>
-      </Border>
-    </DataTemplate>
-  </UserControl.Resources>
 </UserControl>

@@ -306,32 +306,24 @@ public partial class LogListViewer : UserControl
 
     public async Task SaveChangedLogsAsync()
     {
-        var svc = new StudentLogService();
-        try
+        using var svc = new StudentLogService();
+        foreach (var log in Logs.Where(l => l.IsSelected))
         {
-            foreach (var log in Logs.Where(l => l.IsSelected))
-            {
-                if (log.No > 0) await svc.UpdateAsync(log.StudentLog);
-                else            log.No = await svc.InsertAsync(log.StudentLog);
-                log.IsSelected = false;
-            }
+            if (log.No > 0) await svc.UpdateAsync(log.StudentLog);
+            else            log.No = await svc.InsertAsync(log.StudentLog);
+            log.IsSelected = false;
         }
-        finally { svc.Dispose(); }
     }
 
     public async Task DeleteSelectedLogsAsync()
     {
-        var svc = new StudentLogService();
-        try
+        using var svc = new StudentLogService();
+        var toDelete = Logs.Where(l => l.IsSelected).ToList();
+        foreach (var vm in toDelete)
         {
-            var toDelete = Logs.Where(l => l.IsSelected).ToList();
-            foreach (var vm in toDelete)
-            {
-                if (vm.No > 0) await svc.DeleteAsync(vm.No);
-                Logs.Remove(vm);
-            }
+            if (vm.No > 0) await svc.DeleteAsync(vm.No);
+            Logs.Remove(vm);
         }
-        finally { svc.Dispose(); }
     }
 
     /// <summary>외부 코드 호환 — LogEdited 이벤트 발사용.</summary>

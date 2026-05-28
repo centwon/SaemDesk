@@ -34,6 +34,11 @@
           <TextBox x:Name="TxtSubjectName" Width="140"
                    PlaceholderText="과목명 입력"/>
         </StackPanel>
+        <StackPanel x:Name="PanelClub" Spacing="2" IsVisible="False">
+          <TextBlock Text="동아리" FontSize="10"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+          <ComboBox x:Name="CBoxClub" MinWidth="160"/>
+        </StackPanel>
         <StackPanel Spacing="2">
           <TextBlock Text="날짜" FontSize="10"
                      Foreground="{DynamicResource SystemBaseMediumColor}"/>
@@ -41,6 +46,15 @@
         </StackPanel>
         <CheckBox x:Name="ChkIsImportant" Content="중요"
                   VerticalAlignment="Bottom" Margin="4,0,0,4"/>
+      </StackPanel>
+
+      <!-- 활동명 (항상 표시) -->
+      <StackPanel Spacing="4">
+        <TextBlock Text="활동명" FontSize="12" FontWeight="SemiBold"/>
+        <TextBox x:Name="TxtActivityName"
+                 PlaceholderText="예: 수행평가, 프로젝트 학습"
+                 FontSize="13"
+                 TextChanged="OnStructuredFieldChanged"/>
       </StackPanel>
 
       <!-- 기록 내용 -->
@@ -66,7 +80,7 @@
                 IsExpanded="False">
         <Expander.Header>
           <StackPanel Orientation="Horizontal" Spacing="8">
-            <TextBlock Text="활동 상세 항목" FontWeight="SemiBold" FontSize="13"/>
+            <TextBlock Text="상세 항목" FontWeight="SemiBold" FontSize="13"/>
             <TextBlock Text="(학생부 기록용)" FontSize="11"
                        Foreground="{DynamicResource SystemBaseMediumLowColor}"
                        VerticalAlignment="Center"/>
@@ -74,7 +88,6 @@
         </Expander.Header>
         <Grid ColumnDefinitions="80,*" Margin="0,8,0,0">
           <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -93,34 +106,30 @@
               <Setter Property="FontSize" Value="13"/>
             </Style>
           </Grid.Styles>
-          <TextBlock Grid.Row="0" Grid.Column="0" Text="활동명"/>
-          <TextBox   Grid.Row="0" Grid.Column="1" x:Name="TxtActivityName"
-                     PlaceholderText="예: 수행평가, 프로젝트 학습"
-                     TextChanged="OnStructuredFieldChanged"/>
-          <TextBlock Grid.Row="1" Grid.Column="0" Text="주제"/>
-          <TextBox   Grid.Row="1" Grid.Column="1" x:Name="TxtTopic"
+          <TextBlock Grid.Row="0" Grid.Column="0" Text="주제"/>
+          <TextBox   Grid.Row="0" Grid.Column="1" x:Name="TxtTopic"
                      PlaceholderText="예: 조선 후기 실학사상"
                      TextChanged="OnStructuredFieldChanged"/>
-          <TextBlock Grid.Row="2" Grid.Column="0" Text="활동 내용" VerticalAlignment="Top" Margin="0,4,8,8"/>
-          <TextBox   Grid.Row="2" Grid.Column="1" x:Name="TxtDescription"
+          <TextBlock Grid.Row="1" Grid.Column="0" Text="활동 내용" VerticalAlignment="Top" Margin="0,4,8,8"/>
+          <TextBox   Grid.Row="1" Grid.Column="1" x:Name="TxtDescription"
                      PlaceholderText="구체적인 활동 내용"
                      AcceptsReturn="True" TextWrapping="Wrap"
                      MinHeight="60" MaxHeight="120"
                      TextChanged="OnStructuredFieldChanged"/>
-          <TextBlock Grid.Row="3" Grid.Column="0" Text="역할"/>
-          <TextBox   Grid.Row="3" Grid.Column="1" x:Name="TxtRole"
+          <TextBlock Grid.Row="2" Grid.Column="0" Text="역할"/>
+          <TextBox   Grid.Row="2" Grid.Column="1" x:Name="TxtRole"
                      PlaceholderText="예: 팀장, 발표 담당"
                      TextChanged="OnStructuredFieldChanged"/>
-          <TextBlock Grid.Row="4" Grid.Column="0" Text="기른 능력"/>
-          <TextBox   Grid.Row="4" Grid.Column="1" x:Name="TxtSkillDeveloped"
+          <TextBlock Grid.Row="3" Grid.Column="0" Text="기른 능력"/>
+          <TextBox   Grid.Row="3" Grid.Column="1" x:Name="TxtSkillDeveloped"
                      PlaceholderText="예: 협업 능력, 논리적 사고력"
                      TextChanged="OnStructuredFieldChanged"/>
-          <TextBlock Grid.Row="5" Grid.Column="0" Text="드러난 장점"/>
-          <TextBox   Grid.Row="5" Grid.Column="1" x:Name="TxtStrengthShown"
+          <TextBlock Grid.Row="4" Grid.Column="0" Text="드러난 장점"/>
+          <TextBox   Grid.Row="4" Grid.Column="1" x:Name="TxtStrengthShown"
                      PlaceholderText="예: 주도성, 성실성"
                      TextChanged="OnStructuredFieldChanged"/>
-          <TextBlock Grid.Row="6" Grid.Column="0" Text="성취/결과"/>
-          <TextBox   Grid.Row="6" Grid.Column="1" x:Name="TxtResultOrOutcome"
+          <TextBlock Grid.Row="5" Grid.Column="0" Text="성취/결과"/>
+          <TextBox   Grid.Row="5" Grid.Column="1" x:Name="TxtResultOrOutcome"
                      PlaceholderText="예: 발표 성공, 우수 평가"
                      TextChanged="OnStructuredFieldChanged"/>
         </Grid>

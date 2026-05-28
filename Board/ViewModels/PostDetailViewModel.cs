@@ -12,7 +12,7 @@ using SaemDesk.Collections;
 namespace SaemDesk.Board.ViewModels;
 
 /// <summary>Post 상세 ViewModel — NewSchool PostDetailViewModel 이식.</summary>
-public class PostDetailViewModel : INotifyPropertyChanged
+public class PostDetailViewModel : INotifyPropertyChanged, IDisposable
 {
     private readonly BoardService _service;
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -153,6 +153,8 @@ public class PostDetailViewModel : INotifyPropertyChanged
             return string.Empty;
         }
     }
+
+    public void Dispose() => _service.Dispose();
 
     protected void Notify([CallerMemberName] string? name = null)
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

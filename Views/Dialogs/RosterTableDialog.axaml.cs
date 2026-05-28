@@ -9,6 +9,7 @@ using Avalonia.Interactivity;
 using SaemDesk.Models;
 using SaemDesk.Repositories;
 using SaemDesk.Services;
+using SaemDesk.Views.Controls;
 
 namespace SaemDesk.Views.Dialogs;
 
@@ -16,6 +17,7 @@ namespace SaemDesk.Views.Dialogs;
 /// 명렬표 HTML 테이블 삽입 다이얼로그.
 /// 원본: NewSchool.Dialogs.RosterTableDialog (WinUI3 ContentDialog).
 /// 학급/수업/동아리 기준으로 학생 명렬표를 HTML 테이블로 생성해 반환.
+/// ClassPicker / CoursePicker 컨트롤을 재사용.
 /// </summary>
 public partial class RosterTableDialog : Window
 {
@@ -23,16 +25,20 @@ public partial class RosterTableDialog : Window
     public string TableTitle    { get; private set; } = string.Empty;
     public bool   IsSuccess     { get; private set; }
 
-    private List<Course> _courses = new();
-    private List<Club>   _clubs   = new();
-    private bool _initialized;
+    // ClassPicker / CoursePicker 의 마지막 이벤트 인자 캐시
+    private ClassChangedEventArgs?  _lastClass;
+    private CourseChangedEventArgs? _lastCourse;
+
+    private List<Club> _clubs = new();
 
     public RosterTableDialog()
     {
         InitializeComponent();
-        GradeBox.Value = Settings.HomeGrade.Value;
-        _initialized   = true;
-        Opened += async (_, _) => await LoadClassListAsync((int)(GradeBox.Value ?? 1));
+
+        ScopeComboBox.SelectionChanged       += ScopeComboBox_SelectionChanged;
+        TheYearSemesterPicker.YearSemesterChanged += OnYearSemesterChanged;
+        TheClassPicker.ClassChanged              += OnClassChanged;
+        TheCoursePicker.CourseChanged            += OnCourseChanged;
     }
 
     public void SetScope(string scopeType)
@@ -60,13 +66,9 @@ public partial class RosterTableDialog : Window
 
         try
         {
-            if (scope == "Course" && _courses.Count == 0)
-            {
-                using var svc = new CourseService();
-                _courses = (await svc.GetMyCoursesAsync()).ToList();
-                CourseComboBox.ItemsSource = _courses;
-            }
-            else if (scope == "Club" && _clubs.Count == 0)
+            // CoursePicker 는 Loaded 시 자동 초기화되므로 별도 로드 불필요.
+            // 동아리만 지연 로드 유지.
+            if (scope == "Club" && _clubs.Count == 0)
             {
                 using var svc = new ClubService();
                 _clubs = await svc.GetAllClubsAsync(Settings.SchoolCode.Value, Settings.WorkYear.Value);
@@ -76,76 +78,28 @@ public partial class RosterTableDialog : Window
         catch (Exception ex) { Debug.WriteLine($"[RosterTableDialog] ScopeChange: {ex.Message}"); }
     }
 
+    private async void OnYearSemesterChanged(object? sender, YearSemesterChangedEventArgs e)
+    {
+        await TheCoursePicker.LoadAsync(e.Year, e.Semester);
+    }
+
     // ────────────────────────────────────────────────────
-    //  학년/반 필터
+    //  ClassPicker / CoursePicker 이벤트
     // ────────────────────────────────────────────────────
 
-    private async void GradeBox_ValueChanged(object? sender, NumericUpDownValueChangedEventArgs e)
+    private void OnClassChanged(object? sender, ClassChangedEventArgs e)
     {
-        if (!_initialized) return;
-        await LoadClassListAsync((int)(e.NewValue ?? 1));
+        _lastClass = e;
+        // 전체 반(Class=0) 일 때만 레이아웃 옵션 표시
+        ClassLayoutPanel.IsVisible = e.IsAllClass;
     }
 
-    private async Task LoadClassListAsync(int grade)
+    private void OnCourseChanged(object? sender, CourseChangedEventArgs e)
     {
-        try
-        {
-            using var svc = new EnrollmentService();
-            var all = await svc.GetEnrollmentsAsync(Settings.SchoolCode.Value, Settings.WorkYear.Value);
-            var classes = all.Where(e => e.Grade == grade).Select(e => e.Class)
-                             .Distinct().OrderBy(c => c).ToList();
-            var items = new List<string> { "전체" };
-            items.AddRange(classes.Select(c => $"{c}반"));
-            ClassComboBox.ItemsSource    = items;
-            int homeRoom                 = Settings.HomeRoom.Value;
-            int homeIdx                  = classes.IndexOf(homeRoom);
-            ClassComboBox.SelectedIndex  = homeIdx >= 0 ? homeIdx + 1 : (items.Count > 1 ? 1 : 0);
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"[RosterTableDialog] LoadClass: {ex.Message}");
-            ClassComboBox.ItemsSource   = new List<string> { "전체" };
-            ClassComboBox.SelectedIndex = 0;
-        }
+        _lastCourse = e;
+        // IncludeAllRoom=true 일 때 강의실 "전체"(선택값 null)이면 레이아웃 패널 표시
+        CourseLayoutPanel.IsVisible = e.Room == null && e.Course.RoomList.Count > 1;
     }
-
-    private void ClassComboBox_SelectionChanged(object? sender, SelectionChangedEventArgs e)
-        => ClassLayoutPanel.IsVisible = ClassComboBox.SelectedItem as string == "전체";
-
-    private async void CourseComboBox_SelectionChanged(object? sender, SelectionChangedEventArgs e)
-    {
-        if (CourseComboBox.SelectedItem is not Course course)
-        {
-            RoomComboBox.IsVisible    = false;
-            CourseLayoutPanel.IsVisible = false;
-            return;
-        }
-        try
-        {
-            using var svc = new CourseService();
-            var enrollments = await svc.GetCourseEnrollmentsAsync(
-                Settings.SchoolCode.Value, Settings.WorkYear.Value, Settings.WorkSemester.Value, course.No);
-            var rooms = enrollments.Select(ce => ce.Room).Where(r => !string.IsNullOrWhiteSpace(r))
-                                   .Distinct().OrderBy(r => r).ToList();
-            if (rooms.Count > 1)
-            {
-                var items = new List<string> { "전체" };
-                items.AddRange(rooms);
-                RoomComboBox.ItemsSource   = items;
-                RoomComboBox.SelectedIndex = 0;
-                RoomComboBox.IsVisible     = true;
-            }
-            else
-            {
-                RoomComboBox.IsVisible      = false;
-                CourseLayoutPanel.IsVisible = false;
-            }
-        }
-        catch (Exception ex) { Debug.WriteLine($"[RosterTableDialog] CourseChange: {ex.Message}"); }
-    }
-
-    private void RoomComboBox_SelectionChanged(object? sender, SelectionChangedEventArgs e)
-        => CourseLayoutPanel.IsVisible = RoomComboBox.SelectedItem as string == "전체";
 
     // ────────────────────────────────────────────────────
     //  삽입 / 취소
@@ -167,7 +121,7 @@ public partial class RosterTableDialog : Window
             if (string.IsNullOrEmpty(html)) return;
 
             GeneratedHtml = html;
-            TableTitle    = TableTitleBox.Text.Trim();
+            TableTitle    = TableTitleBox.Text?.Trim() ?? string.Empty;
             IsSuccess     = true;
             Close();
         }
@@ -187,41 +141,57 @@ public partial class RosterTableDialog : Window
     private async Task<string> GenerateTableAsync()
     {
         string scope = (ScopeComboBox.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "Class";
-        var columns  = ColumnsBox.Text
+        var columns  = (ColumnsBox.Text ?? string.Empty)
             .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Where(c => !string.IsNullOrEmpty(c)).ToList();
 
         if (columns.Count == 0) { ShowError("컬럼을 하나 이상 입력하세요."); return string.Empty; }
 
-        string title = TableTitleBox.Text.Trim();
+        string title = TableTitleBox.Text?.Trim() ?? string.Empty;
 
-        // 학급 전체 반 → 그룹 테이블
-        if (scope == "Class" && ClassComboBox.SelectedItem as string == "전체")
-            return await GenerateClassGroupedAsync(title, columns);
-
-        // 수업 전체 강의실 → 그룹 테이블
-        if (scope == "Course" && RoomComboBox.IsVisible && RoomComboBox.SelectedItem as string == "전체")
-            return await GenerateCourseGroupedAsync(title, columns);
-
-        // 단일 목록
         switch (scope)
         {
             case "Class":
             {
-                int grade = (int)(GradeBox.Value ?? 1);
-                string? cls = ClassComboBox.SelectedItem as string;
-                if (string.IsNullOrEmpty(cls)) { ShowError("반을 선택하세요."); return string.Empty; }
-                int classNum = int.Parse(cls.Replace("반", ""));
-                var students = await LoadClassStudentsAsync(grade, classNum);
+                if (_lastClass == null) { ShowError("학급을 선택하세요."); return string.Empty; }
+                // 전체 반 → 그룹 테이블
+                if (_lastClass.IsAllClass)
+                    return await GenerateClassGroupedAsync(title, columns);
+                // 단일 반
+                var students = _lastClass.Students
+                    .OrderBy(e => e.Number).Select(e => (e.Number, e.Name)).ToList();
                 if (!students.Any()) { ShowError("학생이 없습니다."); return string.Empty; }
-                return BuildSingleTable(title, $"{Settings.WorkYear.Value}학년도 {grade}학년 {classNum}반", columns, students);
+                return BuildSingleTable(title,
+                    $"{_lastClass.Year}학년도 {_lastClass.Grade}학년 {_lastClass.Class}반",
+                    columns, students);
             }
             case "Course":
             {
-                if (CourseComboBox.SelectedItem is not Course course) { ShowError("수업을 선택하세요."); return string.Empty; }
-                var students = await LoadCourseStudentsAsync(course.No);
-                if (!students.Any()) { ShowError("수강생이 없습니다."); return string.Empty; }
-                return BuildSingleTable(title, $"{Settings.WorkYear.Value}학년도 {course.DisplayName}", columns, students);
+                if (_lastCourse == null) { ShowError("수업을 선택하세요."); return string.Empty; }
+                // 전체 강의실(Room==null이고 강의실 여러 개) → 그룹 테이블
+                if (_lastCourse.Room == null && _lastCourse.Course.RoomList.Count > 1)
+                    return await GenerateCourseGroupedAsync(title, columns);
+                // 단일 수업
+                string scopeLabel = $"{TheYearSemesterPicker.Year}학년도 {TheYearSemesterPicker.Semester}학기 {_lastCourse.Course.DisplayName}";
+                if (_lastCourse.Room != null) scopeLabel += $" ({_lastCourse.Room})";
+                if (_lastCourse.Course.IsClassType)
+                {
+                    // 학급형: 번호·이름만
+                    var students = _lastCourse.Students
+                        .OrderBy(e => e.Number).Select(e => (e.Number, e.Name)).ToList();
+                    if (!students.Any()) { ShowError("수강생이 없습니다."); return string.Empty; }
+                    return BuildSingleTable(title, scopeLabel, columns, students);
+                }
+                else
+                {
+                    // 이동수업(선택형): 학년·학급·번호·이름
+                    var rows = _lastCourse.Students
+                        .OrderBy(e => e.Grade).ThenBy(e => e.Class).ThenBy(e => e.Number)
+                        .Select(e => (Lead: new[] { e.Grade.ToString(), e.Class.ToString() }, e.Number, e.Name))
+                        .ToList();
+                    if (!rows.Any()) { ShowError("수강생이 없습니다."); return string.Empty; }
+                    return BuildGroupedVerticalTable(title, scopeLabel, new[] { "학년", "학급" }, rows, columns);
+                }
             }
             case "Club":
             {
@@ -229,7 +199,9 @@ public partial class RosterTableDialog : Window
                 var students = await LoadClubStudentsDetailedAsync(club.No);
                 if (!students.Any()) { ShowError("부원이 없습니다."); return string.Empty; }
                 var rows = students.Select(s => (Lead: new[] { s.Grade.ToString(), s.Class.ToString() }, s.Number, s.Name)).ToList();
-                return BuildGroupedVerticalTable(title, $"{Settings.WorkYear.Value}학년도 {club.ClubName}", new[] { "학년", "학급" }, rows, columns);
+                return BuildGroupedVerticalTable(title,
+                    $"{Settings.WorkYear.Value}학년도 {club.ClubName}",
+                    new[] { "학년", "학급" }, rows, columns);
             }
         }
         return string.Empty;
@@ -237,11 +209,11 @@ public partial class RosterTableDialog : Window
 
     private async Task<string> GenerateClassGroupedAsync(string title, List<string> columns)
     {
-        int grade = (int)(GradeBox.Value ?? 1);
+        int grade = _lastClass!.Grade;
         var classMap = await LoadGradeStudentsAsync(grade);
         if (!classMap.Any()) { ShowError($"{grade}학년에 학생이 없습니다."); return string.Empty; }
 
-        string scopeLabel = $"{Settings.WorkYear.Value}학년도 {grade}학년 전체";
+        string scopeLabel = $"{_lastClass.Year}학년도 {grade}학년 전체";
         bool horizontal   = RbClassHorizontal.IsChecked == true;
 
         if (horizontal)
@@ -255,11 +227,11 @@ public partial class RosterTableDialog : Window
 
     private async Task<string> GenerateCourseGroupedAsync(string title, List<string> columns)
     {
-        if (CourseComboBox.SelectedItem is not Course course) { ShowError("수업을 선택하세요."); return string.Empty; }
+        var course = _lastCourse!.Course;
         var detailedRooms = await LoadCourseStudentsByRoomDetailedAsync(course.No);
         if (!detailedRooms.Any()) { ShowError("수강생이 없습니다."); return string.Empty; }
 
-        string scopeLabel = $"{Settings.WorkYear.Value}학년도 {course.DisplayName} 전체";
+        string scopeLabel = $"{TheYearSemesterPicker.Year}학년도 {TheYearSemesterPicker.Semester}학기 {course.DisplayName} 전체";
         bool horizontal   = RbCourseHorizontal.IsChecked == true;
 
         if (horizontal)
@@ -274,13 +246,6 @@ public partial class RosterTableDialog : Window
     // ────────────────────────────────────────────────────
     //  학생 데이터 로드
     // ────────────────────────────────────────────────────
-
-    private async Task<List<(int Number, string Name)>> LoadClassStudentsAsync(int grade, int cls)
-    {
-        using var svc = new EnrollmentService();
-        var list = await svc.GetClassRosterAsync(Settings.SchoolCode.Value, Settings.WorkYear.Value, grade, cls);
-        return list.OrderBy(e => e.Number).Select(e => (e.Number, e.Name)).ToList();
-    }
 
     private async Task<SortedDictionary<int, List<(int Number, string Name)>>> LoadGradeStudentsAsync(int grade)
     {
@@ -315,21 +280,6 @@ public partial class RosterTableDialog : Window
         foreach (var list in result.Values)
             list.Sort((a, b) => { int c = a.Grade.CompareTo(b.Grade); if (c != 0) return c; c = a.Class.CompareTo(b.Class); return c != 0 ? c : a.Number.CompareTo(b.Number); });
         return result;
-    }
-
-    private async Task<List<(int Number, string Name)>> LoadCourseStudentsAsync(int courseNo)
-    {
-        using var courseSvc = new CourseService();
-        var ces = await courseSvc.GetCourseEnrollmentsAsync(
-            Settings.SchoolCode.Value, Settings.WorkYear.Value, Settings.WorkSemester.Value, courseNo);
-        string? room = RoomComboBox.IsVisible ? RoomComboBox.SelectedItem as string : null;
-        if (!string.IsNullOrEmpty(room) && room != "전체")
-            ces = ces.Where(c => c.Room == room).ToList();
-        var ids = ces.Select(c => c.StudentID).ToHashSet();
-        using var enrollSvc = new EnrollmentService();
-        var all = await enrollSvc.GetEnrollmentsAsync(Settings.SchoolCode.Value, Settings.WorkYear.Value);
-        return all.Where(e => ids.Contains(e.StudentID)).OrderBy(e => e.Grade).ThenBy(e => e.Class).ThenBy(e => e.Number)
-                  .Select(e => (e.Number, e.Name)).ToList();
     }
 
     private async Task<List<(int Grade, int Class, int Number, string Name)>> LoadClubStudentsDetailedAsync(int clubNo)
@@ -388,8 +338,8 @@ public partial class RosterTableDialog : Window
     {
         var gKeys = groups.Keys.ToList();
         int perGroup = 2 + cols.Count;
-        int total = perGroup * gKeys.Count;
-        int maxRows = groups.Values.Max(s => s.Count);
+        int total    = perGroup * gKeys.Count;
+        int maxRows  = groups.Values.Max(s => s.Count);
         var sb = new StringBuilder();
         sb.Append("<table border=\"1\" cellpadding=\"4\" cellspacing=\"0\" style=\"border-collapse:collapse;width:100%;text-align:center;\">");
         if (!string.IsNullOrEmpty(title)) sb.Append($"<tr><th colspan=\"{total}\" style=\"font-size:16px;padding:8px;background:#e8f0fe;\">{Esc(title)}</th></tr>");

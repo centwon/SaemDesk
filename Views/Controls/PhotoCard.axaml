@@ -12,10 +12,10 @@
   </UserControl.ContextMenu>
 
   <Border Name="BrdrOutLine"
-          BorderBrush="CornflowerBlue"
+          BorderBrush="{DynamicResource CardHeaderBorderBrush}"
           BorderThickness="1"
           CornerRadius="4"
-          Background="Transparent">
+          Background="#01000000">
     <Grid>
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>

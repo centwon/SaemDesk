@@ -106,28 +106,78 @@ public partial class PhotoCard : UserControl
     public event EventHandler? FixedChanged;
     public event EventHandler? HiddenChanged;
 
+    /// <summary>
+    /// 드래그가 아닌 단순 클릭으로 판정되었을 때 SeatsPage 가 구독하는 이벤트.
+    /// PointerReleased 시점에 발화 — 드래그 중이면 발화하지 않는다.
+    /// </summary>
+    public event EventHandler? Clicked;
+
+    // ── 드래그/클릭 판별용 내부 상태 ────────────────────
+    private Point?                  _dragStartPoint;
+    private PointerPressedEventArgs? _dragPressArgs;
+    private bool                    _isDragging;
+    private const double            DragThreshold = 4.0;
+
     public PhotoCard()
     {
         InitializeComponent();
 
         DragDrop.SetAllowDrop(this, true);
-        AddHandler(InputElement.PointerPressedEvent, OnPointerPressedForDrag, RoutingStrategies.Tunnel);
+        AddHandler(InputElement.PointerPressedEvent,  OnPointerPressed,  RoutingStrategies.Tunnel);
+        AddHandler(InputElement.PointerMovedEvent,    OnPointerMoved,    RoutingStrategies.Tunnel);
+        AddHandler(InputElement.PointerReleasedEvent, OnPointerReleased, RoutingStrategies.Tunnel);
     }
 
-    #region Drag — 시작
+    #region Drag / Click 분리
 
-    private async void OnPointerPressedForDrag(object? sender, PointerPressedEventArgs e)
+    private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        if (StudentData == null) return;
-        if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
+        var props = e.GetCurrentPoint(this).Properties;
+        if (!props.IsLeftButtonPressed) return;
+
+        _dragStartPoint = e.GetCurrentPoint(this).Position;
+        _dragPressArgs  = e;
+        _isDragging     = false;
+    }
+
+    private async void OnPointerMoved(object? sender, PointerEventArgs e)
+    {
+        if (_dragStartPoint is null || _dragPressArgs is null) return;
+        if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            _dragStartPoint = null; _dragPressArgs = null;
+            return;
+        }
+
+        var delta = e.GetCurrentPoint(this).Position - _dragStartPoint.Value;
+        if (Math.Abs(delta.X) < DragThreshold && Math.Abs(delta.Y) < DragThreshold) return;
+
+        // 임계값 초과 → 드래그 확정
+        if (StudentData == null) { _dragStartPoint = null; _dragPressArgs = null; return; }
+
+        var pressArgs = _dragPressArgs;
+        _isDragging     = true;
+        _dragStartPoint = null;
+        _dragPressArgs  = null;
 
         try
         {
             var transfer = new DataTransfer();
             transfer.Add(DataTransferItem.Create(StudentDragFormat, StudentData));
-            await DragDrop.DoDragDropAsync(e, transfer, DragDropEffects.Move | DragDropEffects.Copy);
+            await DragDrop.DoDragDropAsync(pressArgs, transfer, DragDropEffects.Move | DragDropEffects.Copy);
         }
-        catch { /* 드래그 실패는 무시 */ }
+        catch { /* 드래그 취소 무시 */ }
+        finally { _isDragging = false; }
+    }
+
+    private void OnPointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        var wasClick = _dragStartPoint is not null && !_isDragging;
+        _dragStartPoint = null;
+        _dragPressArgs  = null;
+
+        // 드래그로 이어지지 않은 경우에만 클릭 이벤트 발화
+        if (wasClick) Clicked?.Invoke(this, EventArgs.Empty);
     }
 
     #endregion

@@ -29,6 +29,13 @@ public partial class KAgendaControl : UserControl
     private bool _showTasks  = true;
     private bool _showEvents = true;
 
+    // 현재 로드 모드 — ExternalItemChanged 재로드 시 동일 모드 유지
+    private enum LoadMode { PendingAndFuture, DateRange }
+    private LoadMode  _lastLoadMode = LoadMode.PendingAndFuture;
+    private DateTime  _lastStart    = DateTime.Today;
+    private int       _lastDays     = 30;
+    private bool      _lastShowCompleted = true;
+
     /// <summary>새 항목 추가 시 기본 CalendarId.</summary>
     public int DefaultCalendarId { get; set; }
 
@@ -60,11 +67,13 @@ public partial class KAgendaControl : UserControl
 
     private void OnExternalItemChanged(object? sender, EventArgs e)
     {
-        // 다른 화면(달력 등)에서 항목이 바뀐 경우 — 자체적으로 다시 로드
+        // 마지막으로 사용한 로드 모드로 재로드
         Avalonia.Threading.Dispatcher.UIThread.Post(async () =>
         {
-            // 현재 모드(범위/미래)에 따라 적절히 재로드 — 기본은 LoadPendingAndFutureAsync
-            await LoadPendingAndFutureAsync();
+            if (_lastLoadMode == LoadMode.DateRange)
+                await LoadByDateRangeAsync(_lastStart, _lastDays, _lastShowCompleted);
+            else
+                await LoadPendingAndFutureAsync();
         });
     }
 
@@ -72,17 +81,30 @@ public partial class KAgendaControl : UserControl
     //  공개 로드
     // ────────────────────────────────────────────────────
 
-    /// <summary>오늘 기준 미완료 작업 + 미래 60일 일정 로드 (TodayPage 용).</summary>
+    /// <summary>오늘 기준 미완료 작업 + 미래 60일 일정 로드.</summary>
     public async Task LoadPendingAndFutureAsync()
     {
+        _lastLoadMode = LoadMode.PendingAndFuture;
         try
         {
             await EnsureFiltersAsync();
             using var svc = Scheduler.Scheduler.CreateService();
 
-            var tasks  = await svc.GetPendingAndFutureTasksAsync();
-            var events = (await svc.GetEventsByDateAsync(DateTime.Today, 60))
-                            .Where(e => e.ItemType != "task").ToList();
+            // FixedCalendarName이 설정된 경우 해당 캘린더의 할일만 직접 조회
+            List<KEvent> tasks;
+            List<KEvent> events;
+            if (_selectedCalendarId > 0)
+            {
+                tasks  = await svc.GetTasksByCalendarIdAsync(_selectedCalendarId);
+                events = await svc.GetEventsByDateAsync(DateTime.Today, 60);
+                events = events.Where(e => e.ItemType != "task" && e.CalendarId == _selectedCalendarId).ToList();
+            }
+            else
+            {
+                tasks  = await svc.GetPendingAndFutureTasksAsync();
+                events = (await svc.GetEventsByDateAsync(DateTime.Today, 60))
+                             .Where(e => e.ItemType != "task").ToList();
+            }
 
             var all = new List<KEvent>(tasks.Count + events.Count);
             all.AddRange(tasks);
@@ -100,14 +122,36 @@ public partial class KAgendaControl : UserControl
     /// <summary>날짜 범위 지정 로드.</summary>
     public async Task LoadByDateRangeAsync(DateTime start, int days = 30, bool showCompleted = true)
     {
+        _lastLoadMode      = LoadMode.DateRange;
+        _lastStart         = start;
+        _lastDays          = days;
+        _lastShowCompleted = showCompleted;
         try
         {
             await EnsureFiltersAsync();
             using var svc = Scheduler.Scheduler.CreateService();
 
-            var tasks  = await svc.GetTasksByDateAsync(start, days, showCompleted);
-            var events = (await svc.GetEventsByDateAsync(start, days))
-                            .Where(e => e.ItemType != "task").ToList();
+            // FixedCalendarName이 설정된 경우 해당 캘린더만 직접 조회
+            List<KEvent> tasks;
+            List<KEvent> events;
+            if (_selectedCalendarId > 0)
+            {
+                // 날짜 범위 + 캘린더 필터를 DB 쿼리에서 직접 처리
+                var allTasks = await svc.GetTasksByCalendarIdAsync(_selectedCalendarId);
+                var endDate  = start.AddDays(days);
+                tasks = allTasks.Where(t =>
+                    (showCompleted || !t.IsDone) &&
+                    t.Start >= start && t.Start < endDate).ToList();
+
+                events = await svc.GetEventsByDateAsync(start, days);
+                events = events.Where(e => e.ItemType != "task" && e.CalendarId == _selectedCalendarId).ToList();
+            }
+            else
+            {
+                tasks  = await svc.GetTasksByDateAsync(start, days, showCompleted);
+                events = (await svc.GetEventsByDateAsync(start, days))
+                             .Where(e => e.ItemType != "task").ToList();
+            }
 
             var all = new List<KEvent>(tasks.Count + events.Count);
             all.AddRange(tasks);
@@ -142,15 +186,29 @@ public partial class KAgendaControl : UserControl
             TbEvent.IsChecked = true;
             _filterInitialized = true;
 
-            // FixedCalendarName 적용 → 자동 숨김
+            // FixedCalendarName 적용
             if (!string.IsNullOrEmpty(FixedCalendarName))
             {
                 var fixedCal = _calendars.FirstOrDefault(c => c.Title == FixedCalendarName);
+
+                // 해당 이름의 캘린더가 없으면 자동 생성
+                if (fixedCal is null)
+                {
+                    int newId = await svc.GetOrCreateCalendarIdAsync(FixedCalendarName);
+                    // 생성 후 목록 갱신
+                    _calendars = await svc.GetAllCalendarsAsync();
+                    fixedCal   = _calendars.FirstOrDefault(c => c.No == newId);
+                    Debug.WriteLine($"[KAgendaControl] 캘린더 자동 생성: '{FixedCalendarName}' (No={newId})");
+                }
+
                 if (fixedCal is not null)
                 {
                     _selectedCalendarId = fixedCal.No;
                     DefaultCalendarId   = fixedCal.No;
+                    Debug.WriteLine($"[KAgendaControl] FixedCalendar 적용: '{FixedCalendarName}' Id={_selectedCalendarId}");
                 }
+
+                // 필터 UI 숨김
                 CBoxFilter.IsVisible = false;
                 TbTask.IsVisible     = false;
                 TbEvent.IsVisible    = false;
@@ -201,11 +259,15 @@ public partial class KAgendaControl : UserControl
         var filtered = _allItems.AsEnumerable();
         if (!_showTasks)  filtered = filtered.Where(i => !i.IsTask);
         if (!_showEvents) filtered = filtered.Where(i => !i.IsEvent);
-        if (_selectedCalendarId > 0)
-            filtered = filtered.Where(i => i.SourceEvent != null && i.SourceEvent.CalendarId == _selectedCalendarId);
+
+        // FixedCalendarName이 없을 때만 ComboBox 기반 캘린더 필터 적용
+        // (FixedCalendarName 설정 시에는 이미 로드 단계에서 걸러짐)
+        if (_selectedCalendarId > 0 && string.IsNullOrEmpty(FixedCalendarName))
+            filtered = filtered.Where(i => i.SourceEvent?.CalendarId == _selectedCalendarId);
 
         var flat = new List<object>();
-        foreach (var g in filtered.OrderBy(i => i.DisplayDate).ThenBy(i => i.SortKey).GroupBy(i => i.DisplayDate))
+        foreach (var g in filtered.OrderBy(i => i.DisplayDate).ThenBy(i => i.SortKey)
+                                  .GroupBy(i => i.DisplayDate))
         {
             var items = g.ToList();
             var (header, _) = AgendaHeader.Create(g.Key, items);
@@ -241,7 +303,9 @@ public partial class KAgendaControl : UserControl
     {
         try
         {
-            var (saved, _) = await SaemDesk.Services.DialogService.ShowUnifiedItemEditAsync(DateTime.Today);
+            // FixedCalendarName이 있으면 해당 캘린더로 고정된 다이얼로그 오픈
+            var (saved, _) = await SaemDesk.Services.DialogService.ShowUnifiedItemEditAsync(
+                DateTime.Today, defaultCalendarId: DefaultCalendarId);
             if (saved is null) return;
 
             var cal = _calendars.FirstOrDefault(c => c.No == saved.CalendarId);
@@ -286,7 +350,6 @@ public partial class KAgendaControl : UserControl
             }
             if (saved is null) return;
 
-            // 같은 SourceEvent 참조 모두 제거 후 재등록 (다일 일정 복제본 포함)
             _allItems.RemoveAll(a => a.SourceEvent == item.SourceEvent);
 
             var cal = _calendars.FirstOrDefault(c => c.No == saved.CalendarId);

@@ -2,97 +2,154 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:SaemDesk.ViewModels.Pages"
              xmlns:models="using:SaemDesk.Models"
+             xmlns:ctrl="using:SaemDesk.Views.Controls"
              x:Class="SaemDesk.Views.Pages.ClubManagementPage"
              x:DataType="vm:ClubManagementPageVM"
              Classes="page">
 
-  <Grid RowDefinitions="Auto,*" ColumnDefinitions="*,360" Margin="20,16">
+  <Grid RowDefinitions="Auto,Auto,*,Auto">
 
     <!-- 헤더 -->
-    <Grid Grid.Row="0" Grid.ColumnSpan="2"
-          ColumnDefinitions="Auto,Auto,Auto,200,Auto,Auto,Auto,Auto,*,Auto"
-          Margin="0,0,0,10">
-      <TextBlock Grid.Column="0" Text="🎭 동아리 관리"
-                 FontSize="22" FontWeight="SemiBold"
-                 VerticalAlignment="Center"/>
-      <TextBlock Grid.Column="1" Text="학년도" Margin="14,0,4,0" VerticalAlignment="Center"/>
-      <NumericUpDown Grid.Column="2" Value="{Binding Year, Mode=TwoWay}"
-                     Minimum="2000" Maximum="2100" Width="100"/>
-      <TextBox Grid.Column="3" Text="{Binding SearchText, Mode=TwoWay}"
-               PlaceholderText="검색" Margin="14,0,4,0"/>
-      <Button Grid.Column="4" Content="조회" Padding="10,6"
-              Command="{Binding ReloadCommand}" Margin="0,0,4,0"/>
-      <Button Grid.Column="5" Content="＋ 새 동아리" Padding="10,6"
-              Command="{Binding NewClubCommand}" Margin="0,0,4,0"/>
-      <Button Grid.Column="6" Content="저장" Classes="accent" Padding="10,6"
-              Command="{Binding SaveCommand}" HotKey="Ctrl+S" Margin="0,0,4,0"/>
-      <Button Grid.Column="7" Content="🗑 삭제" Padding="10,6"
-              Command="{Binding DeleteCommand}"
-              IsEnabled="{Binding HasSelection}"/>
-      <TextBlock Grid.Column="9" Text="{Binding StatusText}"
-                 VerticalAlignment="Center"
-                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+    <StackPanel Grid.Row="0" Spacing="2" Margin="0,0,0,4">
+      <TextBlock Text="🎭 동아리 관리" Classes="page-title"/>
+      <TextBlock Text="학년도별 담당 동아리 CRUD 및 부원 관리"
+                 Classes="page-subtitle"/>
+    </StackPanel>
+
+    <!-- 필터 / 툴바 -->
+    <Grid Grid.Row="1" Margin="0,8,0,8"
+          ColumnDefinitions="Auto,Auto,Auto">
+
+      <!-- 학년도 피커 (학기 제외) -->
+      <ctrl:YearSemesterPicker Grid.Column="0"
+                               x:Name="YearPicker"
+                               ShowYear="True" ShowSemester="False"
+                               Margin="0,0,12,0"
+                               YearSemesterChanged="OnYearSemesterChanged"/>
+
+      <!-- 액션 버튼 -->
+      <Button Grid.Column="1" Content="동아리 추가" Classes="accent btn-md"
+              Command="{Binding AddClubCommand}"
+              HotKey="Ctrl+N"
+              Margin="0,0,6,0"/>
+      <Button Grid.Column="2" Content="새로고침" Classes="btn-md"
+              Command="{Binding QueryCommand}"/>
     </Grid>
 
-    <!-- 좌: 목록 -->
-    <Border Grid.Row="1" Grid.Column="0"
-            BorderThickness="1" BorderBrush="{DynamicResource ContentSeparatorBrush}"
-            CornerRadius="6" Margin="0,0,10,0">
-      <ListBox ItemsSource="{Binding Items}"
-               SelectedItem="{Binding Selected, Mode=TwoWay}"
-               Background="Transparent">
-        <ListBox.ItemTemplate>
-          <DataTemplate DataType="models:Club">
-            <Grid ColumnDefinitions="*,Auto" Margin="0,2">
-              <StackPanel>
-                <TextBlock Text="{Binding ClubName}" FontWeight="SemiBold"/>
-                <TextBlock Text="{Binding ActivityRoom}" FontSize="11"
-                           Foreground="{DynamicResource SystemBaseMediumColor}"/>
-              </StackPanel>
-              <TextBlock Grid.Column="1" Text="{Binding Year}" FontSize="11"
-                         VerticalAlignment="Center"
-                         Foreground="{DynamicResource SystemBaseMediumColor}"/>
-            </Grid>
-          </DataTemplate>
-        </ListBox.ItemTemplate>
-      </ListBox>
-    </Border>
+    <!-- 본문: 동아리 카드 목록 -->
+    <Grid Grid.Row="2" Margin="0,0,0,8">
 
-    <!-- 우: 편집 -->
-    <Border Grid.Row="1" Grid.Column="1"
-            BorderThickness="1" BorderBrush="{DynamicResource ContentSeparatorBrush}"
-            CornerRadius="6" Padding="14,10">
-      <StackPanel Spacing="10">
-        <TextBlock Text="동아리 편집" FontWeight="SemiBold" FontSize="14"/>
-
-        <StackPanel Spacing="4">
-          <TextBlock Text="동아리명" FontSize="11"
-                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
-          <TextBox Text="{Binding FormName, Mode=TwoWay}" PlaceholderText="예: 과학탐구반"/>
-        </StackPanel>
-
-        <StackPanel Spacing="4">
-          <TextBlock Text="활동실" FontSize="11"
-                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
-          <TextBox Text="{Binding FormRoom, Mode=TwoWay}" PlaceholderText="예: 과학실 1"/>
-        </StackPanel>
-
-        <StackPanel Spacing="4">
-          <TextBlock Text="비고" FontSize="11"
-                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
-          <TextBox Text="{Binding FormRemark, Mode=TwoWay}"
-                   AcceptsReturn="True"
-                   TextWrapping="Wrap"
-                   MinHeight="80"
-                   PlaceholderText="활동 계획·요일·기타 메모"/>
-        </StackPanel>
-
-        <TextBlock Text="{Binding ErrorText}"
-                   Foreground="#D9372A"
-                   FontSize="11"
-                   IsVisible="{Binding ErrorText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                   TextWrapping="Wrap"/>
+      <!-- 빈 상태 -->
+      <StackPanel IsVisible="{Binding IsEmpty}"
+                  HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10">
+        <TextBlock Text="🎭" FontSize="48" HorizontalAlignment="Center"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"/>
+        <TextBlock Text="등록된 동아리가 없습니다"
+                   FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+        <TextBlock Text="[동아리 추가] 버튼으로 새 동아리를 등록하세요"
+                   FontSize="13" HorizontalAlignment="Center"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"/>
       </StackPanel>
-    </Border>
+
+      <!-- 카드 목록 -->
+      <ScrollViewer IsVisible="{Binding HasClubs}"
+                    VerticalScrollBarVisibility="Auto">
+        <ItemsControl ItemsSource="{Binding Items}" Margin="0,4,0,4">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="models:Club">
+              <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                      BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                      BorderThickness="1" CornerRadius="8"
+                      Margin="0,0,0,8" Padding="16">
+                <Grid ColumnDefinitions="*,Auto">
+
+                  <!-- 좌: 동아리 정보 -->
+                  <StackPanel Grid.Column="0" Spacing="8">
+
+                    <!-- 동아리명 + 학년도 배지 -->
+                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                      <TextBlock Text="{Binding ClubName}"
+                                 FontSize="16" FontWeight="SemiBold"
+                                 VerticalAlignment="Center"/>
+                      <Border Background="{DynamicResource SystemAccentColor}"
+                              CornerRadius="4" Padding="8,2">
+                        <TextBlock Text="{Binding Year, StringFormat='{}{0}학년도'}"
+                                   FontSize="11" Foreground="White"/>
+                      </Border>
+                    </StackPanel>
+
+                    <!-- 지도교사 -->
+                    <StackPanel Orientation="Horizontal" Spacing="16">
+                      <TextBlock FontSize="13">
+                        <Run Text="지도교사: "/>
+                        <Run Text="{Binding $parent[UserControl].((vm:ClubManagementPageVM)DataContext).TeacherName}" FontWeight="SemiBold"/>
+                      </TextBlock>
+                    </StackPanel>
+
+                    <!-- 활동실 배지 -->
+                    <Border Background="{DynamicResource SystemListLowColor}"
+                            CornerRadius="4" Padding="8,3"
+                            HorizontalAlignment="Left"
+                            IsVisible="{Binding ActivityRoom,
+                              Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                      <TextBlock FontSize="12">
+                        <Run Text="📍 "/>
+                        <Run Text="{Binding ActivityRoom}" FontWeight="SemiBold"/>
+                      </TextBlock>
+                    </Border>
+
+                    <!-- 비고 -->
+                    <TextBlock Text="{Binding Remark}"
+                               FontSize="12" TextWrapping="Wrap"
+                               Foreground="{DynamicResource SystemBaseMediumColor}"
+                               IsVisible="{Binding Remark,
+                                 Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                  </StackPanel>
+
+                  <!-- 우: 액션 버튼 -->
+                  <StackPanel Grid.Column="1" Orientation="Horizontal"
+                              Spacing="6" VerticalAlignment="Center">
+                    <Button Content="👥 부원 관리"
+                            Classes="btn-sm"
+                            ToolTip.Tip="부원 등록/해제 관리"
+                            Command="{Binding $parent[UserControl].((vm:ClubManagementPageVM)DataContext).EnrollMembersCommand}"
+                            CommandParameter="{Binding}"/>
+                    <Button Content="✏ 수정"
+                            Classes="accent btn-sm"
+                            Command="{Binding $parent[UserControl].((vm:ClubManagementPageVM)DataContext).EditItemCommand}"
+                            CommandParameter="{Binding}"/>
+                    <Button Content="🗑"
+                            Classes="btn-sm"
+                            ToolTip.Tip="삭제"
+                            Command="{Binding $parent[UserControl].((vm:ClubManagementPageVM)DataContext).DeleteItemCommand}"
+                            CommandParameter="{Binding}"/>
+                  </StackPanel>
+
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+
+      <!-- 로딩 오버레이 -->
+      <Border IsVisible="{Binding IsLoading}" Background="{DynamicResource LoadingOverlayBrush}">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+          <ProgressBar Width="160" IsIndeterminate="True"/>
+          <TextBlock Text="조회 중…" Foreground="White" HorizontalAlignment="Center"/>
+        </StackPanel>
+      </Border>
+    </Grid>
+
+    <!-- 상태바 -->
+    <Grid Grid.Row="3" Margin="0,8,0,0" ColumnDefinitions="*,Auto">
+      <TextBlock Grid.Column="0" Text="{Binding StatusText}"
+                 FontSize="11"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"
+                 VerticalAlignment="Center"/>
+      <TextBlock Grid.Column="1" Text="{Binding ErrorText}"
+                 FontSize="11" Foreground="{DynamicResource ErrorForegroundBrush}"
+                 VerticalAlignment="Center"/>
+    </Grid>
   </Grid>
 </UserControl>

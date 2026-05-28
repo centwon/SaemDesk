@@ -10,7 +10,6 @@ public partial class MainWindow : Window
 {
     private MainWindowViewModel VM => (MainWindowViewModel)DataContext!;
 
-    // 최대화 전 창 크기 기억 (최대화 상태에서 닫힐 때 복원 크기 저장용)
     private Size _restoredSize;
 
     public MainWindow()
@@ -82,7 +81,7 @@ public partial class MainWindow : Window
 
             // 수업
             "LessonHome"                => new LessonHomePageVM(),
-            "AnnualLessonPlan"          => new LessonsPageVM(),
+            "AnnualLessonPlan"          => new AnnualLessonPlanPageVM(),  // ← 수정
             "ProgressMatrix"            => new ProgressMatrixPageVM(),
             "LessonActivity"            => new LessonActivityPageVM(),
             "Timetable_Teacher"         => new TeacherTimetablePageVM(),
@@ -95,7 +94,7 @@ public partial class MainWindow : Window
             "SchoolWork"                => new SchoolWorkPageVM(),
             "WorkBoard"                 => new BoardPageVM(),
 
-            // 아카이브 — NewSchool case "Archive" 와 동일
+            // 아카이브
             "Archive" => new BoardPageVM(new BoardPageParameter
             {
                 Title               = "아카이브",

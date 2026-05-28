@@ -23,24 +23,25 @@
             BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
             BorderThickness="0,0,0,1">
       <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-        <!-- 필터: 전체 반 없음, 담임 학년반으로 초기화 -->
-        <ctrl:ClassFilterBar x:Name="FilterBar" IncludeAllClass="False"/>
+        <!-- 필터: 학년도/학기 + 학년/반 (전체 반 없음) -->
+        <ctrl:YearSemesterPicker x:Name="YearSemPicker"/>
+        <ctrl:ClassPicker x:Name="ClassFilter" IncludeAllClass="False"/>
         <!-- 구분선 -->
         <Separator Width="1" Height="20" Background="{DynamicResource SystemControlForegroundBaseLowBrush}" Margin="4,0"/>
         <!-- 학생카드 버튼 -->
-        <Button Name="BtnSave"  Content="💾 저장"  Padding="10,4"
-                IsEnabled="False" Click="BtnSave_Click" Classes="accent"/>
-        <Button Name="BtnPrint" Content="📄 PDF"   Padding="10,4"
+        <Button Name="BtnSave"  Content="💾 저장"  Classes="accent btn-sm"
+                IsEnabled="False" Click="BtnSave_Click"/>
+        <Button Name="BtnPrint" Content="📄 PDF"   Classes="btn-sm"
                 IsEnabled="False" Click="BtnPrint_Click"/>
-        <Button Name="BtnReset" Content="초기화"    Padding="10,4"
+        <Button Name="BtnReset" Content="초기화"    Classes="btn-sm"
                 IsEnabled="False" Click="BtnReset_Click"/>
         <!-- 구분선 -->
         <Separator Width="1" Height="20" Background="{DynamicResource SystemControlForegroundBaseLowBrush}" Margin="4,0"/>
         <!-- 엑셀 일괄 버튼 -->
         <Button Name="BtnDownloadTemplate" Content="📥 양식" ToolTip.Tip="학생정보 엑셀 양식 다운로드"
-                Padding="10,4" Click="BtnDownloadTemplate_Click"/>
+                Classes="btn-sm" Click="BtnDownloadTemplate_Click"/>
         <Button Name="BtnBulkImport" Content="📤 일괄입력" ToolTip.Tip="엑셀 파일로 학생정보 일괄 입력"
-                Padding="10,4" Click="BtnBulkImport_Click"/>
+                Classes="btn-sm" Click="BtnBulkImport_Click"/>
       </StackPanel>
     </Border>
 
@@ -68,16 +69,16 @@
         </Border>
 
         <!-- 누가기록 -->
-        <Border BorderBrush="CornflowerBlue"
+        <Border BorderBrush="{DynamicResource CardHeaderBorderBrush}"
                 BorderThickness="1" CornerRadius="8"
                 Padding="4" MinHeight="260">
-          <Grid Background="AliceBlue">
+          <Grid Background="{DynamicResource SelectedRowBrush}">
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <Border Grid.Row="0" Padding="8,4" Background="#E3F2FD">
+            <Border Grid.Row="0" Padding="8,4" Background="{DynamicResource SelectedRowBrush}">
               <Grid>
                 <TextBlock Text="누가기록" FontWeight="SemiBold" FontSize="14"
                            VerticalAlignment="Center"/>

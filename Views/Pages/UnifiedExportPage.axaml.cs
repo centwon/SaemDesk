@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input.Platform;
 using SaemDesk.ViewModels.Pages;
 using SaemDesk.Views.Controls;
 
@@ -11,10 +12,32 @@ public partial class UnifiedExportPage : UserControl
     public UnifiedExportPage()
     {
         InitializeComponent();
-        FilterBar.SelectionChanged += OnFilterChanged;
+        DataContextChanged += (_, _) => SubscribeVM();
+
+        YearSemPicker.YearSemesterChanged += OnYearSemesterChanged;
+        ClassFilter.ClassChanged += OnClassFilterChanged;
     }
 
-    private void OnFilterChanged(object? sender, FilterChangedEventArgs e)
+    private void SubscribeVM()
+    {
+        if (DataContext is UnifiedExportPageVM vm)
+            vm.ClipboardTextReady += OnClipboardTextReady;
+    }
+
+    private async void OnClipboardTextReady(object? sender, string text)
+    {
+        var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
+        if (clipboard is not null)
+            await clipboard.SetTextAsync(text);
+    }
+
+    private async void OnYearSemesterChanged(object? sender, YearSemesterChangedEventArgs e)
+    {
+        VM.Year = e.Year;
+        await ClassFilter.LoadAsync(e.Year, e.Semester);
+    }
+
+    private void OnClassFilterChanged(object? sender, ClassChangedEventArgs e)
     {
         VM.Year    = e.Year;
         VM.Grade   = e.Grade;

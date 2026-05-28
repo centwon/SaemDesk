@@ -1,4 +1,4 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:SaemDesk.ViewModels"
              xmlns:ctrl="using:SaemDesk.Views.Controls"
@@ -9,15 +9,20 @@
   <Grid RowDefinitions="Auto,Auto,*" ColumnDefinitions="*,280">
 
     <!-- 시간표 (우측, 출결+메모 상하 두 줄에 걸침) -->
-    <Border Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"
-            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
-            BorderThickness="1" CornerRadius="8"
+    <Border Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" VerticalAlignment="Top"
+            BorderBrush="{DynamicResource CardHeaderBorderBrush}" BorderThickness="1"
+            CornerRadius="8" ClipToBounds="True"
             Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-            Padding="8" Margin="4,4,8,6">
-      <Grid RowDefinitions="Auto,*">
-        <TextBlock Grid.Row="0" Text="학급 시간표" FontWeight="Bold" FontSize="12" Margin="0,0,0,2"/>
-        <ctrl:TimetableControl Name="ClassTimeTable" Grid.Row="1"
-                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            Margin="4,4,8,4">
+      <Grid RowDefinitions="34,Auto" >
+        <Border Grid.Row="0" Classes="card-header">
+          <TextBlock Text="📚 학급 시간표" FontWeight="Bold" VerticalAlignment="Center" FontSize="14"/>
+        </Border>
+    <Border Grid.Row="1" Padding="0">
+
+    <Viewbox Stretch="Uniform" MaxHeight="280">
+          <ctrl:TimetableControl Name="ClassTimeTable" Width="260" Height="260"/>
+        </Viewbox></Border>
       </Grid>
     </Border>
 

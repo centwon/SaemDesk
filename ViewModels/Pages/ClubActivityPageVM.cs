@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SaemDesk.Collections;
 using SaemDesk.Models;
 using SaemDesk.Repositories;
 
@@ -16,7 +17,7 @@ namespace SaemDesk.ViewModels.Pages;
 /// </summary>
 public partial class ClubActivityPageVM : ViewModelBase
 {
-    public ObservableCollection<Club>       Clubs      { get; } = new();
+    public OptimizedObservableCollection<Club> Clubs    { get; } = new();
     public ObservableCollection<LogCategory> Categories { get; } = new(new[]
     {
         LogCategory.동아리활동,
@@ -38,8 +39,7 @@ public partial class ClubActivityPageVM : ViewModelBase
         {
             using var repo = new ClubRepository(SchoolDatabase.DbPath);
             var list = await repo.GetBySchoolAsync(Settings.SchoolCode.Value, Year);
-            Clubs.Clear();
-            foreach (var c in list) Clubs.Add(c);
+            Clubs.ReplaceAll(list);
             if (Clubs.Count > 0) SelectedClub = Clubs[0];
         }
         catch (Exception ex)

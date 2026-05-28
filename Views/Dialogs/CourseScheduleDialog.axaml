@@ -13,8 +13,8 @@
 
     <!-- ── 오류 메시지 ────────────────────────────────── -->
     <Border x:Name="ErrorBar" Grid.Row="0" IsVisible="False"
-            Background="#FFF3E0" CornerRadius="4" Padding="10,6" Margin="0,0,0,8">
-      <TextBlock x:Name="ErrorBarText" FontSize="12" Foreground="#E65100" TextWrapping="Wrap"/>
+            Background="{DynamicResource WarningSurfaceBrush}" CornerRadius="4" Padding="10,6" Margin="0,0,0,8">
+      <TextBlock x:Name="ErrorBarText" FontSize="12" Foreground="{DynamicResource WarningDarkBrush}" TextWrapping="Wrap"/>
     </Border>
 
     <!-- ── 수업 정보 ──────────────────────────────────── -->
@@ -36,8 +36,15 @@
             BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,0,12">
       <Grid ColumnDefinitions="*,*,*,Auto" ColumnSpacing="10">
 
-        <!-- 요일 -->
+        <!-- 강의실 -->
         <StackPanel Grid.Column="0" Spacing="4">
+          <TextBlock Text="강의실 *" FontSize="11"
+                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+          <ComboBox x:Name="CBoxRoom" IsEditable="True" HorizontalAlignment="Stretch"/>
+        </StackPanel>
+
+        <!-- 요일 -->
+        <StackPanel Grid.Column="1" Spacing="4">
           <TextBlock Text="요일 *" FontSize="11"
                      Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
           <ComboBox x:Name="CBoxDay" HorizontalAlignment="Stretch">
@@ -50,7 +57,7 @@
         </StackPanel>
 
         <!-- 교시 -->
-        <StackPanel Grid.Column="1" Spacing="4">
+        <StackPanel Grid.Column="2" Spacing="4">
           <TextBlock Text="교시 *" FontSize="11"
                      Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
           <ComboBox x:Name="CBoxPeriod" HorizontalAlignment="Stretch">
@@ -64,16 +71,9 @@
           </ComboBox>
         </StackPanel>
 
-        <!-- 강의실 -->
-        <StackPanel Grid.Column="2" Spacing="4">
-          <TextBlock Text="강의실 *" FontSize="11"
-                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
-          <ComboBox x:Name="CBoxRoom" IsEditable="True" HorizontalAlignment="Stretch"/>
-        </StackPanel>
-
         <!-- 추가 버튼 -->
-        <Button Grid.Column="3" Content="추가" Classes="accent"
-                Padding="14,6" VerticalAlignment="Bottom"
+        <Button Grid.Column="3" Content="추가" Classes="accent btn-md"
+                VerticalAlignment="Bottom"
                 Click="OnAdd"/>
       </Grid>
     </Border>
@@ -89,7 +89,7 @@
         <TextBlock Text="시간표가 배치되지 않았습니다"
                    FontSize="14" HorizontalAlignment="Center"
                    Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
-        <TextBlock Text="요일, 교시, 강의실을 선택하고 [추가] 버튼을 누르세요"
+        <TextBlock Text="강의실, 요일, 교시를 선택하고 [추가] 버튼을 누르세요"
                    FontSize="12" HorizontalAlignment="Center"
                    Foreground="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"/>
       </StackPanel>
@@ -124,8 +124,8 @@
     <!-- ── 버튼 바 ────────────────────────────────────── -->
     <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right"
                 Spacing="8" Margin="0,12,0,0">
-      <Button Content="취소" Padding="14,8" Click="OnCancel"/>
-      <Button Content="저장" Classes="accent" Padding="16,8" Click="OnSave"/>
+      <Button Content="취소" Classes="btn-md" Click="OnCancel"/>
+      <Button Content="저장" Classes="accent btn-md" Click="OnSave"/>
     </StackPanel>
 
   </Grid>

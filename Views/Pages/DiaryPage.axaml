@@ -4,7 +4,8 @@
              xmlns:ctrl="using:SaemDesk.Views.Controls"
              x:Class="SaemDesk.Views.Pages.DiaryPage"
              x:DataType="vm:DiaryPageVM"
-             Classes="page">
+             Classes="page"
+             Padding="0">
 
   <Grid>
     <Grid.ColumnDefinitions>
@@ -32,8 +33,11 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" Margin="4,4">
-          <ctrl:ClassFilterBar x:Name="FilterBar"
-                             IncludeAllClass="False"/>
+          <ctrl:YearSemesterPicker x:Name="YearSemPicker"
+                                   ShowYear="False"
+                                   ShowSemester="False"/>
+          <ctrl:ClassPicker x:Name="ClassFilter"
+                            IncludeAllClass="False"/>
           <Button Content="조회" Classes="accent" Padding="16,4"
                   VerticalAlignment="Bottom" Click="BtnLoad_Click"/>
         </StackPanel>

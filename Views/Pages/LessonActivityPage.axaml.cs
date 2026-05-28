@@ -1,36 +1,38 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using SaemDesk.Models;
 using SaemDesk.Services;
 using SaemDesk.ViewModels;
 using SaemDesk.ViewModels.Pages;
+using SaemDesk.Views.Controls;
 
 namespace SaemDesk.Views.Pages;
 
-/// <summary>
-/// 수업 활동 기록 페이지 — Avalonia 12 이식.
-/// 원본: NewSchool.Pages.LessonActivityPage (WinUI3).
-/// 구성: 수업/강의실 선택 + 좌측 ListStudent + 우측 LogListViewer.
-/// </summary>
 public partial class LessonActivityPage : UserControl, IDisposable
 {
     private bool _disposed;
     private LessonActivityPageVM VM => (LessonActivityPageVM)DataContext!;
 
     private Enrollment? _selectedStudent;
+    private Course?     _currentCourse;
 
     public LessonActivityPage()
     {
         InitializeComponent();
         DataContext = new LessonActivityPageVM();
 
+        CoursePicker.CourseChanged  += OnCoursePickerChanged;
         StudentList.StudentSelected += OnStudentSelected;
+
         LogList.StudentInfoMode = StudentInfoMode.HideAll;
+        LogList.Category        = LogCategory.교과활동;
         LogList.LogEdited       += (_, _) => _ = LoadLogsAsync();
+
+        SldFontSize.Value = 12;
 
         Unloaded += (_, _) => Dispose();
     }
@@ -39,52 +41,27 @@ public partial class LessonActivityPage : UserControl, IDisposable
     {
         if (_disposed) return;
         _disposed = true;
+        CoursePicker.CourseChanged  -= OnCoursePickerChanged;
         StudentList.StudentSelected -= OnStudentSelected;
         GC.SuppressFinalize(this);
     }
 
     // ────────────────────────────────────────────────────
-    //  수업 / 강의실 변경
+    //  CoursePicker 변경
     // ────────────────────────────────────────────────────
 
-    private async void OnCourseChanged(object? sender, SelectionChangedEventArgs e)
-        => await LoadStudentsAsync();
-
-    private async void OnRoomChanged(object? sender, SelectionChangedEventArgs e)
-        => await LoadStudentsAsync();
-
-    // ────────────────────────────────────────────────────
-    //  데이터 로드
-    // ────────────────────────────────────────────────────
-
-    private async Task LoadStudentsAsync()
+    private void OnCoursePickerChanged(object? sender, CourseChangedEventArgs e)
     {
-        var course = VM.SelectedCourse;
-        if (course is null) return;
+        _currentCourse   = e.Course;
+        _selectedStudent = null;
+        LogList.Clear();
 
-        try
-        {
-            using var courseSvc = new CourseService();
-            var enrollments = await courseSvc.GetCourseEnrollmentsAsync(
-                Settings.SchoolCode.Value, Settings.WorkYear.Value, Settings.WorkSemester.Value, course.No);
-
-            var ids = enrollments.Select(ce => ce.StudentID).ToHashSet();
-
-            using var enrollSvc = new EnrollmentService();
-            var all = await enrollSvc.GetEnrollmentsAsync(Settings.SchoolCode.Value, Settings.WorkYear.Value);
-            var list = all.Where(e => ids.Contains(e.StudentID))
-                          .OrderBy(e => e.Class).ThenBy(e => e.Number).ToList();
-
-            StudentList.LoadStudents(list);
-            TxtStudentCount.Text = $"{list.Count}명";
-            _selectedStudent = null;
-            LogList.Clear();
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[LessonActivityPage] LoadStudents: {ex.Message}");
-        }
+        StudentList.LoadStudents(e.Students);
     }
+
+    // ────────────────────────────────────────────────────
+    //  학생 선택
+    // ────────────────────────────────────────────────────
 
     private async void OnStudentSelected(object? sender, Enrollment student)
     {
@@ -92,9 +69,13 @@ public partial class LessonActivityPage : UserControl, IDisposable
         await LoadLogsAsync();
     }
 
+    // ────────────────────────────────────────────────────
+    //  로그 로드 — 해당 과목(CourseNo) 기록만 필터링
+    // ────────────────────────────────────────────────────
+
     private async Task LoadLogsAsync()
     {
-        if (_selectedStudent is null || VM.SelectedCourse is null) return;
+        if (_selectedStudent is null || _currentCourse is null) return;
 
         try
         {
@@ -102,7 +83,12 @@ public partial class LessonActivityPage : UserControl, IDisposable
             var logs = await svc.GetStudentLogsAsync(
                 _selectedStudent.StudentID, Settings.WorkYear.Value);
 
-            var vms = logs.Select(l => new StudentLogViewModel(l)).ToList();
+            var filtered = logs
+                .Where(l => l.CourseNo == _currentCourse.No)
+                .OrderByDescending(l => l.Date)
+                .ToList();
+
+            var vms = filtered.Select(l => new StudentLogViewModel(l)).ToList();
             LogList.LoadLogs(vms);
         }
         catch (Exception ex)
@@ -123,18 +109,27 @@ public partial class LessonActivityPage : UserControl, IDisposable
 
     private async void BtnAddLog_Click(object? sender, RoutedEventArgs e)
     {
-        if (_selectedStudent is null) return;
-        var log = new StudentLog
-        {
-            StudentID = _selectedStudent.StudentID,
-            Year      = Settings.WorkYear.Value,
-            Semester  = Settings.WorkSemester.Value,
-            TeacherID = Settings.User.Value,
-            Date      = DateTime.Now,
-        };
+        if (_selectedStudent is null || _currentCourse is null) return;
+
         var owner = TopLevel.GetTopLevel(this) as Window;
         if (owner is null) return;
-        var dlg = new Views.Dialogs.StudentLogEditDialog(log.StudentID, _selectedStudent?.Name ?? "", null);
+
+        var seed = new StudentLog
+        {
+            StudentID   = _selectedStudent.StudentID,
+            Year        = Settings.WorkYear.Value,
+            Semester    = Settings.WorkSemester.Value,
+            TeacherID   = Settings.User.Value,
+            Date        = DateTime.Now,
+            Category    = LogCategory.교과활동,
+            CourseNo    = _currentCourse.No,
+            SubjectName = _currentCourse.Subject,
+        };
+
+        var dlg = new Views.Dialogs.StudentLogEditDialog(
+            _selectedStudent.StudentID,
+            $"{_selectedStudent.Grade}학년 {_selectedStudent.Class}반 {_selectedStudent.Number}번 {_selectedStudent.Name}",
+            seed);
         await dlg.ShowDialog(owner);
         if (dlg.Result != null) await LoadLogsAsync();
     }
@@ -148,12 +143,20 @@ public partial class LessonActivityPage : UserControl, IDisposable
         catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[LessonActivityPage] Save: {ex.Message}"); }
     }
 
-    private void BtnRefresh_Click(object? sender, RoutedEventArgs e)
-        => _ = LoadStudentsAsync();
-
     private async void BtnDeleteLog_Click(object? sender, RoutedEventArgs e)
     {
         try { await LogList.DeleteSelectedLogsAsync(); }
         catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[LessonActivityPage] Delete: {ex.Message}"); }
+    }
+
+    // ────────────────────────────────────────────────────
+    //  글꼴 크기 슬라이더
+    // ────────────────────────────────────────────────────
+
+    private void SldFontSize_ValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
+    {
+        if (LogList == null) return;
+        LogList.LogFontSize = e.NewValue;
+        if (TbSize != null) TbSize.Text = e.NewValue.ToString("F0");
     }
 }

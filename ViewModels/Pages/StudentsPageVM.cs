@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SaemDesk.Collections;
 using SaemDesk.Repositories;
 using SaemDesk.Services;
 
@@ -28,7 +29,7 @@ public partial class StudentsPageVM : ViewModelBase
     //  데이터
     // ────────────────────────────────────────────────────
 
-    public ObservableCollection<StudentManagementViewModel> Students { get; } = new();
+    public OptimizedObservableCollection<StudentManagementViewModel> Students { get; } = new();
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SelectedCount))]
@@ -72,11 +73,9 @@ public partial class StudentsPageVM : ViewModelBase
                     : await svc.GetClassRosterAsync(
                         Settings.SchoolCode.Value, FilterYear, FilterGrade, FilterClass);
 
-            Students.Clear();
-            foreach (var e in enrollments
-                .OrderBy(e => e.Grade).ThenBy(e => e.Class).ThenBy(e => e.Number))
-            {
-                Students.Add(new StudentManagementViewModel
+            Students.ReplaceAll(enrollments
+                .OrderBy(e => e.Grade).ThenBy(e => e.Class).ThenBy(e => e.Number)
+                .Select(e => new StudentManagementViewModel
                 {
                     EnrollmentNo = e.No,
                     StudentID    = e.StudentID,
@@ -88,8 +87,7 @@ public partial class StudentsPageVM : ViewModelBase
                     Status       = e.Status,
                     IsSelected   = false,
                     IsModified   = false,
-                });
-            }
+                }));
 
             StatusText = $"총 {Students.Count}명";
             IsAllSelected = false;

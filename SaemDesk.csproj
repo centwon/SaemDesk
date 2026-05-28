@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
@@ -21,6 +21,7 @@
     <Description>학교 업무 통합 데스크탑 — 학생·수업·학급일지·게시판·스케줄러·NEIS·Google Calendar.</Description>
     <Copyright>© 2026 Centwons</Copyright>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
+    <DefaultItemExcludes>$(DefaultItemExcludes);SaemDesk.HtmlEditor\**;SaemDesk.HtmlEditor.TestApp\**</DefaultItemExcludes>
   </PropertyGroup>
 <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
   <PublishAot>false</PublishAot>

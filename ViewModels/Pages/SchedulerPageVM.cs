@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SaemDesk.Collections;
 using SaemDesk.Models;
 using SaemDesk.Repositories;
 
@@ -40,7 +41,7 @@ public partial class SchedulerPageVM : ViewModelBase
         $"{Settings.HomeGrade}학년 {Settings.HomeRoom}반";
 
     // ── 데이터 ───────────────────────────────────────────
-    public ObservableCollection<WeekDayEntry> WeekDays { get; } = [];
+    public OptimizedObservableCollection<WeekDayEntry> WeekDays { get; } = new();
 
     // ── 상태 ─────────────────────────────────────────────
     [ObservableProperty] private bool   _isLoading;
@@ -101,9 +102,7 @@ public partial class SchedulerPageVM : ViewModelBase
                 days.Add(entry);
             }
 
-            WeekDays.Clear();
-            foreach (var d in days)
-                WeekDays.Add(d);
+            WeekDays.ReplaceAll(days);
         }
         catch (Exception ex)
         {

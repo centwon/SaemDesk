@@ -158,17 +158,27 @@ public partial class PostDetailPage : UserControl
 
         if (files.Count > 0)
         {
-            _attachedFilePath   = files[0].Path.LocalPath;
-            AttachedFileName.Text = files[0].Name;
-            BtnRemoveAttach.IsVisible = true;
+            _attachedFilePath       = files[0].Path.LocalPath;
+            AttachedFileName.Text   = files[0].Name;
+            // 파일 크기 표시
+            try
+            {
+                var info = new FileInfo(_attachedFilePath);
+                AttachedFileSize.Text = info.Length >= 1024 * 1024
+                    ? $"{info.Length / 1024 / 1024.0:F1} MB"
+                    : $"{info.Length / 1024.0:F0} KB";
+            }
+            catch { AttachedFileSize.Text = ""; }
+            AttachInfoPanel.IsVisible = true;
         }
     }
 
     private void BtnRemoveAttach_Click(object? sender, RoutedEventArgs e)
     {
-        _attachedFilePath  = null;
-        AttachedFileName.Text = "";
-        BtnRemoveAttach.IsVisible = false;
+        _attachedFilePath         = null;
+        AttachedFileName.Text     = "";
+        AttachedFileSize.Text     = "";
+        AttachInfoPanel.IsVisible = false;
     }
 
     // ── 댓글 저장 ────────────────────────────────────────
@@ -191,11 +201,12 @@ public partial class PostDetailPage : UserControl
 
     private void ResetCommentUI()
     {
-        BtnSaveComment.Content   = "댓글 작성";
-        BtnCancelEdit.IsVisible  = false;
-        CommentEditTitle.Text    = "댓글 작성";
-        _attachedFilePath        = null;
-        AttachedFileName.Text    = "";
-        BtnRemoveAttach.IsVisible = false;
+        BtnSaveComment.Content    = "댓글 작성";
+        BtnCancelEdit.IsVisible   = false;
+        CommentEditTitle.Text     = "댓글 작성";
+        _attachedFilePath         = null;
+        AttachedFileName.Text     = "";
+        AttachedFileSize.Text     = "";
+        AttachInfoPanel.IsVisible = false;
     }
 }

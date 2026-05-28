@@ -6,6 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using SaemDesk.Models;
 using SaemDesk.Repositories;
+using SaemDesk.Services;
 
 namespace SaemDesk.Views.Dialogs;
 
@@ -52,22 +53,86 @@ public partial class CourseEditDialog : Window
 
     private void LoadFrom(Course c)
     {
-        TxtSubject.Text = c.Subject;
-        CBoxGrade.SelectedIndex = Math.Clamp(c.Grade - 1, 0, 2);
-        NumUnit.Value = c.Unit;
-
-        // 유형 매칭
-        for (int i = 0; i < CBoxType.ItemCount; i++)
+        _suppressRoomsAutoFill = true;
+        try
         {
-            if (CBoxType.Items[i] is ComboBoxItem item &&
-                (item.Tag?.ToString() ?? "") == c.Type)
+            TxtSubject.Text = c.Subject;
+            CBoxGrade.SelectedIndex = Math.Clamp(c.Grade - 1, 0, 2);
+            NumUnit.Value = c.Unit;
+
+            // 유형 매칭
+            for (int i = 0; i < CBoxType.ItemCount; i++)
             {
-                CBoxType.SelectedIndex = i;
-                break;
+                if (CBoxType.Items[i] is ComboBoxItem item &&
+                    (item.Tag?.ToString() ?? "") == c.Type)
+                {
+                    CBoxType.SelectedIndex = i;
+                    break;
+                }
             }
+            TxtRooms.Text  = c.Rooms;
+            TxtRemark.Text = c.Remark;
+            UpdateRoomsPreview();
         }
-        TxtRooms.Text  = c.Rooms;
-        TxtRemark.Text = c.Remark;
+        finally
+        {
+            _suppressRoomsAutoFill = false;
+        }
+    }
+
+    // ── 강의실 미리보기 ────────────────────────────────────
+    private void OnRoomsTextChanged(object? sender, TextChangedEventArgs e) => UpdateRoomsPreview();
+
+    private void UpdateRoomsPreview()
+    {
+        var text = (TxtRooms.Text ?? "").Trim();
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            TxtRoomsPreview.IsVisible = false;
+            return;
+        }
+        var rooms = new Course { Rooms = text }.RoomList;
+        if (rooms.Count > 0)
+        {
+            TxtRoomsPreview.Text = $"📍 {string.Join(", ", rooms)}";
+            TxtRoomsPreview.IsVisible = true;
+        }
+        else
+        {
+            TxtRoomsPreview.IsVisible = false;
+        }
+    }
+
+    // ── 유형/학년 변경 시 강의실 자동 채우기 ─────────────────
+    private bool _suppressRoomsAutoFill;
+
+    private async void OnGradeOrTypeChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        // 초기화 중(LoadFrom) 또는 재진입 방지
+        if (_suppressRoomsAutoFill) return;
+        if (TxtRooms is null) return;
+
+        string type = "";
+        if (CBoxType.SelectedItem is ComboBoxItem ti) type = ti.Tag?.ToString() ?? "";
+
+        if (type != CourseTypes.Class) return;  // Class 유형만 자동 채움
+
+        int grade = 1;
+        if (CBoxGrade.SelectedItem is ComboBoxItem gi && int.TryParse(gi.Tag?.ToString(), out var g))
+            grade = g;
+
+        try
+        {
+            using var svc = new EnrollmentService();
+            var classList = await svc.GetClassListAsync(_schoolCode, _year, grade);
+            TxtRooms.Text = classList.Count > 0
+                ? string.Join(", ", classList.Select(c => $"{grade}-{c}"))
+                : string.Empty;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[CourseEditDialog] 강의실 자동 채우기 실패: {ex.Message}");
+        }
     }
 
     // ── 강의실 프리셋 ─────────────────────────────────────

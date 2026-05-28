@@ -26,7 +26,10 @@
 
         <!-- 왼쪽: 필터 -->
         <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
-          <ctrl:ClassFilterBar x:Name="FilterBar" IncludeAllClass="False"/>
+          <ctrl:YearSemesterPicker x:Name="YearSemPicker"
+                                   ShowYear="True"
+                                   ShowSemester="False"/>
+          <ctrl:ClassPicker x:Name="ClassFilter" IncludeAllClass="False"/>
           <ComboBox Name="CBoxCategory"
                     ItemsSource="{Binding Categories}"
                     SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
@@ -40,13 +43,13 @@
                     VerticalAlignment="Center">
 
           <!-- 그룹1: 개별 편집 -->
-          <Button Name="BtnSave"   Padding="12,6" Click="OnSaveClick">
+          <Button Name="BtnSave"   Classes="btn-md" Click="OnSaveClick">
             <StackPanel Orientation="Horizontal" Spacing="4">
               <TextBlock Text="💾" FontSize="16" VerticalAlignment="Center"/>
               <TextBlock Text="저장" VerticalAlignment="Center"/>
             </StackPanel>
           </Button>
-          <Button Name="BtnDelete" Padding="12,6" Click="OnDeleteClick">
+          <Button Name="BtnDelete" Classes="btn-md" Click="OnDeleteClick">
             <StackPanel Orientation="Horizontal" Spacing="4">
               <TextBlock Text="🗑" FontSize="16" VerticalAlignment="Center"/>
               <TextBlock Text="삭제" VerticalAlignment="Center"/>
@@ -58,10 +61,10 @@
                   Background="{DynamicResource SystemControlForegroundBaseLowBrush}"/>
 
           <!-- 그룹2: 일괄 작업 -->
-          <Button Name="BtnBatchInput"  ToolTip.Tip="일괄 입력" Padding="10,6" Click="OnBatchInputClick">
+          <Button Name="BtnBatchInput"  ToolTip.Tip="일괄 입력" Classes="btn-sm" Click="OnBatchInputClick">
             <TextBlock Text="📝" FontSize="20" VerticalAlignment="Center"/>
           </Button>
-          <Button Name="BtnBatchExport" ToolTip.Tip="일괄 출력" Padding="10,6" Click="OnBatchExportClick">
+          <Button Name="BtnBatchExport" ToolTip.Tip="일괄 출력" Classes="btn-sm" Click="OnBatchExportClick">
             <TextBlock Text="📤" FontSize="20" VerticalAlignment="Center"/>
           </Button>
 

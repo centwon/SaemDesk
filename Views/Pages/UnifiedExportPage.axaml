@@ -6,81 +6,149 @@
              x:DataType="vm:UnifiedExportPageVM"
              Classes="page">
 
-  <Grid RowDefinitions="Auto,Auto,Auto,Auto,*" Margin="20,18,20,16">
+  <Grid RowDefinitions="Auto,Auto,Auto,*">
 
-    <!-- 제목 -->
-    <StackPanel Grid.Row="0" Spacing="2" Margin="0,0,0,12">
-      <TextBlock Text="통합 내보내기" FontSize="22" FontWeight="SemiBold"/>
-      <TextBlock Text="학급 단위로 누가기록·학생부 특기사항·좌석배정·학생카드를 Excel/PDF/HTML/CSV 로 일괄 내보냅니다."
-                 FontSize="12" Foreground="{DynamicResource SystemBaseMediumColor}"/>
+    <!-- Row 0: 제목 (한 줄, 컴팩트) -->
+    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10"
+                VerticalAlignment="Center" Margin="0,0,0,10">
+      <TextBlock Text="통합 내보내기" FontSize="18" FontWeight="SemiBold"/>
+      <TextBlock Text="학급 단위 일괄 출력"
+                 FontSize="12" VerticalAlignment="Bottom" Margin="0,0,0,2"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
     </StackPanel>
 
-    <!-- 학급 필터 -->
+    <!-- Row 1: 옵션 툴바 (모든 선택을 한 줄에) -->
     <Border Grid.Row="1"
-            Padding="14,12"
             Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
             BorderBrush="{DynamicResource ContentSeparatorBrush}"
             BorderThickness="1" CornerRadius="8"
-            Margin="0,0,0,10">
-      <ctrl:ClassFilterBar x:Name="FilterBar"
-                           ShowSemester="False"
-                           SelectionChanged="OnFilterChanged"/>
+            Padding="12,8" Margin="0,0,0,6">
+      <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,*,Auto">
+
+        <!-- 학급 필터: 학년도 + 학년/반 (학기 숨김) -->
+        <ctrl:YearSemesterPicker Grid.Column="0"
+                                  x:Name="YearSemPicker"
+                                  ShowSemester="False"/>
+        <ctrl:ClassPicker Grid.Column="1" x:Name="ClassFilter"/>
+
+        <!-- 구분선 -->
+        <Border Grid.Column="2"
+                Width="1" Background="{DynamicResource ContentSeparatorBrush}"
+                Margin="12,2"/>
+
+        <!-- 데이터 종류 -->
+        <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="6"
+                    VerticalAlignment="Center">
+          <TextBlock Text="데이터" FontSize="11" FontWeight="SemiBold"
+                     VerticalAlignment="Center"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+          <ComboBox ItemsSource="{Binding DataTypes}"
+                    SelectedIndex="{Binding SelectedDataIndex, Mode=TwoWay}"
+                    MinWidth="140" FontSize="12"/>
+        </StackPanel>
+
+        <!-- 구분선 -->
+        <Border Grid.Column="4"
+                Width="1" Background="{DynamicResource ContentSeparatorBrush}"
+                Margin="12,2"/>
+
+        <!-- 형식 -->
+        <StackPanel Grid.Column="5" Orientation="Horizontal" Spacing="6"
+                    VerticalAlignment="Center">
+          <TextBlock Text="형식" FontSize="11" FontWeight="SemiBold"
+                     VerticalAlignment="Center"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+          <ComboBox ItemsSource="{Binding Formats}"
+                    SelectedIndex="{Binding SelectedFormatIndex, Mode=TwoWay}"
+                    MinWidth="100" FontSize="12"/>
+        </StackPanel>
+
+        <!-- 구분선 -->
+        <Border Grid.Column="6"
+                Width="1" Background="{DynamicResource ContentSeparatorBrush}"
+                Margin="12,2"/>
+
+        <!-- 실행 버튼 그룹 -->
+        <StackPanel Grid.Column="8" Orientation="Horizontal" Spacing="6"
+                    VerticalAlignment="Center">
+          <Button Content="미리보기"
+                  Padding="12,5" FontSize="12"
+                  IsEnabled="{Binding !IsBusy}"
+                  Command="{Binding PreviewCommand}"/>
+          <Button Content="내보내기"
+                  Classes="accent btn-sm"
+                  IsEnabled="{Binding !IsBusy}"
+                  Command="{Binding ExportCommand}"/>
+          <Button Content="복사"
+                  Classes="btn-sm"
+                  IsEnabled="{Binding IsCsvEnabled}"
+                  IsVisible="{Binding IsCsvEnabled}"
+                  Command="{Binding ClipboardCommand}"
+                  ToolTip.Tip="표 데이터를 CSV로 복사 · 엑셀/구글 시트에 바로 붙여넣기"/>
+          <ProgressBar Width="80" IsIndeterminate="True"
+                       IsVisible="{Binding IsBusy}"
+                       VerticalAlignment="Center"/>
+        </StackPanel>
+      </Grid>
     </Border>
 
-    <!-- 데이터 종류 -->
-    <Border Grid.Row="2"
-            Padding="14,12"
-            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-            BorderBrush="{DynamicResource ContentSeparatorBrush}"
-            BorderThickness="1" CornerRadius="8"
-            Margin="0,0,0,10">
-      <StackPanel Spacing="8">
-        <TextBlock Text="데이터 종류" FontWeight="SemiBold"/>
-        <ComboBox ItemsSource="{Binding DataTypes}"
-                  SelectedIndex="{Binding SelectedDataIndex, Mode=TwoWay}"
-                  MinWidth="220"/>
-      </StackPanel>
-    </Border>
+    <!-- Row 2: 상태 바 (한 줄, 조건부 표시) -->
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto"
+          Margin="2,0,2,6"
+          IsVisible="{Binding HasStatusBar}">
 
-    <!-- 형식 -->
-    <Border Grid.Row="3"
-            Padding="14,12"
-            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-            BorderBrush="{DynamicResource ContentSeparatorBrush}"
-            BorderThickness="1" CornerRadius="8"
-            Margin="0,0,0,10">
-      <StackPanel Spacing="8">
-        <TextBlock Text="형식" FontWeight="SemiBold"/>
-        <ComboBox ItemsSource="{Binding Formats}"
-                  SelectedIndex="{Binding SelectedFormatIndex, Mode=TwoWay}"
-                  MinWidth="220"/>
-        <TextBlock Text="좌석배정·학생카드는 PDF/HTML 만, CSV 는 누가기록/학생부 특기사항만 가능합니다."
-                   FontSize="11" Foreground="{DynamicResource SystemBaseMediumColor}"
-                   TextWrapping="Wrap"/>
-      </StackPanel>
-    </Border>
-
-    <!-- 실행 + 상태 -->
-    <StackPanel Grid.Row="4" Spacing="10" Margin="0,4,0,0">
-      <StackPanel Orientation="Horizontal" Spacing="10">
-        <Button Content="내보내기"
-                Classes="accent" Padding="18,8"
-                IsEnabled="{Binding !IsBusy}"
-                Command="{Binding ExportCommand}"/>
-        <ProgressBar Width="160" IsIndeterminate="True"
-                     IsVisible="{Binding IsBusy}"
-                     VerticalAlignment="Center"/>
-      </StackPanel>
-
-      <TextBlock Text="{Binding StatusText}" FontSize="12"
-                 Foreground="{DynamicResource SystemBaseMediumColor}"
-                 IsVisible="{Binding StatusText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                 TextWrapping="Wrap"/>
-
-      <TextBlock Text="{Binding ErrorText}" FontSize="12" Foreground="#D9372A"
+      <!-- 상태 텍스트 / 에러 -->
+      <TextBlock Grid.Column="0"
+                 Text="{Binding ErrorText}" FontSize="11" Foreground="{DynamicResource ErrorForegroundBrush}"
+                 VerticalAlignment="Center"
                  IsVisible="{Binding ErrorText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                 TextWrapping="Wrap"/>
-    </StackPanel>
+                 TextTrimming="CharacterEllipsis"/>
+      <TextBlock Grid.Column="0"
+                 Text="{Binding StatusText}" FontSize="11"
+                 VerticalAlignment="Center"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"
+                 IsVisible="{Binding ErrorText, Converter={x:Static StringConverters.IsNullOrEmpty}}"
+                 TextTrimming="CharacterEllipsis"/>
+
+      <!-- 파일 열기 / 폴더 열기 (내보내기 완료 시) -->
+      <Button Grid.Column="1"
+              Content="파일 열기" Padding="8,2" FontSize="11" Margin="6,0,0,0"
+              IsVisible="{Binding LastFilePath, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+              Command="{Binding OpenFileCommand}"/>
+      <Button Grid.Column="2"
+              Content="폴더 열기" Padding="8,2" FontSize="11" Margin="4,0,0,0"
+              IsVisible="{Binding LastFilePath, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+              Command="{Binding OpenFolderCommand}"/>
+    </Grid>
+
+    <!-- Row 3: 미리보기 영역 — 나머지 전체 공간 -->
+    <Grid Grid.Row="3">
+
+      <!-- JoditEditor: 항상 비주얼 트리에 유지 (숨기면 WebView 초기화 충돌 발생) -->
+      <Border BorderBrush="{DynamicResource ContentSeparatorBrush}"
+              BorderThickness="1" CornerRadius="8">
+        <ctrl:JoditEditor x:Name="PreviewEditor"
+                          Mode="ReadOnly"
+                          Text="{Binding PreviewHtml}"/>
+      </Border>
+
+      <!-- 빈 상태 안내: 미리보기 없을 때만 위에 엹음 -->
+      <Border BorderBrush="{DynamicResource ContentSeparatorBrush}"
+              BorderThickness="1" CornerRadius="8"
+              Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+              IsVisible="{Binding !HasPreview}">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+          <TextBlock Text="📄" FontSize="36" HorizontalAlignment="Center"/>
+          <TextBlock Text="미리보기 버튼을 누르면 여기에 결과가 표시됩니다"
+                     FontSize="13" HorizontalAlignment="Center"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+          <TextBlock Text="좌석배정·학생카드는 PDF/HTML만, CSV는 누가기록·학생부만 가능합니다"
+                     FontSize="11" HorizontalAlignment="Center"
+                     Foreground="{DynamicResource SystemBaseMediumLowColor}"/>
+        </StackPanel>
+      </Border>
+
+    </Grid>
 
   </Grid>
 </UserControl>

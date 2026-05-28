@@ -44,8 +44,9 @@ public partial class StudentInfoPage : UserControl, IDisposable
 
         StudentList.StudentSelected += OnStudentSelected;
 
-        // 반 선택 시 자동 로드
-        FilterBar.SelectionChanged += OnFilterBarChanged;
+        // 학년도/학기 변경 → 반 목록 갱신, 반 선택 시 자동 로드
+        YearSemPicker.YearSemesterChanged += OnYearSemesterChanged;
+        ClassFilter.ClassChanged += OnClassFilterChanged;
 
         LogList.StudentInfoMode = StudentInfoMode.HideAll;
         LogList.Category        = LogCategory.전체;
@@ -80,7 +81,13 @@ public partial class StudentInfoPage : UserControl, IDisposable
     //  필터 — 반 선택 시 자동 로드 (조회 버튼 없음)
     // ────────────────────────────────────────────────────
 
-    private async void OnFilterBarChanged(object? sender, FilterChangedEventArgs e)
+    private async void OnYearSemesterChanged(object? sender, YearSemesterChangedEventArgs e)
+    {
+        _currentYear = e.Year;
+        await ClassFilter.LoadAsync(e.Year, e.Semester);
+    }
+
+    private async void OnClassFilterChanged(object? sender, ClassChangedEventArgs e)
     {
         _currentYear  = e.Year;
         _currentGrade = e.Grade;

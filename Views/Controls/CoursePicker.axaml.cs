@@ -14,15 +14,15 @@ namespace SaemDesk.Views.Controls;
 /// 과목(Course) · 강의실(Room) 선택 필터.
 ///
 /// 확정 규칙:
-///   - 과목은 LoadAsync(year, semester, grade) 로 목록을 로드.
-///     grade=0 이면 학년 구분 없이 전체 과목 표시.
+///   - LoadAsync(year, semester, grade=0) 로 과목 목록을 (재)로드.
+///     grade=0 이면 학년 구분 없이 현재 교사의 전 과목.
+///     YearSemesterPicker 또는 ClassPicker.ClassChanged 에서 호출.
 ///   - 강의실은 선택된 Course.RoomList 에서 파싱 (DB 조회 없음).
-///     강의실이 1개이면 자동 선택, 0개이면 CBoxRoom 숨김.
-///   - 과목이 확정되면 Course.Type 에 따라 수강생을 조회해서
-///     CoursePickerChangedEventArgs.Students 에 담아 이벤트 발생.
-///     Class (학급 공통): EnrollmentRepository → 학급 학생 전체
-///     Selective / Club  : CourseEnrollmentRepository → 수강 등록 학생
-///   - ShowRoom=false 이면 강의실 콤보 숨김 (LessonActivityPage 외에는 불필요).
+///     강의실이 1개 이상이면 자동 표시, 0개이면 CBoxRoom 숨김.
+///   - ShowRoom=false 이면 강의실 콤보 항상 숨김.
+///   - 과목/강의실이 확정되면 수강생 조회 후 CourseChangedEventArgs 로 이벤트 발생.
+///     IsClassType  → EnrollmentRepository: 학급 전체 학생
+///     그 외        → CourseEnrollmentRepository: 수강 등록 학생
 /// </summary>
 public partial class CoursePicker : UserControl
 {
@@ -37,12 +37,15 @@ public partial class CoursePicker : UserControl
     /// <summary>강의실 콤보 표시 여부 (기본 true)</summary>
     public bool ShowRoom { get; set; } = true;
 
+    /// <summary>강의실 목록에 "전체" 항목 포함 여부 (기본 false)</summary>
+    public bool IncludeAllRoom { get; set; } = false;
+
     // ── 현재 선택값 ─────────────────────────────────────
     public Course?  SelectedCourse => CBoxCourse.SelectedItem as Course;
-    public string?  SelectedRoom   => (CBoxRoom.SelectedItem as ComboBoxItem)?.Content?.ToString();
+    public string?  SelectedRoom   => (CBoxRoom.SelectedItem as ComboBoxItem)?.Tag as string;
 
     // ── 이벤트 ──────────────────────────────────────────
-    public event EventHandler<CoursePickerChangedEventArgs>? SelectionChanged;
+    public event EventHandler<CourseChangedEventArgs>? CourseChanged;
 
     // ── 생성자 ──────────────────────────────────────────
     public CoursePicker()
@@ -62,7 +65,7 @@ public partial class CoursePicker : UserControl
 
     /// <summary>
     /// 과목 목록을 (재)로드.
-    /// ClassFilterBar.SelectionChanged 또는 YearSemesterPicker.SelectionChanged 에서 호출.
+    /// YearSemesterPicker.YearSemesterChanged 또는 ClassPicker.ClassChanged 에서 호출.
     /// grade=0 이면 학년 구분 없이 현재 교사의 전 과목.
     /// </summary>
     public async Task LoadAsync(int year, int semester, int grade = 0)
@@ -74,8 +77,6 @@ public partial class CoursePicker : UserControl
         _updating = true;
         try
         {
-            CBoxRoom.IsVisible = ShowRoom;
-
             var courses = await FetchCoursesAsync(year, semester, grade);
 
             await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
@@ -98,6 +99,7 @@ public partial class CoursePicker : UserControl
                 CBoxCourse.SelectionChanged += OnCourseChanged;
             });
 
+            RefreshRoomCombo(SelectedCourse);
             _initialized = true;
         }
         catch (Exception ex)
@@ -116,12 +118,8 @@ public partial class CoursePicker : UserControl
         try
         {
             using var repo = new CourseRepository(SchoolDatabase.DbPath);
-            var all = await repo.GetByTeacherAsync(
-                Settings.User.Value, year, semester);
-
-            return grade > 0
-                ? all.Where(c => c.Grade == grade).ToList()
-                : all;
+            var all = await repo.GetByTeacherAsync(Settings.User.Value, year, semester);
+            return grade > 0 ? all.Where(c => c.Grade == grade).ToList() : all;
         }
         catch (Exception ex)
         {
@@ -137,26 +135,22 @@ public partial class CoursePicker : UserControl
         CBoxRoom.SelectionChanged -= OnRoomChanged;
         CBoxRoom.Items.Clear();
 
-        if (course == null || !ShowRoom)
+        if (!ShowRoom || course == null || course.RoomList.Count == 0)
         {
             CBoxRoom.IsVisible = false;
             CBoxRoom.SelectionChanged += OnRoomChanged;
             return;
         }
 
-        var rooms = course.RoomList;
-        if (rooms.Count == 0)
-        {
-            CBoxRoom.IsVisible = false;
-            CBoxRoom.SelectionChanged += OnRoomChanged;
-            return;
-        }
+        // 강의실이 2개 이상이고 IncludeAllRoom=true 이면 "전체" 첫 항목 추가
+        if (course.RoomList.Count > 1 && IncludeAllRoom)
+            CBoxRoom.Items.Add(new ComboBoxItem { Content = "전체", Tag = (string?)null });
 
-        foreach (var r in rooms)
-            CBoxRoom.Items.Add(new ComboBoxItem { Content = r });
+        foreach (var r in course.RoomList)
+            CBoxRoom.Items.Add(new ComboBoxItem { Content = r, Tag = r });
 
-        CBoxRoom.IsVisible      = true;
-        CBoxRoom.SelectedIndex  = 0; // 1개면 자동 선택, 여러 개면 첫 번째 기본
+        CBoxRoom.IsVisible     = true;
+        CBoxRoom.SelectedIndex = 0;
 
         CBoxRoom.SelectionChanged += OnRoomChanged;
     }
@@ -185,7 +179,7 @@ public partial class CoursePicker : UserControl
 
         var students = await FetchStudentsAsync(course);
 
-        SelectionChanged?.Invoke(this, new CoursePickerChangedEventArgs
+        CourseChanged?.Invoke(this, new CourseChangedEventArgs
         {
             Course   = course,
             Room     = SelectedRoom,
@@ -199,31 +193,25 @@ public partial class CoursePicker : UserControl
         {
             if (course.IsClassType)
             {
-                // 학급 공통 과목 — Enrollment 에서 학급 전체 조회
-                // Course.Grade 기준, 반은 _loadedGrade 맥락에서 특정되지 않으므로
-                // 학년 전체를 반환 (페이지가 필요 시 반 필터 적용)
                 using var repo = new EnrollmentRepository(SchoolDatabase.DbPath);
                 return await repo.GetByGradeAsync(
-                    Settings.SchoolCode.Value,
-                    _loadedYear,
-                    _loadedSemester,
-                    course.Grade);
+                    Settings.SchoolCode.Value, _loadedYear, _loadedSemester, course.Grade);
             }
             else
             {
-                // 선택 과목 / 동아리 — CourseEnrollment 에서 수강 등록 학생 조회
                 using var ceRepo = new CourseEnrollmentRepository(SchoolDatabase.DbPath);
                 var courseEnrollments = await ceRepo.GetByCourseAsync(course.No);
+                if (courseEnrollments.Count == 0) return new List<Enrollment>();
 
-                if (courseEnrollments.Count == 0)
-                    return new List<Enrollment>();
+                // 강의실 필터: null(전체)이면 필터 없음, 특정 강의실이면 해당 강의실만
+                var room = SelectedRoom;
+                if (room != null)
+                    courseEnrollments = courseEnrollments.Where(ce => ce.Room == room).ToList();
 
-                // StudentID 로 Enrollment 조회
                 var studentIds = courseEnrollments.Select(ce => ce.StudentID).ToHashSet();
                 using var eRepo = new EnrollmentRepository(SchoolDatabase.DbPath);
-                var all = await eRepo.GetByGradeAsync(
-                    Settings.SchoolCode.Value, _loadedYear, _loadedSemester, course.Grade);
-
+                var all = await eRepo.GetBySchoolAndYearAsync(
+                    Settings.SchoolCode.Value, _loadedYear);
                 return all.Where(e => studentIds.Contains(e.StudentID)).ToList();
             }
         }
@@ -236,9 +224,9 @@ public partial class CoursePicker : UserControl
 }
 
 /// <summary>CoursePicker 변경 이벤트 인자 — 수강생 목록 포함</summary>
-public sealed class CoursePickerChangedEventArgs : EventArgs
+public sealed class CourseChangedEventArgs : EventArgs
 {
     public Course   Course   { get; init; } = null!;
-    public string?  Room     { get; init; }   // null = 강의실 없는 과목
+    public string?  Room     { get; init; }
     public IReadOnlyList<Enrollment> Students { get; init; } = Array.Empty<Enrollment>();
 }

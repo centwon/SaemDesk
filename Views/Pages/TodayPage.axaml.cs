@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using SaemDesk.Services;
 using SaemDesk.ViewModels.Pages;
 
 namespace SaemDesk.Views.Pages;
@@ -33,7 +34,7 @@ public partial class TodayPage : UserControl
             await Task.Delay(50);
 
             // UI 업데이트가 있는 작업들은 의도적으로 분산
-            await Safe("시간표",   () => LecTimeTable.LoadMyScheduleAsync());
+            await Safe("시간표",   () => LecTimeTable.LoadTeacherScheduleAsync(Settings.User.Value, Settings.WorkYear.Value, Settings.WorkSemester.Value));
             await Task.Delay(16); // 한 프레임 대기
             await Safe("학사일정", () => ScheduleList.LoadSchedulesAsync(DateTime.Today, 28, true));
             await Task.Delay(16);

@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -49,15 +50,18 @@ public partial class App : Application
         AvaloniaXamlLoader.Load(this);
     }
 
-    public override void OnFrameworkInitializationCompleted()
+    public override async void OnFrameworkInitializationCompleted()
     {
         // 1. 앱 설정 로드
         Settings.Initialize();
+        Debug.WriteLine($"[App] UserDataPath = {Settings.UserDataPath}");
+        Debug.WriteLine($"[App] BoardDatabase.DbPath = {BoardDatabase.DbPath}");
 
-        // 2. DB 스키마 초기화
-        _ = SchoolDatabase.InitAsync();
-        _ = BoardDatabase.InitAsync();
-        _ = SaemDesk.Scheduler.Scheduler.InitAsync();
+        // 2. DB 스키마 초기화 — 3개 DB를 병렬로 초기화하여 시작 시간 단축.
+        await Task.WhenAll(
+            SchoolDatabase.InitAsync(),
+            BoardDatabase.InitAsync(),
+            SaemDesk.Scheduler.Scheduler.InitAsync());
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
@@ -198,5 +202,6 @@ public partial class App : Application
         ViewLocator.Register<ClubActivityPageVM>             (() => new ClubActivityPage());
         ViewLocator.Register<TeacherTimetablePageVM>         (() => new TeacherTimetablePage());
         ViewLocator.Register<SchoolWorkPageVM>               (() => new SchoolWorkPage());
+        ViewLocator.Register<AnnualLessonPlanPageVM>         (() => new AnnualLessonPlanPage());
     }
 }

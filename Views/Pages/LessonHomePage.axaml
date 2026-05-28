@@ -1,174 +1,176 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="using:SaemDesk.ViewModels.Pages"
-             xmlns:models="using:SaemDesk.Models"
-             xmlns:ctrl="using:SaemDesk.Views.Controls"
+             xmlns:vm="clr-namespace:SaemDesk.ViewModels.Pages"
+             xmlns:local="clr-namespace:SaemDesk.ViewModels.Pages"
+             xmlns:ctrl="clr-namespace:SaemDesk.Views.Controls"
+             xmlns:board="clr-namespace:SaemDesk.Views.Controls"
              x:Class="SaemDesk.Views.Pages.LessonHomePage"
              x:DataType="vm:LessonHomePageVM"
              Classes="page">
 
-  <ScrollViewer HorizontalScrollBarVisibility="Disabled">
-    <Grid Margin="20,18,20,20" RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*,12,*">
+  <UserControl.Styles>
+    <Style Selector="Border.lesson-row-current">
+      <Setter Property="Background" Value="#154285F4"/>
+    </Style>
+    <Style Selector="Button.status-completed">
+      <Setter Property="Background"      Value="#150F9D58"/>
+      <Setter Property="Foreground"      Value="#0F9D58"/>
+      <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+    <Style Selector="Button.status-current">
+      <Setter Property="Background"      Value="{DynamicResource SystemAccentColor}"/>
+      <Setter Property="Foreground"      Value="White"/>
+      <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+    <Style Selector="Button.status-pending">
+      <Setter Property="Background"      Value="Transparent"/>
+      <Setter Property="Foreground"      Value="{DynamicResource SystemBaseMediumColor}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+  </UserControl.Styles>
 
-      <!-- ── 헤더 ──────────────────────────────────────────── -->
-      <StackPanel Grid.Row="0" Grid.ColumnSpan="3" Spacing="2" Margin="0,0,0,12">
-        <StackPanel Orientation="Horizontal" Spacing="10">
-          <TextBlock Text="◇" FontSize="22"
-                     Foreground="{StaticResource BrandPrimaryBrush}"
-                     VerticalAlignment="Center"/>
-          <TextBlock Text="수업홈" FontSize="22" FontWeight="SemiBold"
-                     VerticalAlignment="Center"/>
-          <TextBlock Text="{Binding SchoolYearText}"
-                     FontSize="13"
-                     Foreground="{DynamicResource SystemBaseMediumColor}"
-                     VerticalAlignment="Center"
-                     Margin="6,0,0,0"/>
-          <Button Content="새로고침"
-                  Command="{Binding LoadCommand}"
-                  Padding="10,4"
-                  Margin="12,0,0,0"/>
-        </StackPanel>
-        <TextBlock Text="{Binding StatusText}"
-                   FontSize="12"
-                   Foreground="{DynamicResource SystemBaseMediumColor}"/>
-      </StackPanel>
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
 
-      <!-- ── 좌측: 내 수업 목록 ──────────────────────────── -->
-      <Border Grid.Row="1" Grid.Column="0"
-              Classes="card" Padding="0">
-        <Grid RowDefinitions="Auto,*">
-          <Border Grid.Row="0" Padding="14,10"
-                  Background="#F0F4FF"
-                  BorderThickness="0,0,0,1"
-                  BorderBrush="{DynamicResource ContentSeparatorBrush}">
-            <TextBlock Text="내 수업"
-                       FontSize="14" FontWeight="SemiBold"
-                       Foreground="#3F51B5"/>
-          </Border>
-          <ListBox Grid.Row="1"
-                   ItemsSource="{Binding MyCourses}"
-                   Background="Transparent" BorderThickness="0"
-                   Height="280">
-            <ListBox.ItemTemplate>
-              <DataTemplate DataType="models:Course">
-                <Grid ColumnDefinitions="Auto,*,Auto" Margin="6,4">
-                  <Border Grid.Column="0"
-                          Background="{DynamicResource SystemAccentColor}"
-                          CornerRadius="3" Padding="6,1"
-                          Height="20" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding TypeDisplay}"
-                               FontSize="10" Foreground="White"
-                               VerticalAlignment="Center"/>
+    <!-- ── 페이지 헤더 ────────────────────────────────────── -->
+    <StackPanel Grid.Row="0"
+                Orientation="Horizontal"
+                Spacing="10"
+                Margin="4,0,0,8">
+      <TextBlock Text="📅" FontSize="16" VerticalAlignment="Center"/>
+      <TextBlock Text="{Binding PageHeaderDate}"
+                 FontSize="16" FontWeight="SemiBold"
+                 VerticalAlignment="Center"/>
+    </StackPanel>
+
+    <!-- ── 메인 2-column ──────────────────────────────────── -->
+    <Grid Grid.Row="1" ColumnSpacing="8">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="280"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <!-- ══════════════════════════════════════════════════ -->
+      <!-- 좌측: 시간표 카드 + 할일                           -->
+      <!-- ══════════════════════════════════════════════════ -->
+      <Grid Grid.Column="0" RowDefinitions="Auto,*" RowSpacing="8">
+
+        <!-- 시간표 카드 — TodayPage 동일 스타일 -->
+        <Border Grid.Row="0"
+                BorderBrush="{DynamicResource CardHeaderBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                ClipToBounds="True"
+                Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+          <Grid RowDefinitions="34,Auto">
+
+            <Border Grid.Row="0" Classes="card-header">
+              <TextBlock Text="📚 내 시간표"
+                         FontWeight="Bold" FontSize="14"
+                         VerticalAlignment="Center"/>
+            </Border>
+
+            <Border Grid.Row="1" Padding="0">
+    <ctrl:TimetableControl x:Name="Timetable" Width="280"/>
+
+            </Border>
+          </Grid>
+        </Border>
+
+        <!-- 할일 -->
+        <ctrl:KAgendaControl Grid.Row="1"
+                             x:Name="LessonTaskList"
+                             FixedCalendarName="수업"
+                             Background="Transparent"/>
+      </Grid>
+
+      <!-- ══════════════════════════════════════════════════ -->
+      <!-- 우측: 오늘의 수업 + 기록 + 메모                    -->
+      <!-- ══════════════════════════════════════════════════ -->
+      <Grid Grid.Column="1" RowDefinitions="Auto,*,*" RowSpacing="8">
+
+        <!-- 오늘의 수업 카드 -->
+        <Border Grid.Row="0"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                Padding="12">
+          <Grid RowDefinitions="Auto,Auto">
+
+            <Grid Grid.Row="0" Margin="0,0,0,8" ColumnDefinitions="*,Auto">
+              <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                <TextBlock Text="📖" FontSize="14"
+                           Foreground="{DynamicResource SystemAccentColor}"/>
+                <TextBlock Text="오늘의 수업"
+                           FontWeight="SemiBold" FontSize="13"
+                           VerticalAlignment="Center"/>
+              </StackPanel>
+              <TextBlock Grid.Column="1"
+                         Text="{Binding TodaySummaryText}"
+                         FontSize="12"
+                         Foreground="{DynamicResource SystemBaseMediumColor}"
+                         VerticalAlignment="Center"/>
+            </Grid>
+
+            <ItemsControl Grid.Row="1"
+                          x:Name="TodayLessonList"
+                          ItemsSource="{Binding TodayLessons}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="local:TodayLessonItem">
+                  <Border CornerRadius="6" Padding="12,8" Margin="0,0,0,2">
+                    <Grid ColumnSpacing="8" ColumnDefinitions="50,70,44,*,Auto">
+                      <TextBlock Grid.Column="0" Text="{Binding PeriodText}"
+                                 FontSize="13" VerticalAlignment="Center"/>
+                      <TextBlock Grid.Column="1" Text="{Binding Subject}"
+                                 FontSize="13" VerticalAlignment="Center"/>
+                      <TextBlock Grid.Column="2" Text="{Binding ClassDisplay}"
+                                 FontSize="12" TextAlignment="Center"
+                                 Foreground="{DynamicResource SystemBaseMediumColor}"
+                                 VerticalAlignment="Center"/>
+                      <TextBlock Grid.Column="3" Text="{Binding TopicText}"
+                                 FontSize="12" TextTrimming="CharacterEllipsis" MaxLines="1"
+                                 Foreground="{DynamicResource SystemBaseLowColor}"
+                                 VerticalAlignment="Center"
+                                 IsVisible="{Binding HasTopic}"/>
+                      <Button Grid.Column="4"
+                              Content="{Binding StatusText}"
+                              MinWidth="56" Height="28" Padding="8,2" FontSize="12"
+                              VerticalAlignment="Center"
+                              Tag="{Binding}" Click="TodayLessonItem_Click"/>
+                    </Grid>
                   </Border>
-                  <StackPanel Grid.Column="1" Margin="8,0">
-                    <TextBlock Text="{Binding Subject}"
-                               FontSize="13" FontWeight="SemiBold"/>
-                    <TextBlock FontSize="11"
-                               Foreground="{DynamicResource SystemBaseMediumColor}">
-                      <Run Text="{Binding Grade}"/>
-                      <Run Text="학년 · "/>
-                      <Run Text="{Binding Unit}"/>
-                      <Run Text="단위"/>
-                    </TextBlock>
-                  </StackPanel>
-                  <TextBlock Grid.Column="2"
-                             Text="{Binding Rooms}"
-                             FontSize="11"
-                             Foreground="{DynamicResource SystemBaseMediumColor}"
-                             VerticalAlignment="Center"/>
-                </Grid>
-              </DataTemplate>
-            </ListBox.ItemTemplate>
-          </ListBox>
-          <TextBlock Grid.Row="1"
-                     Text="등록된 수업이 없습니다."
-                     IsVisible="{Binding !HasCourses}"
-                     FontSize="12"
-                     Foreground="{DynamicResource SystemBaseMediumColor}"
-                     HorizontalAlignment="Center"
-                     VerticalAlignment="Center"/>
-        </Grid>
-      </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
-      <!-- ── 우측: 최근 수업 기록 ──────────────────────── -->
-      <Border Grid.Row="1" Grid.Column="2"
-              Classes="card" Padding="0">
-        <Grid RowDefinitions="Auto,*">
-          <Border Grid.Row="0" Padding="14,10"
-                  Background="#FFF5E1"
-                  BorderThickness="0,0,0,1"
-                  BorderBrush="{DynamicResource ContentSeparatorBrush}">
-            <TextBlock Text="최근 수업 기록"
-                       FontSize="14" FontWeight="SemiBold"
-                       Foreground="#9F6B0F"/>
-          </Border>
-          <ListBox Grid.Row="1"
-                   ItemsSource="{Binding RecentLessons}"
-                   Background="Transparent" BorderThickness="0"
-                   Height="280">
-            <ListBox.ItemTemplate>
-              <DataTemplate DataType="models:LessonLog">
-                <Grid ColumnDefinitions="80,Auto,*" Margin="6,4">
-                  <TextBlock Grid.Column="0"
-                             Text="{Binding DateDisplay}"
-                             FontSize="11"
-                             Foreground="{DynamicResource SystemBaseMediumColor}"
-                             VerticalAlignment="Center"/>
-                  <TextBlock Grid.Column="1"
-                             Text="{Binding ClassDisplay}"
-                             FontSize="11"
-                             FontWeight="SemiBold"
-                             Margin="6,0"
-                             VerticalAlignment="Center"/>
-                  <StackPanel Grid.Column="2" Spacing="1" Margin="6,0">
-                    <TextBlock Text="{Binding Subject}"
-                               FontSize="12" FontWeight="SemiBold"
-                               TextTrimming="CharacterEllipsis"/>
-                    <TextBlock Text="{Binding Topic}"
-                               FontSize="11"
-                               Foreground="{DynamicResource SystemBaseMediumColor}"
-                               TextTrimming="CharacterEllipsis"/>
-                  </StackPanel>
-                </Grid>
-              </DataTemplate>
-            </ListBox.ItemTemplate>
-          </ListBox>
-          <TextBlock Grid.Row="1"
-                     Text="최근 14일간 수업 기록이 없습니다."
-                     IsVisible="{Binding !HasRecent}"
-                     FontSize="12"
-                     Foreground="{DynamicResource SystemBaseMediumColor}"
-                     HorizontalAlignment="Center"
-                     VerticalAlignment="Center"/>
-        </Grid>
-      </Border>
+            <TextBlock Grid.Row="1"
+                       Text="{Binding NoLessonsText}"
+                       IsVisible="{Binding IsNoLessons}"
+                       HorizontalAlignment="Center"
+                       Margin="0,12" FontSize="13"
+                       Foreground="{DynamicResource SystemBaseMediumColor}"/>
+          </Grid>
+        </Border>
 
-      <!-- ── 하단: 수업 카테고리 어젠다 ─────────────────── -->
-      <Border Grid.Row="2" Grid.ColumnSpan="3"
-              Classes="card" Padding="0" Margin="0,12,0,0">
-        <StackPanel Spacing="0">
-          <Border Padding="14,10"
-                  Background="#E8F5E9"
-                  BorderThickness="0,0,0,1"
-                  BorderBrush="{DynamicResource ContentSeparatorBrush}">
-            <TextBlock Text="수업 일정 / 할 일"
-                       FontSize="14" FontWeight="SemiBold"
-                       Foreground="#2E7D32"/>
-          </Border>
-          <ctrl:KAgendaControl x:Name="LessonAgenda"
-                               FixedCalendarName="수업"
-                               Height="320"
-                               Margin="12"/>
-        </StackPanel>
-      </Border>
+        <!-- 최근 수업 기록 -->
+        <Border Grid.Row="1"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+          <ctrl:LessonLogList x:Name="LessonLogList"/>
+        </Border>
 
-      <!-- ── 오류 메시지 ───────────────────────────────────── -->
-      <TextBlock Grid.Row="3" Grid.ColumnSpan="3"
-                 Text="{Binding ErrorText}"
-                 FontSize="11"
-                 Foreground="#D9372A"
-                 Margin="0,8,0,0"
-                 IsVisible="{Binding ErrorText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+        <!-- 수업 메모 -->
+        <board:MemoBoard x:Name="LessonMemoBoard"
+                         Grid.Row="2"
+                         ShowFilter="False"
+                         FixedCategory="수업"/>
+      </Grid>
     </Grid>
-  </ScrollViewer>
+  </Grid>
 </UserControl>

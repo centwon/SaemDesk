@@ -1,132 +1,127 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SaemDesk.Collections;
 using SaemDesk.Models;
 using SaemDesk.Repositories;
+using SaemDesk.Services;
 
 namespace SaemDesk.ViewModels.Pages;
 
 /// <summary>
-/// 동아리 관리 — 학년도 필터, 추가/수정/삭제, 검색.
+/// 동아리 관리 — CourseManagementPageVM 패턴. 학년도 필터, 카드별 추가/수정/삭제/부원 관리.
 /// </summary>
 public partial class ClubManagementPageVM : ViewModelBase
 {
-    public ObservableCollection<Club> Items { get; } = new();
+    // 현재 필터 값 — YearSemesterPicker 이벤트로 주입
+    public int FilterYear { get; private set; } =
+        Settings.WorkYear.Value > 0 ? Settings.WorkYear.Value : DateTime.Today.Year;
 
-    [ObservableProperty] private int _year = Settings.WorkYear;
-    [ObservableProperty] private string _searchText = string.Empty;
-    [ObservableProperty] private Club? _selected;
-    [ObservableProperty] private bool _isBusy;
+    /// <summary>VM 생성 시점의 로그인 교사 이름 (설정에서 로드)</summary>
+    public string TeacherName { get; } =
+        string.IsNullOrWhiteSpace(Settings.UserName.Value)
+            ? Settings.User.Value
+            : Settings.UserName.Value;
+
+    public OptimizedObservableCollection<Club> Items { get; } = new();
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsEmpty))]
+    [NotifyPropertyChangedFor(nameof(HasClubs))]
+    private bool _isLoading;
+
     [ObservableProperty] private string _statusText = string.Empty;
-    [ObservableProperty] private string _errorText = string.Empty;
+    [ObservableProperty] private string _errorText  = string.Empty;
 
-    // 편집 폼
-    [ObservableProperty] private string _formName = string.Empty;
-    [ObservableProperty] private string _formRoom = string.Empty;
-    [ObservableProperty] private string _formRemark = string.Empty;
+    public bool HasClubs => Items.Count > 0;
+    public bool IsEmpty  => !IsLoading && !HasClubs && string.IsNullOrEmpty(ErrorText);
 
-    public bool HasSelection => Selected is not null;
+    public ClubManagementPageVM() { }
 
-    public ClubManagementPageVM() { _ = ReloadAsync(); }
+    /// <summary>YearSemesterPicker 이벤트로 호웉 — 학년도 갱신 후 재조회.</summary>
+    public void SetFilter(int year)
+    {
+        FilterYear = year;
+        _ = QueryAsync();
+    }
 
     [RelayCommand]
-    private async Task ReloadAsync()
+    private async Task QueryAsync()
     {
-        if (IsBusy) return;
-        IsBusy = true;
+        IsLoading = true;
         ErrorText = string.Empty;
+        StatusText = "조회 중…";
+        try
+        {
+            var teacherId = Settings.User.Value;
+            using var repo = new ClubRepository(SchoolDatabase.DbPath);
+            var list = await repo.GetByTeacherAsync(teacherId, FilterYear);
+
+            Items.ReplaceAll(list.OrderBy(x => x.ClubName));
+
+            StatusText = $"총 {list.Count}개 동아리";
+        }
+        catch (Exception ex)
+        {
+            ErrorText = "동아리를 불러오지 못했습니다.";
+            Debug.WriteLine($"[ClubMgmtVM] {ex}");
+        }
+        finally
+        {
+            IsLoading = false;
+            OnPropertyChanged(nameof(HasClubs));
+            OnPropertyChanged(nameof(IsEmpty));
+        }
+    }
+
+    /// <summary>부원 관리 버튼 전용 — 특정 Club 동아리 부원 다이얼로그 오픈.</summary>
+    [RelayCommand]
+    private async Task EnrollMembersAsync(Club? club)
+    {
+        if (club is null) return;
+        await DialogService.ShowClubEnrollmentAsync(club);
+    }
+
+    /// <summary>카드 버튼 전용 — 특정 Club 직접 수정.</summary>
+    [RelayCommand]
+    private async Task EditItemAsync(Club? club)
+    {
+        if (club is null) return;
+        var saved = await DialogService.ShowClubEditAsync(
+            club.SchoolCode, club.TeacherID, club.Year, club);
+        if (saved) await QueryAsync();
+    }
+
+    /// <summary>카드 버튼 전용 — 특정 Club 직접 삭제.</summary>
+    [RelayCommand]
+    private async Task DeleteItemAsync(Club? club)
+    {
+        if (club is null) return;
+        bool ok = await DialogService.ShowConfirmAsync(
+            "동아리 삭제",
+            $"'{club.ClubName}' 동아리를 삭제하시겠습니까?\n등록된 부원 정보도 함께 삭제됩니다.");
+        if (!ok) return;
         try
         {
             using var repo = new ClubRepository(SchoolDatabase.DbPath);
-            var schoolCode = Settings.SchoolCode.Value;
-            var rows = string.IsNullOrEmpty(schoolCode)
-                ? (await repo.GetAllAsync()).Where(c => c.Year == Year).ToList()
-                : await repo.GetBySchoolAsync(schoolCode, Year);
-
-            if (!string.IsNullOrWhiteSpace(SearchText))
-                rows = rows.Where(r => r.ClubName.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
-
-            Items.Clear();
-            foreach (var c in rows.OrderBy(r => r.ClubName)) Items.Add(c);
-            StatusText = $"총 {Items.Count}개";
+            await repo.DeleteAsync(club.No);
+            await QueryAsync();
         }
-        catch (Exception ex) { ErrorText = ex.Message; }
-        finally { IsBusy = false; }
-    }
-
-    partial void OnSelectedChanged(Club? value)
-    {
-        OnPropertyChanged(nameof(HasSelection));
-        if (value is null)
+        catch (Exception ex)
         {
-            FormName = ""; FormRoom = ""; FormRemark = "";
-        }
-        else
-        {
-            FormName = value.ClubName;
-            FormRoom = value.ActivityRoom;
-            FormRemark = value.Remark;
+            ErrorText = $"삭제 실패: {ex.Message}";
         }
     }
 
     [RelayCommand]
-    private void NewClub()
+    private async Task AddClubAsync()
     {
-        Selected = null;
-        FormName = "(새 동아리)";
-        FormRoom = "";
-        FormRemark = "";
-    }
-
-    [RelayCommand]
-    private async Task SaveAsync()
-    {
-        if (string.IsNullOrWhiteSpace(FormName)) { ErrorText = "동아리명이 비어 있습니다."; return; }
-        try
-        {
-            using var repo = new ClubRepository(SchoolDatabase.DbPath);
-            if (Selected is null)
-            {
-                var c = new Club
-                {
-                    SchoolCode = Settings.SchoolCode.Value,
-                    TeacherID = Settings.UserName.Value,
-                    Year = Year,
-                    ClubName = FormName,
-                    ActivityRoom = FormRoom,
-                    Remark = FormRemark,
-                };
-                c.No = await repo.CreateAsync(c);
-                StatusText = "추가됨";
-            }
-            else
-            {
-                Selected.ClubName = FormName;
-                Selected.ActivityRoom = FormRoom;
-                Selected.Remark = FormRemark;
-                await repo.UpdateAsync(Selected);
-                StatusText = "수정됨";
-            }
-            await ReloadAsync();
-        }
-        catch (Exception ex) { ErrorText = ex.Message; }
-    }
-
-    [RelayCommand]
-    private async Task DeleteAsync()
-    {
-        if (Selected is null) return;
-        try
-        {
-            using var repo = new ClubRepository(SchoolDatabase.DbPath);
-            await repo.DeleteAsync(Selected.No);
-            Items.Remove(Selected);
-            Selected = null;
-            StatusText = "삭제됨";
-        }
-        catch (Exception ex) { ErrorText = ex.Message; }
+        var saved = await DialogService.ShowClubEditAsync(
+            Settings.SchoolCode.Value, Settings.User.Value, FilterYear);
+        if (saved) await QueryAsync();
     }
 }

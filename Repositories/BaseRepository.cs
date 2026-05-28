@@ -32,9 +32,7 @@ namespace SaemDesk.Repositories
                 var connectionString = new SqliteConnectionStringBuilder
                 {
                     DataSource = dbPath,
-                    Mode = SqliteOpenMode.ReadWriteCreate,
-                    Cache = SqliteCacheMode.Shared,
-                    Pooling = true
+                    Mode       = SqliteOpenMode.ReadWriteCreate,
                 }.ToString();
 
                 Connection = new SqliteConnection(connectionString);

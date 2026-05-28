@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using SaemDesk.ViewModels.Pages;
@@ -41,7 +42,7 @@ public partial class MainWindowViewModel : ViewModelBase
         new NavItem("수업", "📚", new NavItem[]
         {
             new NavItem("수업홈",          "🏠", () => new LessonHomePageVM()),
-            new NavItem("연간 수업 계획",  "📅", () => new LessonsPageVM()),
+            new NavItem("연간 수업 계획",  "📅", () => new AnnualLessonPlanPageVM()),
             new NavItem("진도 관리",       "📊", () => new ProgressMatrixPageVM()),
             new NavItem("누가 기록",       "✏",  () => new LessonActivityPageVM()),
             new NavItem("수업 시간표",     "🗓", () => new TeacherTimetablePageVM()),
@@ -80,6 +81,8 @@ public partial class MainWindowViewModel : ViewModelBase
     //  바인딩 프로퍼티
     // ────────────────────────────────────────────────────
 
+    private readonly Dictionary<NavItem, ViewModelBase> _pageCache = new();
+
     [ObservableProperty] private ViewModelBase? _currentPage;
     [ObservableProperty] private NavItem?       _selectedNavItem;
     [ObservableProperty] private NavItem?       _selectedBottomNavItem;
@@ -105,7 +108,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         _selectedBottomNavItem = null;
         OnPropertyChanged(nameof(SelectedBottomNavItem));
-        CurrentPage = value.Factory!();
+        CurrentPage = GetOrCreatePage(value);
     }
 
     partial void OnSelectedBottomNavItemChanged(NavItem? value)
@@ -115,6 +118,16 @@ public partial class MainWindowViewModel : ViewModelBase
 
         _selectedNavItem = null;
         OnPropertyChanged(nameof(SelectedNavItem));
-        CurrentPage = value.Factory!();
+        CurrentPage = GetOrCreatePage(value);
+    }
+
+    private ViewModelBase GetOrCreatePage(NavItem item)
+    {
+        if (!_pageCache.TryGetValue(item, out var page))
+        {
+            page = item.Factory!();
+            _pageCache[item] = page;
+        }
+        return page;
     }
 }

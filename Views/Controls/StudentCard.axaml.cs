@@ -20,6 +20,7 @@ public partial class StudentCard : UserControl
             new StudentDetailService(SchoolDatabase.DbPath),
             new EnrollmentService(),
             new PhotoService(Settings.UserDataPath, App.FilePicker));
+        Unloaded += (_, _) => (DataContext as StudentCardViewModel)?.Dispose();
     }
 
     public StudentCardViewModel? ViewModel => DataContext as StudentCardViewModel;

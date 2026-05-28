@@ -43,6 +43,18 @@ public partial class UnifiedItemDialog : Window
         Opened += OnOpened;
     }
 
+    /// <summary>새 항목 — 날짜 + 캘린더 미리 지정 (FixedCalendarName 용).</summary>
+    public UnifiedItemDialog(DateTime date, int defaultCalendarId)
+    {
+        _taskEvent            = NewTaskEvent(date);
+        _taskEvent.CalendarId = defaultCalendarId;
+        _event                = NewEvent(date);
+        _event.CalendarId     = defaultCalendarId;
+        _isNew                = true;
+        InitializeComponent();
+        Opened += OnOpened;
+    }
+
     /// <summary>기존 KEvent 수정.</summary>
     public UnifiedItemDialog(KEvent existing)
     {
@@ -346,7 +358,6 @@ public partial class UnifiedItemDialog : Window
         }
         else
         {
-            // 반복 → 트랜잭션 일괄 생성
             using var uow = Scheduler.Scheduler.CreateUnitOfWork();
             await uow.ExecuteInTransactionAsync(async () =>
             {

@@ -3,8 +3,8 @@
         xmlns:ctrl="using:SaemDesk.Views.Controls"
         x:Class="SaemDesk.Views.Dialogs.CourseEnrollmentDialog"
         Title="수강생 관리"
-        Width="1100" Height="720"
-        MinWidth="900" MinHeight="580"
+        Width="860" Height="720"
+        MinWidth="760" MinHeight="580"
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False">
 
@@ -24,7 +24,7 @@
         <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
           <TextBlock x:Name="TxtSubject" Text="과목명"
                      FontWeight="SemiBold" FontSize="15" VerticalAlignment="Center"/>
-          <Border Background="#5B7FB8" CornerRadius="4" Padding="8,2">
+          <Border Background="{DynamicResource SecondaryAccentBrush}" CornerRadius="4" Padding="8,2">
             <TextBlock x:Name="TxtType" Text="학급 공통"
                        FontSize="12" Foreground="White"/>
           </Border>
@@ -90,7 +90,22 @@
           </StackPanel>
         </Border>
 
-        <ctrl:ListStudent x:Name="ListAvailable" Grid.Row="2" ViewMode="NumName"/>
+        <!-- 학생 목록 + 빈 상태 오버레이 -->
+        <Panel Grid.Row="2">
+          <ctrl:ListStudent x:Name="ListAvailable" ViewMode="NumName" ShowCheckBox="True"/>
+          <Border x:Name="EmptyAvailable" IsVisible="False"
+                  Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                  BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                  BorderThickness="1" CornerRadius="0,0,8,8">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="6">
+              <TextBlock Text="👥" FontSize="32" HorizontalAlignment="Center"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+              <TextBlock Text="배정 가능한 학생이 없습니다"
+                         FontSize="13" HorizontalAlignment="Center"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+            </StackPanel>
+          </Border>
+        </Panel>
       </Grid>
 
       <!-- 중앙: 이동 버튼 -->
@@ -137,15 +152,33 @@
           </Grid>
         </Border>
 
-        <ctrl:ListStudent x:Name="ListEnrolled" Grid.Row="2" ViewMode="ClassNumName"/>
+        <!-- 수강생 목록 + 빈 상태 오버레이 -->
+        <Panel Grid.Row="2">
+          <ctrl:ListStudent x:Name="ListEnrolled" ViewMode="ClassNumName" ShowCheckBox="True"/>
+          <Border x:Name="EmptyEnrolled" IsVisible="False"
+                  Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                  BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                  BorderThickness="1" CornerRadius="0,0,8,8">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="6">
+              <TextBlock Text="📋" FontSize="32" HorizontalAlignment="Center"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+              <TextBlock Text="등록된 수강생이 없습니다"
+                         FontSize="13" HorizontalAlignment="Center"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+              <TextBlock Text="좌측에서 학생을 선택해 ▶ 버튼으로 추가하세요"
+                         FontSize="11" HorizontalAlignment="Center"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"/>
+            </StackPanel>
+          </Border>
+        </Panel>
       </Grid>
     </Grid>
 
     <!-- ── 버튼 바 ────────────────────────────────────── -->
     <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right"
                 Spacing="8" Margin="0,12,0,0">
-      <Button Content="취소" Padding="14,8" Click="OnCancel"/>
-      <Button Content="저장" Classes="accent" Padding="16,8" Click="OnSave"/>
+      <Button Content="취소" Classes="btn-md" Click="OnCancel"/>
+      <Button Content="저장" Classes="accent btn-md" Click="OnSave"/>
     </StackPanel>
 
   </Grid>

@@ -79,7 +79,7 @@
               </ControlTemplate>
             </Setter>
             <Style Selector="^:pointerover">
-              <Setter Property="Background" Value="#E3F2FD"/>
+              <Setter Property="Background" Value="{DynamicResource SelectedRowBrush}"/>
             </Style>
             <Style Selector="^:selected">
               <Setter Property="Background" Value="{DynamicResource SystemAccentColor}"/>

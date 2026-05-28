@@ -202,8 +202,8 @@
     <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,12,0,0">
       <Button Grid.Column="0" x:Name="BtnDelete"
               Content="삭제"
-              Padding="14,6"
-              Foreground="#D9372A"
+              Classes="btn-md"
+              Foreground="{DynamicResource ErrorForegroundBrush}"
               IsVisible="False"
               Click="OnDelete"/>
       <TextBlock Grid.Column="1" x:Name="StatusText"
@@ -211,10 +211,10 @@
                  Foreground="{DynamicResource SystemBaseMediumColor}"
                  VerticalAlignment="Center"
                  Margin="12,0,0,0"/>
-      <Button Grid.Column="2" Content="취소" Padding="14,6"
+      <Button Grid.Column="2" Content="취소" Classes="btn-md"
               Margin="0,0,6,0" Click="OnCancel"/>
-      <Button Grid.Column="3" Content="저장" Padding="14,6"
-              Classes="accent" Click="OnSave"/>
+      <Button Grid.Column="3" Content="저장" Classes="accent btn-md"
+              Click="OnSave"/>
     </Grid>
   </Grid>
 </Window>

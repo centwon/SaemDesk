@@ -45,6 +45,55 @@ public static class DialogService
         return dialog.Result;
     }
 
+    /// <summary>단순 알림 다이얼로그 (확인 버튼만). UserControl owner는 무시됨.</summary>
+    public static async Task ShowInfoAsync(string message, UserControl? _ = null)
+    {
+        var dialog = new ConfirmDialog("알림", message);
+        var owner = MainWindow;
+        if (owner is null) return;
+        await dialog.ShowDialog(owner);
+    }
+
+    /// <summary>커스텀 컨텐츠 다이얼로그. UserControl owner는 무시됨.</summary>
+    public static async Task<bool> ShowCustomAsync(string title, Control content, UserControl? _ = null)
+    {
+        var panel = new StackPanel { Spacing = 12, Margin = new Thickness(16) };
+        panel.Children.Add(new TextBlock { Text = title, FontSize = 15, FontWeight = Avalonia.Media.FontWeight.SemiBold });
+        panel.Children.Add(content);
+
+        var okBtn = new Button { Content = "확인", HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right };
+        okBtn.Classes.Add("accent");
+        var cancelBtn = new Button { Content = "취소" };
+        var btnRow = new StackPanel
+        {
+            Orientation = Avalonia.Layout.Orientation.Horizontal,
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+            Spacing = 8
+        };
+        btnRow.Children.Add(cancelBtn);
+        btnRow.Children.Add(okBtn);
+        panel.Children.Add(btnRow);
+
+        bool result = false;
+        var win = new Window
+        {
+            Title = title,
+            Content = panel,
+            Width = 420,
+            SizeToContent = SizeToContent.Height,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            CanResize = false
+        };
+
+        okBtn.Click += (_, _) => { result = true; win.Close(); };
+        cancelBtn.Click += (_, _) => { result = false; win.Close(); };
+
+        var owner = MainWindow;
+        if (owner is null) return false;
+        await win.ShowDialog(owner);
+        return result;
+    }
+
     /// <summary>NEIS 학교 검색 다이얼로그를 열고 선택된 학교를 반환한다. 취소 시 null.</summary>
     public static async Task<School?> ShowSchoolSearchAsync()
     {
@@ -87,7 +136,7 @@ public static class DialogService
     }
 
     /// <summary>게시글 작성/수정 다이얼로그. 저장 여부를 반환한다.</summary>
-    public static async Task<bool> ShowPostEditAsync(SaemDesk.Models.Post? existing = null)
+    public static async Task<bool> ShowPostEditAsync(SaemDesk.Board.Models.Post? existing = null)
     {
         var dialog = new PostEditDialog(existing);
         var owner  = MainWindow;
@@ -103,6 +152,26 @@ public static class DialogService
         var owner  = MainWindow;
         if (owner is null) return;
         await dialog.ShowDialog(owner);
+    }
+
+    /// <summary>수강생 관리 다이얼로그. 저장 여부를 반환한다.</summary>
+    public static async Task<bool> ShowCourseEnrollmentAsync(SaemDesk.Models.Course course)
+    {
+        var dialog = new CourseEnrollmentDialog(course);
+        var owner  = MainWindow;
+        if (owner is null) return false;
+        await dialog.ShowDialog(owner);
+        return dialog.IsSuccess;
+    }
+
+    /// <summary>시간표 배치 다이얼로그. 저장 여부를 반환한다.</summary>
+    public static async Task<bool> ShowCourseScheduleAsync(SaemDesk.Models.Course course)
+    {
+        var dialog = new CourseScheduleDialog(course);
+        var owner  = MainWindow;
+        if (owner is null) return false;
+        await dialog.ShowDialog(owner);
+        return dialog.IsSuccess;
     }
 
     /// <summary>수업(Course) 추가/편집 다이얼로그. 저장된 Course 반환(취소 시 null).</summary>
@@ -161,13 +230,21 @@ public static class DialogService
         await dialog.ShowDialog(owner);
     }
 
-    /// <summary>
-    /// 통합 일정/할일 편집 다이얼로그. 새 항목(date), 또는 기존 KEvent 수정.
-    /// 반환: (저장된 KEvent or null, 삭제 여부).
-    /// </summary>
+    /// <summary>통합 일정/할일 편집 다이얼로그.</summary>
     public static async Task<(SaemDesk.Scheduler.KEvent? Saved, bool Deleted)> ShowUnifiedItemEditAsync(DateTime date)
     {
         var dialog = new UnifiedItemDialog(date);
+        var owner  = MainWindow;
+        if (owner is null) return (null, false);
+        await dialog.ShowDialog(owner);
+        return (dialog.ResultEvent, dialog.Deleted);
+    }
+
+    /// <summary>통합 일정/할일 편집 다이얼로그 — 캘린더 미리 지정 (KAgendaControl FixedCalendarName 용).</summary>
+    public static async Task<(SaemDesk.Scheduler.KEvent? Saved, bool Deleted)> ShowUnifiedItemEditAsync(
+        DateTime date, int defaultCalendarId)
+    {
+        var dialog = new UnifiedItemDialog(date, defaultCalendarId);
         var owner  = MainWindow;
         if (owner is null) return (null, false);
         await dialog.ShowDialog(owner);
@@ -181,6 +258,28 @@ public static class DialogService
         if (owner is null) return (null, false);
         await dialog.ShowDialog(owner);
         return (dialog.ResultEvent, dialog.Deleted);
+    }
+
+    /// <summary>동아리 추가/편집 다이얼로그. 저장 여부를 반환한다.</summary>
+    public static async Task<bool> ShowClubEditAsync(
+        string schoolCode, string teacherId, int year, SaemDesk.Models.Club? existing = null)
+    {
+        var dialog = existing is null
+            ? new ClubEditDialog(schoolCode, teacherId, year)
+            : new ClubEditDialog(existing);
+        var owner = MainWindow;
+        if (owner is null) return false;
+        await dialog.ShowDialog(owner);
+        return dialog.IsSuccess;
+    }
+
+    /// <summary>동아리 부원 관리 다이얼로그.</summary>
+    public static async Task ShowClubEnrollmentAsync(SaemDesk.Models.Club club)
+    {
+        var dialog = new ClubEnrollmentDialog(club);
+        var owner  = MainWindow;
+        if (owner is null) return;
+        await dialog.ShowDialog(owner);
     }
 
     /// <summary>시간표(한 칸) 추가/수정 다이얼로그. 저장된 슬롯을 반환한다. 취소 시 null.</summary>

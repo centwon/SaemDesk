@@ -27,7 +27,7 @@ public partial class StudentInfoExportPage : UserControl, IDisposable
     public StudentInfoExportPage()
     {
         InitializeComponent();
-        FilterBar.SelectionChanged += OnFilterSelectionChanged;
+        ClassFilter.ClassChanged += OnFilterSelectionChanged;
         Unloaded += (_, _) => Dispose();
     }
 
@@ -43,7 +43,7 @@ public partial class StudentInfoExportPage : UserControl, IDisposable
     //  필터 변경
     // ────────────────────────────────────────────────────
 
-    private void OnFilterSelectionChanged(object? sender, FilterChangedEventArgs e)
+    private void OnFilterSelectionChanged(object? sender, ClassChangedEventArgs e)
     {
         _currentStudents = e.Students;
         // 전체 반 선택 시 '학급' 컬럼 자동 체크
@@ -91,18 +91,17 @@ public partial class StudentInfoExportPage : UserControl, IDisposable
 
     private bool Validate()
     {
-        int year  = FilterBar.Year;
-        int grade = FilterBar.Grade;
-        if (year == 0 || grade == 0)
+        int grade = ClassFilter.Grade;
+        if (grade == 0)
         {
-            _ = ShowInfoAsync("학년도와 학년을 선택해주세요.");
+            _ = ShowInfoAsync("학년을 선택해주세요.");
             return false;
         }
         return true;
     }
 
     // ────────────────────────────────────────────────────
-    //  DataTable 생성 (NewSchool MakeDataAsync 동등)
+    //  DataTable 생성
     // ────────────────────────────────────────────────────
 
     private async Task MakeDataAsync()
@@ -116,7 +115,6 @@ public partial class StudentInfoExportPage : UserControl, IDisposable
         _data.Columns.Add("번호", typeof(int));
         _data.Columns.Add("이름", typeof(string));
 
-        // 선택된 항목 수집 (CheckBox.Tag 기반 — AOT 호환)
         var selectedItems = GetAllCheckBoxes(PanItem)
             .Where(c => c.IsChecked == true)
             .Select(c => (Tag: c.Tag?.ToString() ?? "", Label: c.Content?.ToString() ?? ""))
@@ -125,7 +123,6 @@ public partial class StudentInfoExportPage : UserControl, IDisposable
         foreach (var (tag, label) in selectedItems)
             _data.Columns.Add(label, tag == "Birth" ? typeof(DateTime) : typeof(string));
 
-        // 사용자 정의 항목
         if (ExpanderUserItem.IsExpanded)
         {
             foreach (var tb in new[] { TBoxUser1, TBoxUser2, TBoxUser3, TBoxUser4, TBoxUser5 })
@@ -142,7 +139,7 @@ public partial class StudentInfoExportPage : UserControl, IDisposable
     {
         if (_data is null) return;
 
-        // FilterBar 이벤트에서 캐시된 학생 목록 사용 — DB 재조회 없음
+        // ClassFilter.ClassChanged 이벤트에서 캐시된 학생 목록 사용 — DB 재조회 없음
         var enrollments = _currentStudents
             .OrderBy(e => e.Class).ThenBy(e => e.Number)
             .ToList();
@@ -168,8 +165,8 @@ public partial class StudentInfoExportPage : UserControl, IDisposable
             if (!studentDict.TryGetValue(e.StudentID, out var student)) continue;
             detailDict.TryGetValue(e.StudentID, out var detail);
 
-            var row  = _data.NewRow();
-            int col  = 0;
+            var row = _data.NewRow();
+            int col = 0;
 
             if (ChkShowNo.IsChecked    == true) row[col++] = i + 1;
             if (ChkShowClass.IsChecked == true) row[col++] = e.Class;
@@ -184,7 +181,6 @@ public partial class StudentInfoExportPage : UserControl, IDisposable
                 col++;
             }
 
-            // 사용자 정의 항목은 빈 문자열 (수동 입력용)
             if (ExpanderUserItem.IsExpanded)
                 foreach (var tb in new[] { TBoxUser1, TBoxUser2, TBoxUser3, TBoxUser4, TBoxUser5 })
                     if (!string.IsNullOrWhiteSpace(tb.Text)) col++;
@@ -194,31 +190,30 @@ public partial class StudentInfoExportPage : UserControl, IDisposable
     }
 
     // ────────────────────────────────────────────────────
-    //  미리보기 (NewSchool MakePreview / GenerateHtml 동등)
+    //  미리보기
     // ────────────────────────────────────────────────────
 
     private void MakePreview()
     {
         if (_data is null) return;
-        string html = GenerateHtml();
-        PreviewWebView.NavigateToString(html);
+        PreviewWebView.NavigateToString(GenerateHtml());
     }
 
     private string GenerateHtml()
     {
         if (_data is null) return string.Empty;
 
-        bool isLandscape = RbLandscape.IsChecked == true;
+        bool isLandscape   = RbLandscape.IsChecked == true;
         string pageSize    = isLandscape ? "A4 landscape" : "A4";
         string fontSize    = isLandscape ? "9pt" : "10pt";
         string cellPadding = isLandscape ? "4px 3px" : "6px 4px";
 
         var sb = new StringBuilder();
 
-        string title = string.IsNullOrWhiteSpace(TboxTitle.Text) ? "학생 정보" : TboxTitle.Text!.Trim();
-        int year    = FilterBar.Year;
-        int grade   = FilterBar.Grade;
-        int classNo = FilterBar.ClassNum;
+        string title    = string.IsNullOrWhiteSpace(TboxTitle.Text) ? "학생 정보" : TboxTitle.Text!.Trim();
+        int year        = Settings.WorkYear.Value;
+        int grade       = ClassFilter.Grade;
+        int classNo     = ClassFilter.ClassNum;
         string classInfo = classNo == 0
             ? $"{year}학년도 {grade}학년"
             : $"{year}학년도 {grade}학년 {classNo}반";
@@ -267,9 +262,9 @@ th{{background:#f0f0f0;font-weight:bold;}}
         try
         {
             string title    = string.IsNullOrWhiteSpace(TboxTitle.Text) ? "학생정보" : TboxTitle.Text!.Trim();
-            int year        = FilterBar.Year;
-            int grade       = FilterBar.Grade;
-            int classNo     = FilterBar.ClassNum;
+            int year        = Settings.WorkYear.Value;
+            int grade       = ClassFilter.Grade;
+            int classNo     = ClassFilter.ClassNum;
             string subtitle = classNo == 0
                 ? $"{year}학년도 {grade}학년 전체"
                 : $"{year}학년도 {grade}학년 {classNo}반";
@@ -292,7 +287,7 @@ th{{background:#f0f0f0;font-weight:bold;}}
     }
 
     // ────────────────────────────────────────────────────
-    //  속성 매핑 (AOT 호환 — Reflection 없음)
+    //  속성 매핑 (AOT 호환)
     // ────────────────────────────────────────────────────
 
     private static object? GetPropertyValue(string tag, Student s, StudentDetail? d) => tag switch

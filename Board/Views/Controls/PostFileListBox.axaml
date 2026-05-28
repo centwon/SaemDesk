@@ -1,11 +1,30 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:models="using:SaemDesk.Board.Models"
+             xmlns:ctrl="clr-namespace:SaemDesk.Board.Views.Controls"
              x:Class="SaemDesk.Board.Views.Controls.PostFileListBox">
+
+  <UserControl.Styles>
+    <!-- 파일 버튼 스타일: 파란 계열 배경 -->
+    <Style Selector="Button.fileBtn">
+      <Setter Property="Background" Value="#E3F0FB"/>
+      <Setter Property="BorderBrush" Value="#7BB8E8"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="Foreground" Value="#1A5C9A"/>
+      <Setter Property="CornerRadius" Value="4"/>
+      <Setter Property="Padding" Value="8,3"/>
+      <Setter Property="FontSize" Value="12"/>
+    </Style>
+    <Style Selector="Button.fileBtn:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#C8E1F7"/>
+    </Style>
+    <Style Selector="Button.fileBtn:pressed /template/ ContentPresenter">
+      <Setter Property="Background" Value="#A8CFF0"/>
+    </Style>
+  </UserControl.Styles>
 
   <Border BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
           BorderThickness="1" CornerRadius="6" Padding="8">
-    <Grid RowDefinitions="Auto,Auto,*">
+    <Grid RowDefinitions="Auto,*">
 
       <!-- 헤더 + 버튼 -->
       <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto,Auto" Margin="0,0,0,6">
@@ -20,35 +39,42 @@
         <Button x:Name="BtnFolder" Grid.Column="3" Content="📁" Padding="8,4" Margin="4,0,0,0" Click="BtnFolder_Click"/>
       </Grid>
 
-      <!-- 드롭 영역 안내 -->
+      <!-- 드롭 영역 + 파일 목록 -->
       <Border Grid.Row="1"
               x:Name="DropArea"
               Background="{DynamicResource SystemControlBackgroundListLowBrush}"
               BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
               BorderThickness="1" CornerRadius="4"
-              Padding="8,4" Margin="0,0,0,6"
-              IsHitTestVisible="True"/>
+              MinHeight="60"
+              IsHitTestVisible="True">
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      MaxHeight="120" Padding="4">
+          <ItemsControl x:Name="FileItems">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <WrapPanel Orientation="Horizontal"/>
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate DataType="ctrl:FileBoxItem">
+                <StackPanel Orientation="Horizontal" Margin="3,3,0,0" Spacing="2">
+                  <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                            IsVisible="{Binding ShowCheckBox}"
+                            VerticalAlignment="Center"
+                            Padding="0"/>
+                  <Button Classes="fileBtn"
+                          Content="{Binding Label}"
+                          Cursor="Hand"
+                          ToolTip.Tip="{Binding PostFile.FileName}"
+                          Click="OnFileButtonClick"
+                          Tag="{Binding}"/>
+                </StackPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </Border>
 
-      <!-- 파일 목록 -->
-      <ScrollViewer Grid.Row="2" MaxHeight="150" VerticalScrollBarVisibility="Auto">
-        <ItemsControl x:Name="FileItems">
-          <ItemsControl.ItemTemplate>
-            <DataTemplate DataType="models:PostFile">
-              <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,2">
-                <CheckBox Grid.Column="0" x:Name="ChkFile" Margin="0,0,6,0"/>
-                <TextBlock Grid.Column="1" Text="{Binding FileName}"
-                           VerticalAlignment="Center" FontSize="12"
-                           TextTrimming="CharacterEllipsis"/>
-                <TextBlock Grid.Column="2" Text="{Binding FileSizeDisplay}"
-                           VerticalAlignment="Center" FontSize="11" Margin="8,0,8,0"
-                           Foreground="{DynamicResource SystemBaseMediumColor}"/>
-                <Button Grid.Column="3" Content="열기" Padding="6,2" FontSize="11"
-                        Click="BtnOpenFile_Click" Tag="{Binding}"/>
-              </Grid>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
-      </ScrollViewer>
     </Grid>
   </Border>
 </UserControl>

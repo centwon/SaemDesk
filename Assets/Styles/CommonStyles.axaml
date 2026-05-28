@@ -1,24 +1,77 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-  <!-- 페이지 기본 여백 -->
+  <!-- ══════════════════════════════════════
+       페이지 기본 여백
+       ══════════════════════════════════════ -->
   <Style Selector="UserControl.page">
-    <Setter Property="Padding" Value="0" />
+    <Setter Property="Padding" Value="20,16" />
   </Style>
 
-  <!-- 섹션 헤더 -->
+  <!-- ══════════════════════════════════════
+       타이포그래피
+       ══════════════════════════════════════ -->
+  <Style Selector="TextBlock.page-title">
+    <Setter Property="FontSize" Value="20" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Margin" Value="0,0,0,4" />
+  </Style>
+
+  <Style Selector="TextBlock.page-subtitle">
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="Foreground" Value="{DynamicResource SystemBaseMediumColor}" />
+  </Style>
+
   <Style Selector="TextBlock.section-header">
-    <Setter Property="FontSize" Value="16" />
+    <Setter Property="FontSize" Value="14" />
     <Setter Property="FontWeight" Value="SemiBold" />
     <Setter Property="Margin" Value="0,0,0,8" />
   </Style>
 
-  <!-- 카드 스타일 Border -->
+  <Style Selector="TextBlock.caption">
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="Foreground" Value="{DynamicResource SystemBaseMediumColor}" />
+  </Style>
+
+  <!-- ══════════════════════════════════════
+       카드
+       ══════════════════════════════════════ -->
   <Style Selector="Border.card">
     <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseLowBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
     <Setter Property="CornerRadius" Value="8" />
     <Setter Property="Padding" Value="16" />
-    <Setter Property="BoxShadow" Value="0 1 4 0 #18000000" />
+  </Style>
+
+  <Style Selector="Border.card-header">
+    <Setter Property="Background" Value="{DynamicResource CardHeaderBrush}" />
+    <Setter Property="Padding" Value="12,8" />
+    <Setter Property="CornerRadius" Value="8,8,0,0" />
+  </Style>
+
+  <!-- ══════════════════════════════════════
+       툴바 (필터 + 액션 버튼 영역)
+       ══════════════════════════════════════ -->
+  <Style Selector="Border.toolbar">
+    <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource ContentSeparatorBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Padding" Value="16,10" />
+    <Setter Property="Margin" Value="0,0,0,10" />
+  </Style>
+
+  <!-- ══════════════════════════════════════
+       버튼 크기
+       ══════════════════════════════════════ -->
+  <Style Selector="Button.btn-sm">
+    <Setter Property="Padding" Value="10,4" />
+    <Setter Property="FontSize" Value="12" />
+  </Style>
+
+  <Style Selector="Button.btn-md">
+    <Setter Property="Padding" Value="16,6" />
   </Style>
 
   <!-- ══════════════════════════════════════════════════════

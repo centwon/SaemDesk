@@ -1,4 +1,4 @@
-<Window xmlns="https://github.com/avaloniaui"
+﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:SaemDesk.ViewModels"
         x:Class="SaemDesk.Views.MainWindow"
@@ -13,16 +13,16 @@
     <!-- 상단 네비게이션 바 (NewSchool PaneDisplayMode=Top) -->
     <!-- ══════════════════════════════════════════════════ -->
     <Border Grid.Row="0"
-            MinHeight="48"
+            MinHeight="36"
             Background="{DynamicResource NavBackgroundBrush}"
             BorderBrush="{DynamicResource ContentSeparatorBrush}"
             BorderThickness="0,0,0,1">
-      <DockPanel LastChildFill="True" MinHeight="48">
+      <DockPanel LastChildFill="True" MinHeight="36">
 
         <!-- ── 앱 로고/제목 ─────────────────────────── -->
         <Border DockPanel.Dock="Left"
                 Padding="16,0"
-                MinHeight="48"
+                MinHeight="36"
                 BorderBrush="{DynamicResource ContentSeparatorBrush}"
                 BorderThickness="0,0,1,0">
           <TextBlock Text="샘Desk"
@@ -44,10 +44,9 @@
               Margin="4,0"
               VerticalAlignment="Stretch">
           <Menu.Styles>
-            <!-- 최상위 MenuItem: 높이 48px 고정, 세로 가운데 정렬 -->
             <Style Selector="MenuItem">
-              <Setter Property="Padding"   Value="14,0"/>
-              <Setter Property="MinHeight" Value="48"/>
+              <Setter Property="Padding"   Value="12,0"/>
+              <Setter Property="MinHeight" Value="36"/>
               <Setter Property="FontSize"  Value="13"/>
             </Style>
             <Style Selector="MenuItem.selected">
@@ -113,7 +112,7 @@
     <!-- ══════════════════════════════════════════════════ -->
     <!-- 콘텐츠 영역                                         -->
     <!-- ══════════════════════════════════════════════════ -->
-    <TransitioningContentControl Grid.Row="1"
+    <TransitioningContentControl Grid.Row="1" Padding="4"
                                  Content="{Binding CurrentPage}"
                                  Background="{DynamicResource ContentBackgroundBrush}"/>
 

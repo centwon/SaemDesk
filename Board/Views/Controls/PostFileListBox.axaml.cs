@@ -14,16 +14,17 @@ using SaemDesk.Board.Models;
 namespace SaemDesk.Board.Views.Controls;
 
 /// <summary>
-/// 게시글 첨부파일 목록 컨트롤 — NewSchool PostFileListBox 이식 (WinUI3 → Avalonia 12).
-/// Avalonia 12: DataTransferExtensions.TryGetFiles() 사용.
+/// 게시글 첨부파일 목록 컨트롤.
+/// 편집 모드: [☐] [파일명 (12KB)] — 체크박스 표시, − 버튼으로 선택 삭제
+/// 읽기 모드: [파일명 (12KB)]     — 체크박스 숨김, 버튼 클릭으로 파일 열기
 /// </summary>
 public partial class PostFileListBox : UserControl
 {
-    public ObservableCollection<FileBoxItem> FileBoxes    { get; } = new();
+    public ObservableCollection<FileBoxItem> FileBoxes     { get; } = new();
     public ObservableCollection<PostFile>    FilesToDelete { get; } = new();
     public event EventHandler? FileBoxesChanged;
 
-    private string _category   = string.Empty;
+    private string _category  = string.Empty;
     private bool   _isReadOnly;
 
     public string Category   { get => _category;   set => _category = value; }
@@ -46,11 +47,11 @@ public partial class PostFileListBox : UserControl
         IsReadOnly = readOnly;
         FileBoxes.Clear();
         foreach (var f in files)
-            FileBoxes.Add(new FileBoxItem { PostFile = f, Category = category });
+            FileBoxes.Add(new FileBoxItem { PostFile = f, Category = category, ShowCheckBox = !readOnly });
         FileBoxesChanged?.Invoke(this, EventArgs.Empty);
     }
 
-    // ── 버튼 ─────────────────────────────────────────────
+    // ── 헤더 버튼 ─────────────────────────────────────────
 
     private async void BtnAdd_Click(object? sender, RoutedEventArgs e)
     {
@@ -82,25 +83,29 @@ public partial class PostFileListBox : UserControl
         catch (Exception ex) { Debug.WriteLine($"[PostFileListBox] 폴더: {ex.Message}"); }
     }
 
-    private void BtnOpenFile_Click(object? sender, RoutedEventArgs e)
+    // ── 파일 버튼 클릭 → 열기 ────────────────────────────
+
+    private void OnFileButtonClick(object? sender, RoutedEventArgs e)
     {
-        if (sender is Button b && b.Tag is PostFile pf)
-        {
-            try
-            {
-                string p = BoardDatabase.GetFilePath(pf.FileName, _category);
-                if (File.Exists(p))
-                    Process.Start(new ProcessStartInfo(p) { UseShellExecute = true });
-            }
-            catch (Exception ex) { Debug.WriteLine($"[PostFileListBox] 열기: {ex.Message}"); }
-        }
+        if (sender is Button b && b.Tag is FileBoxItem item && item.PostFile is not null)
+            OpenFile(item.PostFile);
     }
 
-    // ── 드롭 — Avalonia 12 DataTransferExtensions ────────
+    private void OpenFile(PostFile pf)
+    {
+        try
+        {
+            string p = BoardDatabase.GetFilePath(pf.FileName, _category);
+            if (File.Exists(p))
+                Process.Start(new ProcessStartInfo(p) { UseShellExecute = true });
+        }
+        catch (Exception ex) { Debug.WriteLine($"[PostFileListBox] 열기: {ex.Message}"); }
+    }
+
+    // ── 드롭 ─────────────────────────────────────────────
 
     private void OnDragOver(object? sender, DragEventArgs e)
     {
-        // DataFormat.File은 DataFormat<IStorageFile> 제네릭 타입이므로 Any()로 비교
         bool hasFiles = e.DataTransfer.Formats.Any(f => f == DataFormat.File);
         e.DragEffects = (!_isReadOnly && hasFiles)
             ? DragDropEffects.Copy
@@ -110,16 +115,10 @@ public partial class PostFileListBox : UserControl
     private async void OnDrop(object? sender, DragEventArgs e)
     {
         if (_isReadOnly) return;
-
-        // Avalonia 12: GetFiles() → TryGetFiles() (DataTransferExtensions)
         var files = e.DataTransfer.TryGetFiles();
         if (files is null) return;
-
         foreach (var f in files)
-        {
-            if (f is IStorageFile sf)
-                await AddStorageFileAsync(sf);
-        }
+            if (f is IStorageFile sf) await AddStorageFileAsync(sf);
     }
 
     // ── 파일 추가 ─────────────────────────────────────────
@@ -128,10 +127,8 @@ public partial class PostFileListBox : UserControl
     {
         var top = TopLevel.GetTopLevel(this);
         if (top is null) return;
-
         var files = await top.StorageProvider.OpenFilePickerAsync(
             new FilePickerOpenOptions { AllowMultiple = true, Title = "파일 선택" });
-
         foreach (var f in files)
             await AddStorageFileAsync(f);
     }
@@ -139,17 +136,12 @@ public partial class PostFileListBox : UserControl
     private async Task AddStorageFileAsync(IStorageFile file)
     {
         var props = await file.GetBasicPropertiesAsync();
-        var pf    = new PostFile
-        {
-            FileName = file.Name,
-            FileSize = (long)(props.Size ?? 0),
-            DateTime = DateTime.Now,
-        };
         FileBoxes.Add(new FileBoxItem
         {
-            PostFile    = pf,
-            Category    = _category,
-            OrgFilePath = file.Path.LocalPath,
+            PostFile     = new PostFile { FileName = file.Name, FileSize = (long)(props.Size ?? 0), DateTime = DateTime.Now },
+            Category     = _category,
+            OrgFilePath  = file.Path.LocalPath,
+            ShowCheckBox = !_isReadOnly,
         });
         FileBoxesChanged?.Invoke(this, EventArgs.Empty);
     }
@@ -158,16 +150,35 @@ public partial class PostFileListBox : UserControl
     {
         BtnAdd.IsVisible    = !_isReadOnly;
         BtnRemove.IsVisible = !_isReadOnly;
-        HeaderText.Text     = _isReadOnly
-            ? "첨부파일"
-            : "파일을 끌어 놓거나 '+' 버튼을 눌러 추가하세요";
+        BtnFolder.IsVisible = !_isReadOnly;
+        HeaderText.IsVisible = !_isReadOnly;
+        foreach (var item in FileBoxes)
+            item.ShowCheckBox = !_isReadOnly;
     }
 }
 
-public class FileBoxItem
+public class FileBoxItem : CommunityToolkit.Mvvm.ComponentModel.ObservableObject
 {
     public PostFile? PostFile    { get; set; }
     public string    Category    { get; set; } = string.Empty;
     public string    OrgFilePath { get; set; } = string.Empty;
-    public bool      IsSelected  { get; set; }
+
+    private bool _isSelected;
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set => SetProperty(ref _isSelected, value);
+    }
+
+    private bool _showCheckBox = true;
+    public bool ShowCheckBox
+    {
+        get => _showCheckBox;
+        set => SetProperty(ref _showCheckBox, value);
+    }
+
+    /// <summary>버튼 표시 텍스트: 파일명 (용량)</summary>
+    public string Label => PostFile is null
+        ? string.Empty
+        : $"{PostFile.FileName}  ({PostFile.FileSizeDisplay})";
 }

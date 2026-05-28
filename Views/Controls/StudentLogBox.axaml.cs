@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using SaemDesk.Models;
+using SaemDesk.Repositories;
 
 namespace SaemDesk.Views.Controls;
 
@@ -26,6 +28,8 @@ public partial class StudentLogBox : UserControl
     private int  _year;
     private int  _semester;
     private string _generatedText = string.Empty;
+    private List<Club> _clubs = new();
+    private bool _clubsLoaded;
 
     // ── 생성자 ───────────────────────────────────────────
     public StudentLogBox()
@@ -49,6 +53,9 @@ public partial class StudentLogBox : UserControl
         UpdateSubjectPanelVisibility(log.Category);
         TxtSubjectName.Text = log.SubjectName ?? string.Empty;
 
+        if (log.Category == LogCategory.동아리활동 && log.ClubNo > 0)
+            SelectClub(log.ClubNo);
+
         DatePickerLog.SelectedDate = log.Date.Kind == DateTimeKind.Unspecified
             ? DateTime.SpecifyKind(log.Date, DateTimeKind.Local)
             : log.Date;
@@ -64,7 +71,7 @@ public partial class StudentLogBox : UserControl
         TxtStrengthShown.Text    = log.StrengthShown   ?? string.Empty;
         TxtResultOrOutcome.Text  = log.ResultOrOutcome ?? string.Empty;
 
-        if (HasStructuredData())
+        if (HasDetailData())
             ExpanderStructured.IsExpanded = true;
 
         UpdateByteInfo();
@@ -119,7 +126,10 @@ public partial class StudentLogBox : UserControl
             Semester        = _semester,
             Date            = DatePickerLog.SelectedDate?.Date ?? DateTime.Today,
             Category        = cat,
+            CourseNo        = sourceLog?.CourseNo ?? 0,
             SubjectName     = (TxtSubjectName.Text ?? string.Empty).Trim(),
+            ClubNo          = SelectedClub()?.No ?? sourceLog?.ClubNo ?? 0,
+            ClubName        = SelectedClub()?.ClubName ?? sourceLog?.ClubName ?? string.Empty,
             IsImportant     = ChkIsImportant.IsChecked == true,
             Log             = (TxtLog.Text          ?? string.Empty).Trim(),
             Tag             = (TxtTag.Text          ?? string.Empty).Trim(),
@@ -250,11 +260,57 @@ public partial class StudentLogBox : UserControl
     {
         PanelSubject.IsVisible = cat is LogCategory.교과활동 or LogCategory.개인별세특;
         if (!PanelSubject.IsVisible) TxtSubjectName.Text = string.Empty;
+
+        bool showClub = cat is LogCategory.동아리활동;
+        PanelClub.IsVisible = showClub;
+        if (showClub) _ = LoadClubsAsync();
+    }
+
+    private async System.Threading.Tasks.Task LoadClubsAsync()
+    {
+        if (_clubsLoaded) return;
+        try
+        {
+            using var repo = new ClubRepository(SchoolDatabase.DbPath);
+            _clubs = await repo.GetBySchoolAsync(Settings.SchoolCode.Value, _year > 0 ? _year : Settings.WorkYear.Value);
+            CBoxClub.Items.Clear();
+            foreach (var c in _clubs)
+                CBoxClub.Items.Add(new ComboBoxItem { Content = c.ClubName, Tag = c });
+            _clubsLoaded = true;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[StudentLogBox] LoadClubs: {ex.Message}");
+        }
+    }
+
+    public void SelectClub(int clubNo)
+    {
+        for (int i = 0; i < CBoxClub.Items.Count; i++)
+        {
+            if (CBoxClub.Items[i] is ComboBoxItem ci && ci.Tag is Club c && c.No == clubNo)
+            {
+                CBoxClub.SelectedIndex = i;
+                return;
+            }
+        }
+    }
+
+    private Club? SelectedClub()
+    {
+        if (CBoxClub.SelectedItem is ComboBoxItem ci && ci.Tag is Club c)
+            return c;
+        return null;
     }
 
     private bool HasStructuredData()
         => !string.IsNullOrWhiteSpace(TxtActivityName.Text)  ||
            !string.IsNullOrWhiteSpace(TxtTopic.Text)         ||
+           !string.IsNullOrWhiteSpace(TxtDescription.Text)   ||
+           HasDetailData();
+
+    private bool HasDetailData()
+        => !string.IsNullOrWhiteSpace(TxtTopic.Text)         ||
            !string.IsNullOrWhiteSpace(TxtDescription.Text)   ||
            !string.IsNullOrWhiteSpace(TxtRole.Text)          ||
            !string.IsNullOrWhiteSpace(TxtSkillDeveloped.Text)||

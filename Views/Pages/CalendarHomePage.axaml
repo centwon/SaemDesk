@@ -9,12 +9,12 @@
 
     <!-- ── 헤더 ───────────────────────────────────────── -->
     <Grid Grid.Row="0"
-          Margin="20,18,20,8"
+          Margin="0,0,0,8"
           ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto">
       <Button Grid.Column="0"
               Content="◀"
               Click="OnPreviousMonth"
-              Padding="10,4"
+              Classes="btn-sm"
               Background="Transparent"/>
       <Button Grid.Column="1"
               x:Name="MonthPickerButton"
@@ -23,7 +23,7 @@
               FontWeight="SemiBold"
               Background="Transparent"
               BorderThickness="0"
-              Padding="10,4"
+              Classes="btn-sm"
               VerticalAlignment="Center"
               Margin="6,0"
               ToolTip.Tip="연도/월 선택">
@@ -53,31 +53,31 @@
       <Button Grid.Column="2"
               Content="▶"
               Click="OnNextMonth"
-              Padding="10,4"
+              Classes="btn-sm"
               Background="Transparent"/>
 
       <Button Grid.Column="4"
               Content="오늘"
               Click="OnToday"
-              Padding="10,4"
+              Classes="btn-sm"
               Margin="0,0,6,0"/>
       <Button Grid.Column="5"
               Content="새로고침"
               Click="OnRefresh"
-              Padding="10,4"
+              Classes="btn-sm"
               Margin="0,0,6,0"/>
       <Button Grid.Column="6"
               Content="⚙"
               Click="OnSettings"
-              Padding="10,4"
+              Classes="btn-sm"
               ToolTip.Tip="일정 설정"/>
     </Grid>
 
     <!-- ── 요일 헤더 ──────────────────────────────────── -->
     <Grid Grid.Row="1"
-          Margin="20,0,20,0"
+          Margin="0"
           ColumnDefinitions="*,*,*,*,*,*,*">
-      <TextBlock Grid.Column="0" Text="일" Foreground="#D9372A"
+      <TextBlock Grid.Column="0" Text="일" Foreground="{DynamicResource ErrorForegroundBrush}"
                  HorizontalAlignment="Center" FontSize="12" Padding="6"/>
       <TextBlock Grid.Column="1" Text="월" HorizontalAlignment="Center" FontSize="12" Padding="6"/>
       <TextBlock Grid.Column="2" Text="화" HorizontalAlignment="Center" FontSize="12" Padding="6"/>
@@ -90,7 +90,7 @@
 
     <!-- ── 본문 (6×7 셀 동적 생성) ───────────────────── -->
     <Border Grid.Row="2"
-            Margin="20,0,20,20"
+            Margin="0,0,0,20"
             BorderThickness="0.5"
             BorderBrush="{DynamicResource ContentSeparatorBrush}">
       <Grid x:Name="CellsGrid"
@@ -100,8 +100,8 @@
 
     <!-- ── 로딩 오버레이 ──────────────────────────────── -->
     <Border Grid.Row="2"
-            Margin="20,0,20,20"
-            Background="#33000000"
+            Margin="0,0,0,20"
+            Background="{DynamicResource LoadingOverlayBrush}"
             IsVisible="{Binding IsLoading}">
       <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
         <ProgressBar Width="160" IsIndeterminate="True"/>

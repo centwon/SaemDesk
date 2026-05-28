@@ -36,19 +36,19 @@
                 Margin="20,12,20,0"
                 Spacing="6">
       <Button Content="월" Command="{Binding SelectMonCommand}"
-              Classes.accent="{Binding IsMonSelected}" Padding="14,6"/>
+              Classes.accent="{Binding IsMonSelected}" Classes="btn-md"/>
       <Button Content="화" Command="{Binding SelectTueCommand}"
-              Classes.accent="{Binding IsTueSelected}" Padding="14,6"/>
+              Classes.accent="{Binding IsTueSelected}" Classes="btn-md"/>
       <Button Content="수" Command="{Binding SelectWedCommand}"
-              Classes.accent="{Binding IsWedSelected}" Padding="14,6"/>
+              Classes.accent="{Binding IsWedSelected}" Classes="btn-md"/>
       <Button Content="목" Command="{Binding SelectThuCommand}"
-              Classes.accent="{Binding IsThuSelected}" Padding="14,6"/>
+              Classes.accent="{Binding IsThuSelected}" Classes="btn-md"/>
       <Button Content="금" Command="{Binding SelectFriCommand}"
-              Classes.accent="{Binding IsFriSelected}" Padding="14,6"/>
+              Classes.accent="{Binding IsFriSelected}" Classes="btn-md"/>
       <Button Content="새로고침"
               Command="{Binding LoadTimetableCommand}"
               Margin="8,0,0,0"
-              Padding="12,6"/>
+              Classes="btn-md"/>
     </StackPanel>
 
     <!-- ── CRUD 툴바 ──────────────────────────────────────── -->
@@ -58,16 +58,15 @@
                 Spacing="6">
       <Button Content="추가"
               Command="{Binding AddSlotCommand}"
-              Classes="accent"
-              Padding="14,6"/>
+              Classes="accent btn-md"/>
       <Button Content="수정"
               Command="{Binding EditSelectedSlotCommand}"
               IsEnabled="{Binding HasSelection}"
-              Padding="12,6"/>
+              Classes="btn-md"/>
       <Button Content="삭제"
               Command="{Binding DeleteSelectedSlotCommand}"
               IsEnabled="{Binding HasSelection}"
-              Padding="12,6"/>
+              Classes="btn-md"/>
     </StackPanel>
 
     <!-- ── 선택 요일 표시 ─────────────────────────────────── -->

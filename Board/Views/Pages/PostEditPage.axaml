@@ -7,12 +7,18 @@
   <Grid RowDefinitions="Auto,*,Auto">
 
     <!-- ── 툴바 ─────────────────────────────────────────── -->
-    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="6"
-                Margin="16,10,16,0">
-      <TextBlock x:Name="PageTitle" Text="새 글 쓰기"
+    <Grid Grid.Row="0" Margin="16,10,16,0" ColumnDefinitions="Auto,*,Auto">
+      <!-- 좌: 페이지 제목 -->
+      <TextBlock Grid.Column="0" x:Name="PageTitle" Text="새 글 쓰기"
                  FontSize="18" FontWeight="SemiBold"
                  VerticalAlignment="Center"/>
-    </StackPanel>
+      <!-- 우: 보조 버튼 그룹 -->
+      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6">
+        <Button x:Name="BtnInsertRoster" Content="표 삽입" Padding="10,5"
+                ToolTip.Tip="학급/수업/동아리 명렵표 HTML 표 삽입"
+                Click="BtnInsertRoster_Click"/>
+      </StackPanel>
+    </Grid>
 
     <!-- ── 폼 ───────────────────────────────────────────── -->
     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
@@ -60,7 +66,9 @@
                 Margin="16,8,16,12">
       <Button Content="취소"  Padding="14,7" Click="BtnCancel_Click"/>
       <Button x:Name="BtnSave" Content="저장" Classes="accent"
-              Padding="14,7" Click="BtnSave_Click"/>
+              Padding="14,7" Click="BtnSave_Click"
+              HotKey="Ctrl+S"
+              ToolTip.Tip="저장 (Ctrl+S)"/>
     </StackPanel>
 
   </Grid>

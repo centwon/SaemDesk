@@ -80,7 +80,7 @@
       <!-- 학생/학급 정보 표시 -->
       <TextBlock Grid.Row="1" x:Name="TxtStudentInfo"
                  Text="" FontWeight="SemiBold" FontSize="14"
-                 Foreground="#5B7FB8"/>
+                 Foreground="{DynamicResource SecondaryAccentBrush}"/>
     </Grid>
 
     <!-- 메인: 학생 목록(좌) + LogBox(우) -->
@@ -92,9 +92,9 @@
       <!-- 버튼 바 -->
       <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right"
                   Spacing="8" Margin="0,12,0,0">
-        <Button Content="취소" Padding="16,8" Click="OnCancel"/>
+        <Button Content="취소" Classes="btn-md" Click="OnCancel"/>
         <Button x:Name="SaveButton" Content="저장"
-                Classes="accent" Padding="16,8" Click="OnSave"/>
+                Classes="accent btn-md" Click="OnSave"/>
       </StackPanel>
     </Grid>
   </Grid>

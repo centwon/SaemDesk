@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SaemDesk.Collections;
 using SaemDesk.Models;
 using SaemDesk.Services;
 
@@ -16,8 +17,8 @@ namespace SaemDesk.ViewModels.Pages;
 /// </summary>
 public partial class LessonActivityPageVM : ViewModelBase
 {
-    public ObservableCollection<Course> Courses { get; } = new();
-    public ObservableCollection<string> Rooms   { get; } = new();
+    public OptimizedObservableCollection<Course> Courses { get; } = new();
+    public OptimizedObservableCollection<string> Rooms   { get; } = new();
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasCourse))]
@@ -40,8 +41,7 @@ public partial class LessonActivityPageVM : ViewModelBase
             using var svc = new CourseService();
             var list = await svc.GetMyCoursesAsync();
 
-            Courses.Clear();
-            foreach (var c in list) Courses.Add(c);
+            Courses.ReplaceAll(list);
         }
         catch (Exception ex)
         {
@@ -51,10 +51,8 @@ public partial class LessonActivityPageVM : ViewModelBase
 
     partial void OnSelectedCourseChanged(Course? value)
     {
-        Rooms.Clear();
+        Rooms.ReplaceAll(value?.RoomList ?? Enumerable.Empty<string>());
         if (value is null) return;
-        foreach (var r in value.RoomList ?? Enumerable.Empty<string>())
-            Rooms.Add(r);
         if (Rooms.Count > 0) SelectedRoom = Rooms[0];
     }
 }

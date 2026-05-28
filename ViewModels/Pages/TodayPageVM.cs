@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SaemDesk.Collections;
 using SaemDesk.Models;
 using SaemDesk.Repositories;
 
@@ -33,7 +34,7 @@ public partial class TodayPageVM : ViewModelBase
     public bool   HasHint  { get; }
 
     // ── 오늘 시간표 ───────────────────────────────────────
-    public ObservableCollection<ClassTimetable> TodaySlots { get; } = [];
+    public OptimizedObservableCollection<ClassTimetable> TodaySlots { get; } = new();
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasTodaySlots))]
@@ -53,7 +54,7 @@ public partial class TodayPageVM : ViewModelBase
     [ObservableProperty] private string _diaryStatusText = "미작성";
 
     // ── 급식 ─────────────────────────────────────────────
-    public ObservableCollection<string> MealItems { get; } = [];
+    public OptimizedObservableCollection<string> MealItems { get; } = new();
     [ObservableProperty] private bool   _hasMeal;
     [ObservableProperty] private string _mealCalories  = string.Empty;
     [ObservableProperty] private string _mealStatusText = string.Empty;
@@ -148,9 +149,7 @@ public partial class TodayPageVM : ViewModelBase
                 Settings.HomeGrade.Value,
                 Settings.HomeRoom.Value);
 
-            TodaySlots.Clear();
-            foreach (var s in all.Where(x => x.DayOfWeek == dow).OrderBy(x => x.Period))
-                TodaySlots.Add(s);
+            TodaySlots.ReplaceAll(all.Where(x => x.DayOfWeek == dow).OrderBy(x => x.Period));
 
             TimetableLoaded = true;
             OnPropertyChanged(nameof(HasTodaySlots));
@@ -236,9 +235,7 @@ public partial class TodayPageVM : ViewModelBase
                 .Where(s => !string.IsNullOrWhiteSpace(s))
                 .ToList();
 
-            MealItems.Clear();
-            foreach (var item in items)
-                MealItems.Add(item);
+            MealItems.ReplaceAll(items);
 
             MealCalories  = row.Element("CAL_INFO")?.Value ?? string.Empty;
             HasMeal       = MealItems.Count > 0;

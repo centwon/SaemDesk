@@ -167,17 +167,6 @@ public class LessonService : IDisposable
     }
 
     /// <summary>
-    /// 현재 사용자(교사)의 시간표 ViewModel 생성
-    /// </summary>
-    public async Task<TimetableViewModel> GetMyTimetableViewModelAsync()
-    {
-        return await GetTeacherTimetableViewModelAsync(
-            Settings.User.Value,
-            Settings.WorkYear.Value,
-            Settings.WorkSemester.Value);
-    }
-
-    /// <summary>
     /// 학급 시간표 ViewModel 생성
     /// </summary>
     public async Task<TimetableViewModel> GetClassTimetableViewModelAsync(

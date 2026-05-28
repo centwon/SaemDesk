@@ -7,7 +7,6 @@
              x:DataType="vm:TodayPageVM"
              Classes="page">
 
-  <Border Padding="12,8,12,12">
     <Grid>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="260"/>
@@ -19,14 +18,14 @@
       <Grid Grid.Column="0" RowDefinitions="Auto,*,Auto" RowSpacing="10">
 
         <Border Grid.Row="0"
-                BorderBrush="CornflowerBlue" BorderThickness="1"
-                CornerRadius="8"
+                BorderBrush="{DynamicResource CardHeaderBorderBrush}" BorderThickness="1"
+                CornerRadius="8" ClipToBounds="True"
                 Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
           <Grid RowDefinitions="34,Auto">
-            <Border Grid.Row="0" Padding="12,8" Background="Lavender" CornerRadius="8,8,0,0">
+            <Border Grid.Row="0" Classes="card-header">
               <TextBlock Text="📚 수업 시간표" FontWeight="Bold" VerticalAlignment="Center" FontSize="14"/>
             </Border>
-            <Border Grid.Row="1" Padding="6">
+            <Border Grid.Row="1" Padding="0">
               <Viewbox Stretch="Uniform" MaxHeight="280">
                 <ctrl:TimetableControl Name="LecTimeTable" Width="260" Height="260"/>
               </Viewbox>
@@ -41,8 +40,9 @@
       <!-- 우측 패널 -->
       <Grid Grid.Column="2" RowDefinitions="270,16,*">
         <ctrl:KAgendaControl Name="AgendaList" Grid.Row="0"/>
-        <ctrl:MemoBoard Name="MemoBoard" Grid.Row="2"/>
+        <ctrl:MemoBoard Name="MemoBoard" Grid.Row="2"
+                         FixedSubject="메모"
+                         ShowFilter="False"/>
       </Grid>
     </Grid>
-  </Border>
 </UserControl>

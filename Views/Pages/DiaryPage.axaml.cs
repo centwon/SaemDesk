@@ -35,8 +35,9 @@ public partial class DiaryPage : UserControl
         // 날짜 초기화
         DatePicker.SelectedDate = DateTime.Today;
 
-        // 반 선택 시 자동 로드
-        FilterBar.SelectionChanged += OnFilterBarChanged;
+        // 필터 이벤트 연결
+        YearSemPicker.YearSemesterChanged += OnYearSemesterChanged;
+        ClassFilter.ClassChanged          += OnClassFilterChanged;
 
         // 당일 기록 설정
         DailyLogList.StudentInfoMode = StudentInfoMode.NumName;
@@ -57,10 +58,16 @@ public partial class DiaryPage : UserControl
         await RefreshAllAsync();
     }
 
-    private void OnFilterChanged(object? sender, FilterChangedEventArgs e) { }
+    private void OnFilterChanged(object? sender, ClassChangedEventArgs e) { }
 
-    // 반 선택 시 자동 로드 — e.Students 직접 사용
-    private async void OnFilterBarChanged(object? sender, FilterChangedEventArgs e)
+    // 학년도·학기 변경 → ClassPicker 재로드
+    private async void OnYearSemesterChanged(object? sender, YearSemesterChangedEventArgs e)
+    {
+        await ClassFilter.LoadAsync(e.Year, e.Semester);
+    }
+
+    // 학급 변경 — e.Students 직접 사용
+    private async void OnClassFilterChanged(object? sender, ClassChangedEventArgs e)
     {
         VM.WorkYear  = e.Year;
         VM.Grade     = e.Grade;

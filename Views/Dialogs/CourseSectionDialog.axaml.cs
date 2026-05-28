@@ -16,9 +16,9 @@ namespace SaemDesk.Views.Dialogs;
 /// </summary>
 public partial class CourseSectionDialog : Window
 {
-    private readonly Course        _course;
+    private readonly Course         _course;
     private readonly CourseSection? _existing;
-    private readonly bool          _isEdit;
+    private readonly bool           _isEdit;
 
     public bool IsSuccess { get; private set; }
 
@@ -74,20 +74,20 @@ public partial class CourseSectionDialog : Window
     {
         var s = _isEdit && _existing is not null ? _existing : new CourseSection { Course = _course.No };
 
-        s.UnitNo           = (int)(NumUnitNo.Value         ?? 1);
-        s.UnitName         = TxtUnitName.Text?.Trim()       ?? "";
-        s.ChapterNo        = (int)(NumChapterNo.Value       ?? 1);
-        s.ChapterName      = TxtChapterName.Text?.Trim()    ?? "";
-        s.SectionNo        = (int)(NumSectionNo.Value       ?? 1);
-        s.SectionName      = TxtSectionName.Text?.Trim()    ?? "";
-        s.StartPage        = (int)(NumStartPage.Value       ?? 0);
-        s.EndPage          = (int)(NumEndPage.Value         ?? 0);
-        s.EstimatedHours   = (int)(NumEstimatedHours.Value  ?? 1);
+        s.UnitNo            = (int)(NumUnitNo.Value         ?? 1);
+        s.UnitName          = TxtUnitName.Text?.Trim()       ?? "";
+        s.ChapterNo         = (int)(NumChapterNo.Value       ?? 1);
+        s.ChapterName       = TxtChapterName.Text?.Trim()    ?? "";
+        s.SectionNo         = (int)(NumSectionNo.Value       ?? 1);
+        s.SectionName       = TxtSectionName.Text?.Trim()    ?? "";
+        s.StartPage         = (int)(NumStartPage.Value       ?? 0);
+        s.EndPage           = (int)(NumEndPage.Value         ?? 0);
+        s.EstimatedHours    = (int)(NumEstimatedHours.Value  ?? 1);
         s.LearningObjective = TxtLearningObjective.Text?.Trim() ?? "";
-        s.LessonPlan       = TxtLessonPlan.Text?.Trim()    ?? "";
-        s.MaterialPath     = TxtMaterialPath.Text?.Trim()  ?? "";
-        s.MaterialUrl      = TxtMaterialUrl.Text?.Trim()   ?? "";
-        s.Memo             = TxtMemo.Text?.Trim()          ?? "";
+        s.LessonPlan        = TxtLessonPlan.Text?.Trim()    ?? "";
+        s.MaterialPath      = TxtMaterialPath.Text?.Trim()  ?? "";
+        s.MaterialUrl       = TxtMaterialUrl.Text?.Trim()   ?? "";
+        s.Memo              = TxtMemo.Text?.Trim()          ?? "";
 
         string typeTag = (CmbSectionType.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "Normal";
         s.SectionType = typeTag;
@@ -103,6 +103,9 @@ public partial class CourseSectionDialog : Window
 
     private void OnSectionTypeChanged(object? sender, SelectionChangedEventArgs e)
     {
+        // InitializeComponent() 완료 전에 SelectionChanged가 발화할 수 있으므로 null 가드
+        if (PinnedDatePanel is null) return;
+
         string tag = (CmbSectionType.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "Normal";
         PinnedDatePanel.IsVisible = tag is "Exam" or "Assessment";
     }
@@ -111,12 +114,12 @@ public partial class CourseSectionDialog : Window
     {
         try
         {
-            var tl      = TopLevel.GetTopLevel(this)!;
-            var files   = await tl.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+            var tl    = TopLevel.GetTopLevel(this)!;
+            var files = await tl.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
             {
-                Title           = "자료 파일 선택",
-                AllowMultiple   = false,
-                FileTypeFilter  = new[]
+                Title          = "자료 파일 선택",
+                AllowMultiple  = false,
+                FileTypeFilter = new[]
                 {
                     new FilePickerFileType("문서/프레젠테이션")
                     {

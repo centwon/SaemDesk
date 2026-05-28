@@ -1,0 +1,684 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:models="using:SaemDesk.Models"
+             xmlns:local="using:SaemDesk.Views.Pages"
+             x:Class="SaemDesk.Views.Pages.AnnualLessonPlanPage">
+
+  <Grid RowDefinitions="Auto,*">
+
+    <!-- ── 헤더 ── -->
+    <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,16">
+
+      <StackPanel Grid.Column="0" Spacing="4">
+        <TextBlock Text="연간수업계획"
+                   FontSize="26"
+                   FontWeight="Bold"/>
+        <TextBlock x:Name="TxtSubtitle"
+                   Text="수업을 선택하여 연간수업계획을 작성하세요"
+                   FontSize="13"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"/>
+      </StackPanel>
+
+      <!-- 수업 선택 -->
+      <StackPanel Grid.Column="2"
+                  Orientation="Horizontal"
+                  Spacing="8"
+                  VerticalAlignment="Center">
+        <TextBlock Text="수업"
+                   VerticalAlignment="Center"
+                   FontWeight="SemiBold"/>
+        <ComboBox x:Name="CmbCourse"
+                  Width="220"
+                  PlaceholderText="수업 선택"
+                  SelectionChanged="OnCourseSelectionChanged">
+          <ComboBox.ItemTemplate>
+            <DataTemplate x:DataType="models:Course">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBlock Text="{Binding Subject}"/>
+                <TextBlock Text="{Binding Grade}"
+                           Foreground="{DynamicResource SystemBaseMediumColor}"/>
+                <TextBlock Text="학년"
+                           Foreground="{DynamicResource SystemBaseMediumColor}"/>
+              </StackPanel>
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+      </StackPanel>
+    </Grid>
+
+    <!-- ── 메인 컨텐츠 ── -->
+    <Panel Grid.Row="1">
+
+      <!-- 로딩 오버레이 -->
+      <Border x:Name="LoadingOverlay"
+              IsVisible="False"
+              Background="#CC000000"
+              ZIndex="100">
+        <StackPanel HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Spacing="16">
+          <ProgressBar IsIndeterminate="True" Width="200"/>
+          <TextBlock x:Name="TxtLoading"
+                     Text="로딩 중..."
+                     FontSize="14"
+                     Foreground="White"
+                     HorizontalAlignment="Center"/>
+        </StackPanel>
+      </Border>
+
+      <!-- 탭 UI -->
+      <TabControl x:Name="MainTabControl" TabStripPlacement="Top">
+
+        <!-- ───────────── 탭1: 단원 관리 ───────────── -->
+        <TabItem Header="단원 관리">
+          <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="0,12,0,0">
+
+            <!-- 도구 모음 -->
+            <StackPanel Grid.Row="0"
+                        Orientation="Horizontal"
+                        Spacing="6"
+                        Margin="0,0,0,8">
+              <Button x:Name="BtnImportCsv" Click="OnImportCsvClick">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <TextBlock Text="📂" FontSize="14"/>
+                  <TextBlock Text="CSV 가져오기"/>
+                </StackPanel>
+              </Button>
+              <Button Click="OnExportCsvClick">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <TextBlock Text="💾" FontSize="14"/>
+                  <TextBlock Text="CSV 내보내기"/>
+                </StackPanel>
+              </Button>
+              <Button Click="OnDownloadTemplateClick">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <TextBlock Text="📄" FontSize="14"/>
+                  <TextBlock Text="템플릿 다운로드"/>
+                </StackPanel>
+              </Button>
+              <Border Width="1"
+                      Background="{DynamicResource SystemBaseMediumLowColor}"
+                      Margin="4,4"/>
+              <Button x:Name="BtnAddSection"
+                      Click="OnAddSectionClick"
+                      Classes="accent">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <TextBlock Text="＋" FontSize="14"/>
+                  <TextBlock Text="소단원 추가"/>
+                </StackPanel>
+              </Button>
+              <Button x:Name="BtnClearAll" Click="OnClearAllClick">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <TextBlock Text="🗑" FontSize="14"/>
+                  <TextBlock Text="전체 삭제"/>
+                </StackPanel>
+              </Button>
+              <Border Width="1"
+                      Background="{DynamicResource SystemBaseMediumLowColor}"
+                      Margin="4,4"/>
+              <Button Click="OnExportExcelClick">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <TextBlock Text="📊" FontSize="14"/>
+                  <TextBlock Text="엑셀 내보내기"/>
+                </StackPanel>
+              </Button>
+            </StackPanel>
+
+            <!-- 헤더 행 -->
+            <Border Grid.Row="1"
+                    x:Name="SectionListHeader"
+                    IsVisible="False"
+                    Background="{DynamicResource SystemControlBackgroundChromeLowBrush}"
+                    Padding="8,6"
+                    CornerRadius="4,4,0,0">
+              <Grid ColumnDefinitions="40,70,*,60,60,50,36">
+                <TextBlock Grid.Column="0" Text="연번" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Column="1" Text="단원번호" FontSize="12" FontWeight="SemiBold"/>
+                <TextBlock Grid.Column="2" Text="소단원명" FontSize="12" FontWeight="SemiBold"/>
+                <TextBlock Grid.Column="3" Text="유형" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Column="4" Text="페이지" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Column="5" Text="시수" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+              </Grid>
+            </Border>
+
+            <!-- 단원 목록 -->
+            <Border Grid.Row="2"
+                    Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                    BorderBrush="{DynamicResource SystemBaseMediumLowColor}"
+                    BorderThickness="1"
+                    CornerRadius="0,0,4,4">
+              <Panel>
+                <!-- 빈 상태 -->
+                <StackPanel x:Name="SectionEmptyState"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Spacing="8">
+                  <TextBlock Text="📋" FontSize="48" HorizontalAlignment="Center"/>
+                  <TextBlock Text="등록된 단원이 없습니다"
+                             HorizontalAlignment="Center"
+                             Foreground="{DynamicResource SystemBaseMediumColor}"/>
+                  <TextBlock Text="CSV 파일을 가져오거나 소단원을 추가하세요"
+                             FontSize="12"
+                             HorizontalAlignment="Center"
+                             Foreground="{DynamicResource SystemBaseMediumLowColor}"/>
+                </StackPanel>
+
+                <!-- 단원 목록 -->
+                <ListBox x:Name="SectionListBox"
+                         IsVisible="False"
+                         SelectionMode="Single"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         Margin="4"
+                         SelectionChanged="OnSectionSelectionChanged">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="models:CourseSection">
+                      <Grid ColumnDefinitions="40,70,*,60,60,50,Auto"
+                            Margin="4,2">
+                        <TextBlock Grid.Column="0"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource SystemBaseMediumLowColor}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding FullPath}"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="2"
+                                   Text="{Binding SectionName}"
+                                   FontSize="13"
+                                   TextTrimming="CharacterEllipsis"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="3"
+                                   Text="{Binding SectionTypeDisplay}"
+                                   FontSize="11"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource SystemBaseMediumColor}"/>
+                        <TextBlock Grid.Column="4"
+                                   Text="{Binding PageRangeDisplay}"
+                                   FontSize="11"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="5"
+                                   Text="{Binding HoursDisplay}"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource SystemAccentColor}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                        <Button Grid.Column="6"
+                                Click="OnDeleteSectionClick"
+                                Tag="{Binding}"
+                                Padding="4"
+                                Background="Transparent"
+                                BorderThickness="0">
+                          <TextBlock Text="🗑" FontSize="11"/>
+                        </Button>
+                      </Grid>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+              </Panel>
+            </Border>
+
+            <!-- 하단: 통계 + 다음 버튼 -->
+            <Grid Grid.Row="3" ColumnDefinitions="*,Auto" Margin="0,8,0,0">
+              <StackPanel Grid.Column="0" Spacing="4">
+                <TextBlock x:Name="TxtSectionStatistics"
+                           FontSize="12"
+                           Foreground="{DynamicResource SystemBaseMediumColor}"
+                           VerticalAlignment="Center"/>
+                <Border x:Name="SectionErrorBorder"
+                        IsVisible="False"
+                        Background="#1AFF0000"
+                        BorderBrush="#80FF0000"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Padding="8,4">
+                  <TextBlock x:Name="TxtSectionError"
+                             FontSize="12"
+                             Foreground="{DynamicResource SystemErrorTextColor}"
+                             TextWrapping="Wrap"/>
+                </Border>
+              </StackPanel>
+              <Button Grid.Column="1"
+                      Content="다음: 시수 계획 →"
+                      Classes="accent"
+                      Click="OnGoToHoursTabClick"/>
+            </Grid>
+          </Grid>
+        </TabItem>
+
+        <!-- ───────────── 탭2: 시수 관리 ───────────── -->
+        <TabItem Header="시수 관리">
+          <Grid RowDefinitions="Auto,Auto,Auto,*" Margin="0,12,0,0">
+
+            <!-- 상단 정보 카드 3개 -->
+            <Grid Grid.Row="0"
+                  ColumnDefinitions="*,*,Auto"
+                  Margin="0,0,0,12">
+
+              <!-- 시간표 정보 -->
+              <Border Grid.Column="0"
+                      Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                      BorderBrush="{DynamicResource SystemBaseMediumLowColor}"
+                      BorderThickness="1"
+                      CornerRadius="8"
+                      Padding="14"
+                      Margin="0,0,8,0">
+                <StackPanel Spacing="6">
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="🗓" FontSize="16"/>
+                    <TextBlock Text="시간표 정보" FontWeight="SemiBold"/>
+                  </StackPanel>
+                  <TextBlock x:Name="TxtTimetableInfo"
+                             Text="수업을 선택하세요"
+                             FontSize="12"
+                             Foreground="{DynamicResource SystemBaseMediumColor}"
+                             TextWrapping="Wrap"/>
+                  <ItemsControl x:Name="TimetableItemsControl">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="x:String">
+                        <Border Background="{DynamicResource SystemListLowColor}"
+                                CornerRadius="4"
+                                Padding="8,3"
+                                Margin="0,2">
+                          <TextBlock Text="{Binding}" FontSize="11"/>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"/>
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                  </ItemsControl>
+                </StackPanel>
+              </Border>
+
+              <!-- NEIS 학사일정 -->
+              <Border Grid.Column="1"
+                      Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                      BorderBrush="{DynamicResource SystemBaseMediumLowColor}"
+                      BorderThickness="1"
+                      CornerRadius="8"
+                      Padding="14"
+                      Margin="0,0,8,0">
+                <StackPanel Spacing="6">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6">
+                      <TextBlock Text="📅" FontSize="16"/>
+                      <TextBlock Text="NEIS 학사일정" FontWeight="SemiBold"/>
+                    </StackPanel>
+                    <Button Grid.Column="1"
+                            x:Name="BtnRefreshSchedule"
+                            Click="OnRefreshScheduleClick"
+                            ToolTip.Tip="NEIS에서 학사일정 새로고침"
+                            Padding="6"
+                            Background="Transparent"
+                            BorderThickness="0">
+                      <TextBlock Text="🔄" FontSize="12"/>
+                    </Button>
+                  </Grid>
+                  <TextBlock x:Name="TxtScheduleInfo"
+                             Text="학사일정을 불러오는 중..."
+                             FontSize="12"
+                             Foreground="{DynamicResource SystemBaseMediumColor}"
+                             TextWrapping="Wrap"/>
+                </StackPanel>
+              </Border>
+
+              <!-- 통계 요약 -->
+              <Border Grid.Column="2"
+                      Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                      BorderBrush="{DynamicResource SystemBaseMediumLowColor}"
+                      BorderThickness="1"
+                      CornerRadius="8"
+                      Padding="14">
+                <StackPanel Orientation="Horizontal" Spacing="16">
+                  <StackPanel HorizontalAlignment="Center">
+                    <TextBlock x:Name="TxtTotalWeeks"
+                               Text="0주"
+                               FontSize="20"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="총 주차"
+                               FontSize="11"
+                               Foreground="{DynamicResource SystemBaseMediumColor}"
+                               HorizontalAlignment="Center"/>
+                  </StackPanel>
+                  <StackPanel HorizontalAlignment="Center">
+                    <TextBlock x:Name="TxtTotalClassDays"
+                               Text="0일"
+                               FontSize="20"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="수업일"
+                               FontSize="11"
+                               Foreground="{DynamicResource SystemBaseMediumColor}"
+                               HorizontalAlignment="Center"/>
+                  </StackPanel>
+                  <StackPanel HorizontalAlignment="Center">
+                    <TextBlock x:Name="TxtAutoHours"
+                               Text="0"
+                               FontSize="20"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource SystemAccentColor}"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="총 시수"
+                               FontSize="11"
+                               Foreground="{DynamicResource SystemBaseMediumColor}"
+                               HorizontalAlignment="Center"/>
+                  </StackPanel>
+                  <StackPanel HorizontalAlignment="Center">
+                    <TextBlock x:Name="TxtPlannedHours"
+                               Text="0"
+                               FontSize="20"
+                               FontWeight="Bold"
+                               Foreground="#FFB900"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="단원시수"
+                               FontSize="11"
+                               Foreground="{DynamicResource SystemBaseMediumColor}"
+                               HorizontalAlignment="Center"/>
+                  </StackPanel>
+                </StackPanel>
+              </Border>
+            </Grid>
+
+            <!-- 안내/경고 메시지 -->
+            <Border Grid.Row="1"
+                    x:Name="HoursInfoBorder"
+                    IsVisible="False"
+                    CornerRadius="4"
+                    Padding="10,8"
+                    Margin="0,0,0,8">
+              <TextBlock x:Name="TxtHoursInfo"
+                         FontSize="12"
+                         TextWrapping="Wrap"/>
+            </Border>
+
+            <!-- 테이블 헤더 -->
+            <Border Grid.Row="2"
+                    Background="{DynamicResource SystemControlBackgroundChromeLowBrush}"
+                    CornerRadius="4,4,0,0"
+                    Padding="8,6">
+              <Grid x:Name="TableHeader"/>
+            </Border>
+
+            <!-- 테이블 본문 -->
+            <Border Grid.Row="3"
+                    Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                    BorderBrush="{DynamicResource SystemBaseMediumLowColor}"
+                    BorderThickness="1,0,1,1"
+                    CornerRadius="0,0,4,4">
+              <Panel>
+                <!-- 빈 상태 -->
+                <StackPanel x:Name="HoursEmptyState"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Spacing="8"
+                            IsVisible="False">
+                  <TextBlock Text="🗓" FontSize="48" HorizontalAlignment="Center"/>
+                  <TextBlock x:Name="TxtHoursEmptyMessage"
+                             Text="시간표 데이터가 없습니다"
+                             HorizontalAlignment="Center"
+                             Foreground="{DynamicResource SystemBaseMediumColor}"/>
+                  <TextBlock Text="수업 관리에서 시간표를 먼저 배치하세요"
+                             FontSize="12"
+                             HorizontalAlignment="Center"
+                             Foreground="{DynamicResource SystemBaseMediumLowColor}"/>
+                </StackPanel>
+
+                <!-- 시수 테이블 -->
+                <ScrollViewer x:Name="WeeklyHoursScrollViewer"
+                              VerticalScrollBarVisibility="Auto">
+                  <StackPanel x:Name="WeeklyHoursTable"/>
+                </ScrollViewer>
+              </Panel>
+            </Border>
+          </Grid>
+        </TabItem>
+
+        <!-- ───────────── 탭3: 단원 배치 ───────────── -->
+        <TabItem Header="단원 배치">
+          <Grid RowDefinitions="*" Margin="0,12,0,0">
+            <Grid ColumnDefinitions="280,*">
+
+              <!-- 왼쪽: 단원 목록 요약 (선택 불필요 → ItemsControl) -->
+              <Border Grid.Column="0"
+                      Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                      BorderBrush="{DynamicResource SystemBaseMediumLowColor}"
+                      BorderThickness="1"
+                      CornerRadius="8"
+                      Margin="0,0,12,0"
+                      Padding="14">
+                <Grid RowDefinitions="Auto,Auto,*">
+
+                  <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,8">
+                    <TextBlock Text="단원 목록"
+                               FontWeight="SemiBold"
+                               FontSize="15"/>
+                    <TextBlock x:Name="TxtUnitSummary"
+                               Text="0개 단원 / 0시간"
+                               FontSize="12"
+                               Foreground="{DynamicResource SystemBaseMediumColor}"/>
+                  </StackPanel>
+
+                  <!-- 유형별 통계 뱃지 -->
+                  <WrapPanel Grid.Row="1" Margin="0,0,0,8">
+                    <Border Background="{DynamicResource SystemListLowColor}"
+                            CornerRadius="4" Padding="8,3" Margin="0,0,4,4">
+                      <TextBlock x:Name="TxtNormalCount" Text="일반: 0" FontSize="11"/>
+                    </Border>
+                    <Border Background="#1AFFB900"
+                            CornerRadius="4" Padding="8,3" Margin="0,0,4,4">
+                      <TextBlock x:Name="TxtExamCount" Text="지필: 0" FontSize="11"/>
+                    </Border>
+                    <Border Background="#1AFFB900"
+                            CornerRadius="4" Padding="8,3" Margin="0,0,4,4">
+                      <TextBlock x:Name="TxtAssessmentCount" Text="수행: 0" FontSize="11"/>
+                    </Border>
+                    <Border Background="{DynamicResource SystemListLowColor}"
+                            CornerRadius="4" Padding="8,3" Margin="0,0,0,4">
+                      <TextBlock x:Name="TxtPinnedCount" Text="📌 고정: 0" FontSize="11"/>
+                    </Border>
+                  </WrapPanel>
+
+                  <!-- 배치용 단원 목록 (선택 없음 → ItemsControl) -->
+                  <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl x:Name="SectionSummaryListBox">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="models:CourseSection">
+                          <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" Margin="4,2">
+                            <TextBlock Grid.Column="0"
+                                       Text="{Binding SectionTypeIcon}"
+                                       FontSize="12"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,4,0"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding SectionName}"
+                                       FontSize="12"
+                                       TextTrimming="CharacterEllipsis"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="2"
+                                       Text="{Binding PinnedDateDisplay}"
+                                       FontSize="11"
+                                       IsVisible="{Binding IsPinned}"
+                                       Foreground="{DynamicResource SystemAccentColor}"
+                                       VerticalAlignment="Center"
+                                       Margin="4,0"/>
+                            <TextBlock Grid.Column="3"
+                                       Text="{Binding PageRangeDisplay}"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource SystemBaseMediumLowColor}"
+                                       VerticalAlignment="Center"
+                                       Margin="4,0"/>
+                            <TextBlock Grid.Column="4"
+                                       Text="{Binding HoursDisplay}"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource SystemAccentColor}"
+                                       VerticalAlignment="Center"
+                                       MinWidth="35"/>
+                          </Grid>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </ScrollViewer>
+                </Grid>
+              </Border>
+
+              <!-- 오른쪽: 배치 컨트롤 -->
+              <Border Grid.Column="1"
+                      Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                      BorderBrush="{DynamicResource SystemBaseMediumLowColor}"
+                      BorderThickness="1"
+                      CornerRadius="8"
+                      Padding="14">
+                <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+                  <!-- 헤더 + Undo/Redo -->
+                  <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,10">
+                    <TextBlock Grid.Column="0"
+                               Text="수업 배치"
+                               FontWeight="SemiBold"
+                               FontSize="15"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                      <Button x:Name="BtnUndo"
+                              Click="OnUndoClick"
+                              ToolTip.Tip="실행 취소 (Ctrl+Z)"
+                              IsEnabled="False"
+                              Padding="8">
+                        <TextBlock Text="↩" FontSize="14"/>
+                      </Button>
+                      <Button x:Name="BtnRedo"
+                              Click="OnRedoClick"
+                              ToolTip.Tip="다시 실행 (Ctrl+Y)"
+                              IsEnabled="False"
+                              Padding="8">
+                        <TextBlock Text="↪" FontSize="14"/>
+                      </Button>
+                    </StackPanel>
+                  </Grid>
+
+                  <!-- 배치 설정 -->
+                  <StackPanel Grid.Row="1" Spacing="10" Margin="0,0,0,12">
+
+                    <!-- 학급 선택 -->
+                    <Grid ColumnDefinitions="50,*">
+                      <TextBlock Grid.Column="0" Text="학급" VerticalAlignment="Center"/>
+                      <ComboBox x:Name="CmbRoom"
+                                Grid.Column="1"
+                                PlaceholderText="학급 선택"
+                                HorizontalAlignment="Stretch"
+                                SelectionChanged="OnRoomSelectionChanged"/>
+                    </Grid>
+
+                    <!-- 기간 설정 -->
+                    <Grid ColumnDefinitions="50,*,50,*">
+                      <TextBlock Grid.Column="0" Text="시작" VerticalAlignment="Center"/>
+                      <CalendarDatePicker x:Name="DpStartDate"
+                                         Grid.Column="1"
+                                         PlaceholderText="시작일"/>
+                      <TextBlock Grid.Column="2" Text="종료" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                      <CalendarDatePicker x:Name="DpEndDate"
+                                         Grid.Column="3"
+                                         PlaceholderText="종료일"/>
+                    </Grid>
+
+                    <!-- 자동 배치 버튼 -->
+                    <Button x:Name="BtnGeneratePlan"
+                            Content="🚀 자동 배치 실행"
+                            Classes="accent"
+                            HorizontalAlignment="Stretch"
+                            Click="OnGeneratePlanClick"/>
+                  </StackPanel>
+
+                  <!-- 배치 결과 목록 -->
+                  <ListBox Grid.Row="2"
+                           x:Name="UnitPlanListBox"
+                           SelectionMode="Single"
+                           Background="Transparent"
+                           BorderThickness="0"
+                           SelectionChanged="OnPlacementSelectionChanged">
+                    <ListBox.ItemTemplate>
+                      <DataTemplate x:DataType="local:PlacementDisplayItem">
+                        <Panel Margin="2,1">
+                          <!-- 주차 헤더 -->
+                          <TextBlock Text="{Binding HeaderDisplay}"
+                                     IsVisible="{Binding IsHeader}"
+                                     FontWeight="SemiBold"
+                                     FontSize="13"
+                                     Foreground="{DynamicResource SystemAccentColor}"
+                                     Margin="0,6,0,2"/>
+                          <!-- 수업 슬롯 -->
+                          <Grid ColumnDefinitions="80,45,Auto,Auto,*,Auto"
+                                IsVisible="{Binding IsSlot}">
+                            <TextBlock Grid.Column="0"
+                                       Text="{Binding DateDisplay}"
+                                       FontSize="12"
+                                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding PeriodDisplay}"
+                                       FontSize="12"
+                                       Foreground="{DynamicResource SystemBaseMediumLowColor}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="2"
+                                       Text="{Binding RoomDisplay}"
+                                       FontSize="11"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource SystemAccentColor}"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,4,0"/>
+                            <TextBlock Grid.Column="3"
+                                       Text="{Binding TypeIcon}"
+                                       FontSize="12"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,4,0"/>
+                            <TextBlock Grid.Column="4"
+                                       Text="{Binding SectionName}"
+                                       FontSize="13"
+                                       TextTrimming="CharacterEllipsis"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="5"
+                                       Text="{Binding ProgressDisplay}"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource SystemBaseMediumLowColor}"
+                                       VerticalAlignment="Center"
+                                       MinWidth="35"/>
+                          </Grid>
+                        </Panel>
+                      </DataTemplate>
+                    </ListBox.ItemTemplate>
+                  </ListBox>
+
+                  <!-- 수동 편집 버튼 -->
+                  <StackPanel Grid.Row="3"
+                              Orientation="Horizontal"
+                              Spacing="6"
+                              Margin="0,8,0,0">
+                    <Button x:Name="BtnChangeUnit"
+                            Content="단원 변경"
+                            Click="OnChangeUnitClick"
+                            IsEnabled="False"
+                            Classes="btn-md"/>
+                    <Button x:Name="BtnRemoveUnit"
+                            Content="배치 삭제"
+                            Click="OnRemoveUnitClick"
+                            IsEnabled="False"
+                            Classes="btn-md"/>
+                  </StackPanel>
+
+                </Grid>
+              </Border>
+            </Grid>
+          </Grid>
+        </TabItem>
+
+      </TabControl>
+    </Panel>
+  </Grid>
+</UserControl>

@@ -4,8 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using SaemDesk.Models;
-using SaemDesk.Repositories;
+using SaemDesk.Collections;
+using SaemDesk.Board.Models;
+using SaemDesk.Board.Repositories;
+using BoardDb = SaemDesk.Board.BoardDatabase;
 
 namespace SaemDesk.ViewModels.Pages;
 
@@ -15,7 +17,7 @@ namespace SaemDesk.ViewModels.Pages;
 /// </summary>
 public partial class SchoolWorkPageVM : ViewModelBase
 {
-    public ObservableCollection<Post> WorkPosts { get; } = new();
+    public OptimizedObservableCollection<Post> WorkPosts { get; } = new();
 
     [ObservableProperty] private string _statusText = string.Empty;
     [ObservableProperty] private string _errorText = string.Empty;
@@ -33,11 +35,9 @@ public partial class SchoolWorkPageVM : ViewModelBase
         ErrorText = string.Empty;
         try
         {
-            using var repo = new PostRepository(BoardDatabase.DbPath);
+            using var repo = new PostRepository(BoardDb.DbPath);
             var rows = await repo.GetByCategoryAsync("업무");
-            WorkPosts.Clear();
-            foreach (var p in rows.OrderByDescending(x => x.DateTime))
-                WorkPosts.Add(p);
+            WorkPosts.ReplaceAll(rows.OrderByDescending(x => x.DateTime));
             StatusText = $"업무 게시글 {WorkPosts.Count}건";
         }
         catch (Exception ex) { ErrorText = ex.Message; }

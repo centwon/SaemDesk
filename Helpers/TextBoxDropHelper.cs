@@ -2,6 +2,8 @@ using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using SaemDesk.Models;
+using SaemDesk.Views.Controls;
 
 namespace SaemDesk.Helpers;
 
@@ -85,8 +87,19 @@ public static class TextBoxDropHelper
     {
         if (sender is not TextBox tb) return;
 
-        // Avalonia 12: e.DataTransfer.TryGetText()
-        string? text = e.DataTransfer.TryGetText();
+        // Enrollment 드래그: 이름(번호) 형태로 변환
+        string? text = null;
+        if (e.DataTransfer.Contains(ListStudent.EnrollmentDragFormat))
+        {
+            var enrollment = e.DataTransfer.TryGetValue(ListStudent.EnrollmentDragFormat);
+            if (enrollment is not null)
+                text = $"{enrollment.Name}({enrollment.Number})";
+        }
+
+        // 일반 텍스트 드래그 fallback
+        if (text == null)
+            text = e.DataTransfer.TryGetText();
+
         if (string.IsNullOrEmpty(text)) return;
 
         int caret = tb.CaretIndex;
@@ -108,7 +121,8 @@ public static class TextBoxDropHelper
         e.Handled = true;
     }
 
-    // Avalonia 12: DataFormat.Text (DataFormat enum, not DataFormats class)
+    // Enrollment 포맷 또는 일반 텍스트 포맷 허용
     private static bool HasText(DragEventArgs e)
-        => e.DataTransfer.Formats.Any(f => f == DataFormat.Text);
+        => e.DataTransfer.Contains(ListStudent.EnrollmentDragFormat)
+        || e.DataTransfer.Formats.Any(f => f == DataFormat.Text);
 }

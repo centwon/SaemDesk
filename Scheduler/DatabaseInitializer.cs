@@ -146,50 +146,28 @@ namespace SaemDesk.Scheduler
             var count = Convert.ToInt32(await cmd.ExecuteScalarAsync());
             if (count == 1) return;
 
-            // (title, order, syncMode)
-            var defaults = new[] { (CategoryNames.Lesson, 1, "None"), (CategoryNames.Homeroom, 2, "None"), (CategoryNames.Work, 3, "None"), (CategoryNames.Personal, 4, "TwoWay") };
-            foreach (var (title, order, sync) in defaults)
+            // (title, order, color, syncMode)
+            var defaults = new[]
+            {
+                (CategoryNames.Lesson,   1, "#4285F4", "None"),    // 파란색
+                (CategoryNames.Homeroom, 2, "#0F9D58", "None"),    // 초록색
+                (CategoryNames.Work,     3, "#DB4437", "None"),    // 빨간색
+                (CategoryNames.Personal, 4, "#F4B400", "TwoWay"), // 노란색
+            };
+            foreach (var (title, order, color, sync) in defaults)
             {
                 cmd.CommandText = @"
-                    INSERT INTO KCalendarList (GoogleId, Title, SortOrder, IsDefault, Updated, SyncMode)
-                    VALUES ('', @Title, @Order, 1, @Updated, @SyncMode)";
+                    INSERT INTO KCalendarList (GoogleId, Title, Color, SortOrder, IsDefault, IsVisible, Updated, SyncMode)
+                    VALUES ('', @Title, @Color, @Order, 1, 1, @Updated, @SyncMode)";
                 cmd.Parameters.Clear();
                 cmd.Parameters.AddWithValue("@Title", title);
+                cmd.Parameters.AddWithValue("@Color", color);
                 cmd.Parameters.AddWithValue("@Order", order);
                 cmd.Parameters.AddWithValue("@Updated", DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"));
                 cmd.Parameters.AddWithValue("@SyncMode", sync);
                 await cmd.ExecuteNonQueryAsync();
             }
-            Debug.WriteLine("[SchedulerDB] 기본 목록 4개 생성 완료 (수업/학급/업무/개인)");
-
-            // KCalendarList 기본 캘린더 생성 (없는 경우만)
-            cmd.CommandText = "SELECT EXISTS(SELECT 1 FROM KCalendarList)";
-            count = Convert.ToInt32(await cmd.ExecuteScalarAsync());
-            if (count == 0)
-            {
-                // (title, order, color, syncMode)
-                var calendars = new[]
-                {
-                    (CategoryNames.Lesson, 1, "#4285F4", "None"),   // 파란색
-                    (CategoryNames.Homeroom, 2, "#0F9D58", "None"),   // 초록색
-                    (CategoryNames.Work, 3, "#DB4437", "None"),   // 빨간색
-                    (CategoryNames.Personal, 4, "#F4B400", "TwoWay")  // 노란색
-                };
-                foreach (var (title, order, color, sync) in calendars)
-                {
-                    cmd.CommandText = @"
-                        INSERT INTO KCalendarList (GoogleId, Title, Color, SortOrder, IsDefault, IsVisible, Updated, SyncMode)
-                        VALUES ('', @Title, @Color, @Order, 1, 1, @Updated, @SyncMode)";
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@Title", title);
-                    cmd.Parameters.AddWithValue("@Color", color);
-                    cmd.Parameters.AddWithValue("@Order", order);
-                    cmd.Parameters.AddWithValue("@Updated", DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"));
-                    cmd.Parameters.AddWithValue("@SyncMode", sync);
-                    await cmd.ExecuteNonQueryAsync();
-                }
-                Debug.WriteLine("[SchedulerDB] 기본 캘린더 4개 생성 완료 (수업/학급/업무/개인)");
-            }
+            Debug.WriteLine("[SchedulerDB] 기본 캘린더 4개 생성 완료 (수업/학급/업무/개인)");
         }
 
         private async Task CreateIndexesAsync()

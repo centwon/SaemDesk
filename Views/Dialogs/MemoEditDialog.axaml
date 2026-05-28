@@ -1,0 +1,44 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:SaemDesk.Views.Controls"
+        x:Class="SaemDesk.Views.Dialogs.MemoEditDialog"
+        Title="메모 편집"
+        Width="560" Height="660"
+        MinWidth="420" MinHeight="480"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+  <Border Padding="16" Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+    <Grid RowDefinitions="Auto,*,Auto">
+
+      <!-- Row 0: 카테고리 + 제목 -->
+      <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,*" Margin="0,0,0,8">
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <TextBlock Text="카테고리" FontSize="12" VerticalAlignment="Center"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+          <ComboBox x:Name="CBoxCategory" MinWidth="100" FontSize="12"/>
+        </StackPanel>
+        <TextBox x:Name="TxtTitle" Grid.Column="2"
+                 PlaceholderText="제목" Margin="8,0,0,0"
+                 FontSize="14" FontWeight="Medium"/>
+      </Grid>
+
+      <!-- Row 1: Jodit 에디터 -->
+      <Border Grid.Row="1" CornerRadius="4"
+              BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+              BorderThickness="1"
+              Margin="0,0,0,8">
+        <controls:JoditEditor x:Name="Editor" Mode="Full"/>
+      </Border>
+
+      <!-- Row 2: 버튼 -->
+      <StackPanel Grid.Row="2" Orientation="Horizontal"
+                  HorizontalAlignment="Right" Spacing="8">
+        <Button Content="취소" MinWidth="80" Padding="14,7" Click="OnCancel"/>
+        <Button Content="저장" MinWidth="80" Padding="14,7" Classes="accent"
+                Click="OnSave" HotKey="Ctrl+S"/>
+      </StackPanel>
+
+    </Grid>
+  </Border>
+</Window>

@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
 using SaemDesk.Board.Views.Pages;
 using SaemDesk.ViewModels.Pages;
 
@@ -18,7 +17,6 @@ public partial class BoardPage : UserControl
     public BoardPage()
     {
         InitializeComponent();
-        DataContext = new BoardPageVM();
 
         // ListPage 이벤트
         ListPage.PostSelected     += OnPostSelected;
@@ -32,48 +30,32 @@ public partial class BoardPage : UserControl
         EditPage.Saved     += OnEditSaved;
         EditPage.Cancelled += OnEditCancelled;
 
-        Loaded += OnLoaded;
+        // DataContext 변경 감지 — ViewLocator가 ViewModel을 나중에 주입하므로
+        // Loaded 대신 DataContextChanged 를 사용해 파라미터를 안정적으로 전달.
+        DataContextChanged += OnDataContextChanged;
     }
 
-    // ── 파라미터 적용 (MainWindow에서 호출) ────────────────
+    // ── DataContext 변경 시 PostListPage 초기화 ───────────
 
-    public async Task ApplyParameterAsync(BoardPageParameter? param)
+    private async void OnDataContextChanged(object? sender, EventArgs e)
     {
-        _param = param;
+        if (DataContext is not BoardPageVM vm) return;
+
+        _param = vm.Parameter;
+
         Board.Views.Pages.PostListPageParameter? listParam = null;
-        if (param is not null)
+        if (_param is not null)
         {
             listParam = new Board.Views.Pages.PostListPageParameter
             {
-                Title               = param.Title ?? "",
-                AllowCategoryChange = param.AllowCategoryChange,
-                ShowSubjectFilter   = param.ShowSubjectFilter,
-                Category            = param.FixedCategory ?? "",
+                Title               = _param.Title ?? "",
+                AllowCategoryChange = _param.AllowCategoryChange,
+                ShowSubjectFilter   = _param.ShowSubjectFilter,
+                Category            = _param.FixedCategory ?? "",
             };
         }
-        await ListPage.InitAsync(listParam);
-    }
 
-    // ── Loaded ────────────────────────────────────────────
-
-    private async void OnLoaded(object? sender, RoutedEventArgs e)
-    {
-        var vm = DataContext as BoardPageVM;
-        if (vm is null) return;
-
-        // BoardPageVM의 파라미터 → PostListPage 파라미터로 변환
-        Board.Views.Pages.PostListPageParameter? listParam = null;
-        if (vm.Parameter is not null)
-        {
-            var p = vm.Parameter;
-            listParam = new Board.Views.Pages.PostListPageParameter
-            {
-                Title               = p.Title ?? "",
-                AllowCategoryChange = p.AllowCategoryChange,
-                ShowSubjectFilter   = p.ShowSubjectFilter,
-                Category            = p.FixedCategory ?? "",
-            };
-        }
+        ShowOnly(ListPage);
         await ListPage.InitAsync(listParam);
     }
 

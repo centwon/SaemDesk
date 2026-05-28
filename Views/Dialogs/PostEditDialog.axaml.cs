@@ -2,8 +2,9 @@ using System;
 using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using SaemDesk.Models;
-using SaemDesk.Repositories;
+using SaemDesk.Board.Models;
+using SaemDesk.Board.Repositories;
+using BoardDb = SaemDesk.Board.BoardDatabase;
 
 namespace SaemDesk.Views.Dialogs;
 
@@ -18,6 +19,15 @@ public partial class PostEditDialog : Window
 
     /// <summary>저장 완료 여부.</summary>
     public bool Saved { get; private set; }
+
+    /// <summary>
+    /// 신규 작성 시 카테고리 초기값 (MemoBoard.OnAddClick 에서 주입).
+    /// 생성자 실행 후, ShowDialog 호출 전에 설정해야 적용됨.
+    /// </summary>
+    public string PresetCategory
+    {
+        set { if (_isNew) CategoryBox.Text = value; }
+    }
 
     public PostEditDialog() : this(null) { }
 
@@ -82,7 +92,7 @@ public partial class PostEditDialog : Window
             _post.Content  = html;
             _post.DateTime = _isNew ? DateTime.Now : _post.DateTime;
 
-            using var repo = new PostRepository(BoardDatabase.DbPath);
+            using var repo = new PostRepository(BoardDb.DbPath);
             if (_isNew)
                 await repo.CreateAsync(_post);
             else

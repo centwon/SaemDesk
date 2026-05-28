@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SaemDesk.Collections;
 using SaemDesk.Models;
 using SaemDesk.Repositories;
 
@@ -15,8 +16,8 @@ namespace SaemDesk.ViewModels.Pages;
 /// </summary>
 public partial class ClubHomePageVM : ViewModelBase
 {
-    public ObservableCollection<Club>           Clubs   { get; } = new();
-    public ObservableCollection<ClubEnrollment> Members { get; } = new();
+    public OptimizedObservableCollection<Club>           Clubs   { get; } = new();
+    public OptimizedObservableCollection<ClubEnrollment> Members { get; } = new();
 
     [ObservableProperty] private Club?  _selectedClub;
     [ObservableProperty] private bool   _isBusy;
@@ -33,8 +34,7 @@ public partial class ClubHomePageVM : ViewModelBase
         {
             using var repo = new ClubRepository(SchoolDatabase.DbPath);
             var list = await repo.GetBySchoolAsync(Settings.SchoolCode.Value, Year);
-            Clubs.Clear();
-            foreach (var c in list) Clubs.Add(c);
+            Clubs.ReplaceAll(list);
             if (Clubs.Count > 0) SelectedClub = Clubs[0];
         }
         catch (Exception ex)
@@ -51,8 +51,7 @@ public partial class ClubHomePageVM : ViewModelBase
         {
             using var repo = new ClubEnrollmentRepository(SchoolDatabase.DbPath);
             var list = await repo.GetByClubAsync(SelectedClub.No);
-            Members.Clear();
-            foreach (var m in list) Members.Add(m);
+            Members.ReplaceAll(list);
             StatusText = $"부원 {Members.Count}명";
         }
         catch (Exception ex)

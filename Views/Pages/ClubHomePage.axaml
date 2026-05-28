@@ -7,7 +7,6 @@
              x:DataType="vm:ClubHomePageVM"
              Classes="page">
 
-  <Border Padding="16">
     <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
@@ -130,5 +129,4 @@
       </Border>
     </Grid>
     </Grid>
-  </Border>
 </UserControl>

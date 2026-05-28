@@ -55,6 +55,19 @@ public partial class StudentLogEditDialog : Window
                 : LogCategory.기타;
 
             LogBox.SetContext(year, sem, cat);
+
+            if (cat == LogCategory.교과활동 && existing?.CourseNo > 0)
+            {
+                LogBox.LockCategory(LogCategory.교과활동);
+                LogBox.SetSubjectName(existing.SubjectName);
+                TitleText.Text = $"수업 활동 기록 추가 — {existing.SubjectName}";
+            }
+            else if (cat == LogCategory.동아리활동 && existing?.ClubNo > 0)
+            {
+                LogBox.LockCategory(LogCategory.동아리활동);
+                LogBox.SelectClub(existing.ClubNo);
+                TitleText.Text = $"동아리 활동 기록 추가 — {existing.ClubName}";
+            }
         }
         else
         {

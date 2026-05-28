@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MiniExcelLibs;
+using SaemDesk.Collections;
 using SaemDesk.Models;
 using SaemDesk.Repositories;
 
@@ -17,9 +18,9 @@ namespace SaemDesk.ViewModels.Pages;
 /// </summary>
 public partial class ProgressMatrixPageVM : ViewModelBase
 {
-    public ObservableCollection<Course> Courses { get; } = new();
-    public ObservableCollection<MatrixRow> Rows { get; } = new();
-    public ObservableCollection<string> Rooms { get; } = new();
+    public OptimizedObservableCollection<Course> Courses { get; } = new();
+    public OptimizedObservableCollection<MatrixRow> Rows { get; } = new();
+    public OptimizedObservableCollection<string> Rooms { get; } = new();
 
     [ObservableProperty]
     private Course? _selectedCourse;
@@ -52,8 +53,7 @@ public partial class ProgressMatrixPageVM : ViewModelBase
         {
             using var svc = new SaemDesk.Services.CourseService();
             var list = await svc.GetMyCoursesAsync();
-            Courses.Clear();
-            foreach (var c in list) Courses.Add(c);
+            Courses.ReplaceAll(list);
             StatusText = $"수업 {Courses.Count}개";
         }
         catch (Exception ex) { ErrorText = ex.Message; }
@@ -81,10 +81,9 @@ public partial class ProgressMatrixPageVM : ViewModelBase
             var rooms = SelectedCourse.RoomList;
             var progress = await progressRepo.GetByCourseAsync(SelectedCourse.No);
 
-            Rooms.Clear();
-            foreach (var r in rooms) Rooms.Add(r);
+            Rooms.ReplaceAll(rooms);
 
-            Rows.Clear();
+            var newRows = new List<MatrixRow>();
             int idx = 0;
             foreach (var sec in sections.OrderBy(s => s.SortOrder).ThenBy(s => s.No))
             {
@@ -106,8 +105,9 @@ public partial class ProgressMatrixPageVM : ViewModelBase
                             : p.IsCompleted ? CellStateEx.FromType(p.ProgressType) : CellState.Empty,
                     });
                 }
-                Rows.Add(row);
+                newRows.Add(row);
             }
+            Rows.ReplaceAll(newRows);
 
             ComputeStats();
             StatusText = $"단원 {Rows.Count} × 분반 {Rooms.Count}";

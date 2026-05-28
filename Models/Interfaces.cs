@@ -15,16 +15,6 @@ namespace SaemDesk.Models
     }
 
     /// <summary>
-    /// 삭제 가능한 엔티티 인터페이스
-    /// 논리 삭제를 지원하는 엔티티가 구현
-    /// </summary>
-    public interface IDeletable : IEntity
-    {
-        /// <summary>논리 삭제 플래그</summary>
-        bool IsDeleted { get; set; }
-    }
-
-    /// <summary>
     /// 학년도/학기 정보를 가진 엔티티 인터페이스
     /// </summary>
     public interface IYearSemesterEntity : IEntity

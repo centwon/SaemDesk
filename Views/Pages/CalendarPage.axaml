@@ -9,7 +9,7 @@
   <Grid RowDefinitions="Auto,Auto,*">
 
     <!-- ── 헤더 ──────────────────────────────────────────── -->
-    <StackPanel Grid.Row="0" Margin="20,20,20,0" Spacing="4">
+    <StackPanel Grid.Row="0" Margin="0,0,0,4" Spacing="4">
       <StackPanel Orientation="Horizontal" Spacing="10">
         <TextBlock Text="◫"
                    FontSize="22"
@@ -42,15 +42,14 @@
     <!-- ── 버튼 바 ───────────────────────────────────────── -->
     <StackPanel Grid.Row="1"
                 Orientation="Horizontal"
-                Margin="20,12,20,0"
+                Margin="0,12,0,0"
                 Spacing="8">
       <Button Content="새로고침"
               Command="{Binding LoadCalendarCommand}"
-              Padding="12,6"/>
+              Classes="btn-md"/>
       <Button Content="NEIS 다운로드"
               Command="{Binding DownloadFromNeisCommand}"
-              Classes="accent"
-              Padding="14,6"/>
+              Classes="accent btn-md"/>
     </StackPanel>
 
     <!-- ── 본문 ──────────────────────────────────────────── -->
@@ -60,7 +59,7 @@
       <ProgressBar IsVisible="{Binding IsLoading}"
                    IsIndeterminate="True"
                    VerticalAlignment="Top"
-                   Margin="20,8,20,0"/>
+                   Margin="0,8,0,0"/>
 
       <!-- 오류 -->
       <TextBlock IsVisible="{Binding ErrorText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
@@ -70,7 +69,7 @@
                  Foreground="{DynamicResource SystemErrorTextColor}"
                  FontSize="13"
                  TextWrapping="Wrap"
-                 Margin="20"/>
+                 Margin="0"/>
 
       <!-- 빈 상태 -->
       <StackPanel IsVisible="{Binding IsEmpty}"
@@ -94,7 +93,7 @@
       <!-- 일정 목록 -->
       <ScrollViewer IsVisible="{Binding HasEvents}"
                     HorizontalScrollBarVisibility="Disabled">
-        <ItemsControl ItemsSource="{Binding Events}" Margin="20,8,20,20">
+        <ItemsControl ItemsSource="{Binding Events}" Margin="0,8,0,0">
           <ItemsControl.ItemTemplate>
             <DataTemplate x:DataType="models:SchoolScheduleGroup">
               <Border Classes="card" Margin="0,3" Padding="14,10">

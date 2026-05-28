@@ -7,112 +7,70 @@
              x:DataType="vm:ClubActivityPageVM"
              Classes="page">
 
-  <Border Padding="16">
-    <Grid>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>
-        <RowDefinition Height="12"/>
-        <RowDefinition Height="*"/>
-      </Grid.RowDefinitions>
+  <Grid RowDefinitions="Auto,12,*">
 
-      <!-- 헤더 -->
-      <Grid Grid.Row="0">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
+    <!-- ── 헤더 ─────────────────────────────────────────── -->
+    <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
 
-        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-          <TextBlock Text="🎭 동아리 활동 기록" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
-          <Separator/>
-          <StackPanel Spacing="2">
-            <TextBlock Text="동아리" FontSize="11"/>
-            <ComboBox Name="CBoxClub"
-                      ItemsSource="{Binding Clubs}"
-                      SelectedItem="{Binding SelectedClub, Mode=TwoWay}"
-                      MinWidth="180"
-                      SelectionChanged="OnClubChanged">
-              <ComboBox.ItemTemplate>
-                <DataTemplate x:DataType="models:Club">
-                  <TextBlock Text="{Binding ClubName}"/>
-                </DataTemplate>
-              </ComboBox.ItemTemplate>
-            </ComboBox>
-          </StackPanel>
-          <TextBlock Name="TxtMemberCount" Text="0명" FontSize="13"
-                     Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                     VerticalAlignment="Bottom" Margin="8,0,0,2"/>
-        </StackPanel>
+      <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+        <TextBlock Text="동아리 활동 기록" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
 
-        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
-          <Button Name="BtnAddLog"    Content="추가" Padding="12,6" Click="BtnAddLog_Click"/>
-          <Button Name="BtnSaveLog"   Content="저장" Padding="12,6" Click="BtnSaveLog_Click" Classes="accent"/>
-          <Button Name="BtnDeleteLog" Content="삭제" Padding="12,6" Click="BtnDeleteLog_Click"/>
-          <Separator/>
-          <Button Name="BtnRefresh"   Content="⟳"   Padding="8,6"  Click="BtnRefresh_Click"/>
-        </StackPanel>
-      </Grid>
+        <Border Width="1" Height="20"
+                Background="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                VerticalAlignment="Center"/>
 
-      <!-- 본문 -->
-      <Grid Grid.Row="2" ColumnDefinitions="220,12,*">
+        <ComboBox Name="CBoxClub"
+                  ItemsSource="{Binding Clubs}"
+                  SelectedItem="{Binding SelectedClub, Mode=TwoWay}"
+                  MinWidth="180"
+                  SelectionChanged="OnClubChanged">
+          <ComboBox.ItemTemplate>
+            <DataTemplate x:DataType="models:Club">
+              <TextBlock Text="{Binding ClubName}"/>
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
 
-        <!-- 부원 목록 (좌) -->
-        <Grid Grid.Column="0">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
+        <TextBlock Name="TxtMemberCount" Text="0명" FontSize="12"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                   VerticalAlignment="Center"/>
 
-          <Border Grid.Row="0"
-                  Background="{DynamicResource SystemControlBackgroundListLowBrush}"
-                  Padding="12,8" CornerRadius="8,8,0,0"
-                  BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
-                  BorderThickness="1,1,1,0">
-            <TextBlock Text="부원" FontWeight="SemiBold" FontSize="13"/>
-          </Border>
+        <Border Width="1" Height="20"
+                Background="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                VerticalAlignment="Center"/>
 
-          <ctrl:ListStudent Name="StudentList" Grid.Row="1" ViewMode="ClassNumName"/>
-        </Grid>
+        <ComboBox Name="CBoxCategory"
+                  ItemsSource="{Binding Categories}"
+                  SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+                  MinWidth="100"
+                  SelectionChanged="OnCategoryChanged"/>
+      </StackPanel>
 
-        <!-- 기록 목록 + StudentSpecBox (우) -->
-        <Grid Grid.Column="2">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-          </Grid.RowDefinitions>
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+        <Button Name="BtnAddLog"    Content="추가"  Classes="btn-md" Click="BtnAddLog_Click"/>
+        <Button Name="BtnSaveLog"   Content="저장"  Classes="accent btn-md" Click="BtnSaveLog_Click"/>
+        <Button Name="BtnDeleteLog" Content="삭제"  Classes="btn-md" Click="BtnDeleteLog_Click"/>
+        <Button Name="BtnRefresh"   Content="⟳"    Padding="8,6" Click="BtnRefresh_Click"/>
+      </StackPanel>
+    </Grid>
 
-          <Border Grid.Row="0"
-                  Background="{DynamicResource SystemControlBackgroundListLowBrush}"
-                  Padding="12,8" CornerRadius="8,8,0,0"
-                  BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
-                  BorderThickness="1,1,1,0">
-            <Grid ColumnDefinitions="*,Auto">
-              <StackPanel Orientation="Horizontal" Spacing="8">
-                <TextBlock Name="TxtSelectedStudent" Text="활동 기록"
-                           FontWeight="SemiBold" FontSize="13"/>
-                <TextBlock Name="TxtLogCount" Text=""
-                           FontSize="12"
-                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
-              </StackPanel>
-              <ComboBox Grid.Column="1"
-                        Name="CBoxCategory"
-                        ItemsSource="{Binding Categories}"
-                        SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
-                        MinWidth="100"
-                        SelectionChanged="OnCategoryChanged"/>
-            </Grid>
-          </Border>
+    <!-- ── 본문 ─────────────────────────────────────────── -->
+    <Grid Grid.Row="2" ColumnDefinitions="220,12,*">
 
-          <ctrl:LogListViewer Name="LogList" Grid.Row="1" StudentInfoMode="HideAll"/>
+      <!-- 부원 목록 (좌) -->
+      <ctrl:ListStudent Name="StudentList" Grid.Column="0" ViewMode="Full"/>
 
-          <ctrl:StudentSpecBox Name="SpecBox"
-                               Grid.Row="2"
-                               Height="180"
-                               IsVisible="False"
-                               Margin="0,12,0,0"/>
-        </Grid>
+      <!-- 기록 목록 + StudentSpecBox (우) -->
+      <Grid Grid.Column="2" RowDefinitions="*,Auto">
+
+        <ctrl:LogListViewer Name="LogList" Grid.Row="0" StudentInfoMode="HideAll"/>
+
+        <ctrl:StudentSpecBox Name="SpecBox"
+                             Grid.Row="1"
+                             Height="180"
+                             IsVisible="False"
+                             Margin="0,12,0,0"/>
       </Grid>
     </Grid>
-  </Border>
+  </Grid>
 </UserControl>

@@ -35,8 +35,9 @@ public partial class StudentLogPage : UserControl, IDisposable
         // 학생 선택 이벤트 연결
         StudentList.StudentSelected += OnStudentSelected;
 
-        // 반 선택 시 자동 로드
-        FilterBar.SelectionChanged += OnFilterBarChanged;
+        // 필터 이벤트 연결
+        YearSemPicker.YearSemesterChanged += OnYearSemesterChanged;
+        ClassFilter.ClassChanged          += OnClassChanged;
 
         // 슬라이더 초기 레이블
         SldFontSize.Value = 12;
@@ -57,7 +58,9 @@ public partial class StudentLogPage : UserControl, IDisposable
         if (_disposed) return;
         _disposed = true;
         _logService.Dispose();
-        StudentList.StudentSelected -= OnStudentSelected;
+        StudentList.StudentSelected           -= OnStudentSelected;
+        YearSemPicker.YearSemesterChanged     -= OnYearSemesterChanged;
+        ClassFilter.ClassChanged              -= OnClassChanged;
         GC.SuppressFinalize(this);
     }
 
@@ -65,11 +68,17 @@ public partial class StudentLogPage : UserControl, IDisposable
     //  학생 목록 로드
     // ────────────────────────────────────────────────────
 
-    // 반 선택 시 자동 로드 — e.Students 직접 사용
-    private void OnFilterBarChanged(object? sender, FilterChangedEventArgs e)
+    // 학년도·학기 변경 → ClassPicker 재로드
+    private async void OnYearSemesterChanged(object? sender, YearSemesterChangedEventArgs e)
+    {
+        await ClassFilter.LoadAsync(e.Year, e.Semester);
+    }
+
+    // 학급 변경 — e.Students 직접 사용
+    private void OnClassChanged(object? sender, ClassChangedEventArgs e)
     {
         VM.WorkYear      = e.Year;
-        VM.SemesterIndex = e.Semester;  // 1 또는 2
+        VM.SemesterIndex = e.Semester;
         VM.Grade         = e.Grade;
         VM.ClassNum      = e.Class;
         _currentStudents = e.Students;

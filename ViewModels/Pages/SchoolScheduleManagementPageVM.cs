@@ -6,29 +6,21 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MiniExcelLibs;
+using SaemDesk.Collections;
 using SaemDesk.Models;
 using SaemDesk.Services;
 
 namespace SaemDesk.ViewModels.Pages;
 
 /// <summary>
-/// 학사일정 관리(편집) 페이지 VM —
-/// 연도/기간 필터, 행사명·내용·수업공제일·대상학년 인라인 편집,
-/// NEIS 동기화·수동 추가·일괄 저장·삭제.
+/// 학사일정 관리(편집) 페이지 VM
 /// </summary>
 public partial class SchoolScheduleManagementPageVM : ViewModelBase
 {
-    public ObservableCollection<int> Years { get; } = new();
-    public ObservableCollection<SchoolScheduleItemVM> Items { get; } = new();
+    public OptimizedObservableCollection<SchoolScheduleItemVM> Items { get; } = new();
 
     [ObservableProperty]
     private int _selectedYear = Settings.WorkYear;
-
-    [ObservableProperty]
-    private DateTime _startDate = new DateTime(Settings.WorkYear, 3, 1);
-
-    [ObservableProperty]
-    private DateTime _endDate = new DateTime(Settings.WorkYear + 1, 2, 28);
 
     [ObservableProperty]
     private bool _isBusy;
@@ -45,16 +37,22 @@ public partial class SchoolScheduleManagementPageVM : ViewModelBase
     public int ItemCount => Items.Count;
     public int SelectedCount => Items.Count(i => i.IsSelected);
     public bool IsEmpty => Items.Count == 0 && !IsBusy;
+    public string SchoolName => Settings.SchoolName.Value;
+    public bool HasSchoolName => !string.IsNullOrWhiteSpace(Settings.SchoolName.Value);
 
     public SchoolScheduleManagementPageVM()
     {
-        int now = DateTime.Today.Year;
-        for (int y = now - 5; y <= now + 1; y++) Years.Add(y);
         Items.CollectionChanged += (_, _) =>
         {
             OnPropertyChanged(nameof(ItemCount));
             OnPropertyChanged(nameof(IsEmpty));
         };
+    }
+
+    /// <summary>YearSemesterPicker 에서 학년도 주입</summary>
+    public void SetYear(int year)
+    {
+        SelectedYear = year;
     }
 
     [RelayCommand]
@@ -72,11 +70,11 @@ public partial class SchoolScheduleManagementPageVM : ViewModelBase
                 ErrorText = "학교가 설정되지 않았습니다. 설정에서 학교를 먼저 선택하세요.";
                 return;
             }
+            var start = new DateTime(SelectedYear, 3, 1);
+            var end   = new DateTime(SelectedYear + 1, 2, 28);
             using var repo = new SaemDesk.Repositories.SchoolScheduleRepository(SchoolDatabase.DbPath);
-            var rows = await repo.GetByDateRangeAsync(schoolCode, StartDate, EndDate);
-            Items.Clear();
-            foreach (var r in rows.Where(r => r.AY == SelectedYear || SelectedYear == 0))
-                Items.Add(new SchoolScheduleItemVM(r));
+            var rows = await repo.GetByDateRangeAsync(schoolCode, start, end);
+            Items.ReplaceAll(rows.Select(r => new SchoolScheduleItemVM(r)));
             StatusText = $"총 {Items.Count}개";
             OnPropertyChanged(nameof(IsEmpty));
         }
@@ -94,20 +92,41 @@ public partial class SchoolScheduleManagementPageVM : ViewModelBase
     private async Task SyncFromNeisAsync()
     {
         if (IsBusy) return;
+
+        var schoolCode   = Settings.SchoolCode.Value;
+        var provinceCode = Settings.ProvinceCode.Value;
+        if (string.IsNullOrWhiteSpace(schoolCode))
+        {
+            ErrorText = "학교가 설정되지 않았습니다.";
+            return;
+        }
+
+        var confirmed = await Services.DialogService.ShowConfirmAsync(
+            "NEIS 동기화",
+            $"{SelectedYear}학년도 학사일정을 NEIS에서 가져오시겠습니까?\n중복되지 않는 항목만 추가됩니다.");
+        if (!confirmed) return;
+
         ErrorText = string.Empty;
         IsBusy = true;
-        StatusText = "NEIS 동기화 중...";
+        StatusText = "NEIS API 호출 중...";
         try
         {
             using var svc = new SchoolScheduleService(SchoolDatabase.DbPath);
-            var schoolCode = Settings.SchoolCode.Value;
-            if (string.IsNullOrWhiteSpace(schoolCode))
+            var result = await svc.DownloadSchedulesAsync(
+                schoolCode, provinceCode, SelectedYear,
+                new DateTime(SelectedYear, 3, 1),
+                new DateTime(SelectedYear + 1, 2, 28));
+
+            if (!result.Success)
             {
-                ErrorText = "학교가 설정되지 않았습니다.";
+                ErrorText = result.Message;
                 return;
             }
-            var rows = await svc.GetSchedulesByYearAsync(schoolCode, SelectedYear);
-            StatusText = $"NEIS 다운로드 {rows.Count}건 — 다시 조회하세요.";
+
+            StatusText = $"NEIS 저장 {result.SavedCount}건 — 재조회 중...";
+            // 저장 후 자동 재조회
+            await SearchAsync();
+            StatusText = $"NEIS 동기화 완료 ({result.SavedCount}건 저장)";
         }
         catch (Exception ex) { ErrorText = ex.Message; }
         finally { IsBusy = false; }
@@ -233,28 +252,6 @@ public partial class SchoolScheduleManagementPageVM : ViewModelBase
         finally { IsBusy = false; }
     }
 
-    // 일괄 학년 적용용 임시 체크박스 상태
-    [ObservableProperty] private bool _bulkG1;
-    [ObservableProperty] private bool _bulkG2;
-    [ObservableProperty] private bool _bulkG3;
-    [ObservableProperty] private bool _bulkG4;
-    [ObservableProperty] private bool _bulkG5;
-    [ObservableProperty] private bool _bulkG6;
-
-    [RelayCommand]
-    private void ApplyGradesToSelected()
-    {
-        var targets = Items.Where(i => i.IsSelected).ToList();
-        if (targets.Count == 0) { StatusText = "선택된 항목이 없습니다."; return; }
-        foreach (var t in targets)
-        {
-            t.G1 = BulkG1; t.G2 = BulkG2; t.G3 = BulkG3;
-            t.G4 = BulkG4; t.G5 = BulkG5; t.G6 = BulkG6;
-            // OnG*Changed 가 IsModified=true 자동 셋
-        }
-        StatusText = $"{targets.Count}건 학년 일괄 적용 — 저장 버튼으로 DB 반영";
-    }
-
     [RelayCommand]
     private void ToggleSelectAll()
     {
@@ -290,6 +287,7 @@ public partial class SchoolScheduleItemVM : ObservableObject
     public bool IsManual { get; }
     public string ManualIcon => IsManual ? "✋" : "🛰";
     public string ModifiedIcon => IsModified ? "●" : string.Empty;
+    public static string[] SbtrOptions { get; } = ["해당없음", "휴업일", "공휴일"];
 
     [ObservableProperty] private DateTime _date;
     [ObservableProperty] private string _eventName = string.Empty;

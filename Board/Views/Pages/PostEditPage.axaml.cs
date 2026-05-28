@@ -8,6 +8,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using SaemDesk.Board.Models;
 using SaemDesk.Board.Services;
+using SaemDesk.Views.Dialogs;
 
 namespace SaemDesk.Board.Views.Pages;
 
@@ -76,9 +77,13 @@ public partial class PostEditPage : UserControl
         }
         else
         {
-            // 신규 모드
+            // 신규 모드 — 에디터 초기화
             _isEdit = false;
             PageTitle.Text = "새 글 쓰기";
+            TxtTitle.Text      = string.Empty;
+            ContentEditor.Text = string.Empty;
+            CBoxSubject.SelectedIndex = -1;
+            FileListBox.LoadFiles(new List<PostFile>(), param?.DefaultCategory ?? string.Empty);
             _post = new Post
             {
                 DateTime = DateTime.Now,
@@ -178,7 +183,9 @@ public partial class PostEditPage : UserControl
             if (_post is null) return;
 
             _post.Title    = TxtTitle.Text ?? "";
-            _post.Content  = ContentEditor.Text;
+            _post.Content  = await ContentEditor.GetHtmlAsync();
+            if (string.IsNullOrEmpty(_post.Content))
+                _post.Content = ContentEditor.Text; // WebView 미초기화 시 폴백
             _post.DateTime = DateTime.Now;
 
             // 카테고리
@@ -261,5 +268,35 @@ public partial class PostEditPage : UserControl
         if (string.IsNullOrWhiteSpace(TxtTitle.Text))        { Debug.WriteLine("제목 없음"); return false; }
         if (string.IsNullOrWhiteSpace(ContentEditor.Text))   { Debug.WriteLine("내용 없음"); return false; }
         return true;
+    }
+
+    // ── 명렬표 삽입 (NewSchool InsertRosterButton_Click 동등) ─────────────
+
+    private async void BtnInsertRoster_Click(object? sender, RoutedEventArgs e)
+    {
+        var owner = TopLevel.GetTopLevel(this) as Window;
+        if (owner is null) return;
+
+        var dlg = new RosterTableDialog();
+
+        // 카테고리에 따라 기본 스코프 설정
+        string cat = CBoxCategory.SelectedItem as string ?? "";
+        dlg.SetScope(cat switch
+        {
+            "수업"   => "Course",
+            "동아리" => "Club",
+            _       => "Class",
+        });
+
+        await dlg.ShowDialog(owner);
+
+        if (!dlg.IsSuccess || string.IsNullOrEmpty(dlg.GeneratedHtml)) return;
+
+        // JoditEditor에 HTML 삽입
+        await ContentEditor.InsertHtmlAsync(dlg.GeneratedHtml);
+
+        // 제목이 비어 있으면 표 제목으로 자동 채움
+        if (string.IsNullOrWhiteSpace(TxtTitle.Text) && !string.IsNullOrEmpty(dlg.TableTitle))
+            TxtTitle.Text = dlg.TableTitle;
     }
 }

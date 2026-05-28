@@ -15,33 +15,28 @@
     <!-- ══════════════════════════════════════════════════ -->
     <!-- 필터 + 버튼 카드                                    -->
     <!-- ══════════════════════════════════════════════════ -->
-    <Border Grid.Row="0"
-            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
-            BorderThickness="1" CornerRadius="8"
-            Margin="16,16,16,0" Padding="16,12">
+    <Border Grid.Row="0" Classes="toolbar">
       <StackPanel Spacing="10">
 
         <!-- 1행: 필터 -->
         <StackPanel Orientation="Horizontal" Spacing="8">
 
-          <!-- 학년도/학년/반 공통 필터 -->
-          <ctrl:ClassFilterBar x:Name="FilterBar"/>
+          <!-- 학년도/학기 + 학년/반 필터 -->
+          <ctrl:YearSemesterPicker x:Name="YearSemPicker"/>
+          <ctrl:ClassPicker x:Name="ClassFilter"/>
 
           <!-- 조회 버튼 -->
           <Button Content="조회"
-                  Classes="accent"
-                  Padding="20,6"
+                  Classes="accent btn-md"
                   VerticalAlignment="Bottom"
                   Click="OnQueryClick"/>
         </StackPanel>
 
         <!-- 2행: 액션 버튼 -->
         <StackPanel Orientation="Horizontal" Spacing="8">
-          <Button Name="BtnSave"   Content="저장"   Padding="20,6" Click="OnSaveClick"/>
-          <Button Name="BtnDelete" Content="삭제"   Padding="20,6" Click="OnDeleteClick"/>
-          <Button Name="BtnAdd"    Content="학생 추가" Padding="20,6" Click="OnAddStudentClick"
-                  Classes="accent"/>
+          <Button Name="BtnSave"   Content="저장"   Classes="btn-md" Click="OnSaveClick"/>
+          <Button Name="BtnDelete" Content="삭제"   Classes="btn-md" Click="OnDeleteClick"/>
+          <Button Name="BtnAdd"    Content="학생 추가" Classes="accent btn-md" Click="OnAddStudentClick"/>
 
           <TextBlock Name="TxtStudentCount"
                      Text="{Binding StatusText}"
@@ -56,11 +51,8 @@
     <!-- ══════════════════════════════════════════════════ -->
     <!-- 테이블 영역                                         -->
     <!-- ══════════════════════════════════════════════════ -->
-    <Border Grid.Row="1"
-            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
-            BorderThickness="1" CornerRadius="8"
-            Margin="16,10,16,16">
+    <Border Grid.Row="1" Classes="card" Padding="0"
+            Margin="0,10,0,0">
       <Grid>
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>  <!-- 고정 헤더 -->

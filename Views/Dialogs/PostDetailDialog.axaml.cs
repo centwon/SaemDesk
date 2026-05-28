@@ -2,7 +2,8 @@ using System;
 using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using SaemDesk.Repositories;
+using SaemDesk.Board.Repositories;
+using BoardDb = SaemDesk.Board.BoardDatabase;
 
 namespace SaemDesk.Views.Dialogs;
 
@@ -26,7 +27,7 @@ public partial class PostDetailDialog : Window
         if (_postNo <= 0) return;
         try
         {
-            using var repo = new PostRepository(BoardDatabase.DbPath);
+            using var repo = new PostRepository(BoardDb.DbPath);
             var post = await repo.GetByIdAsync(_postNo);
             if (post is null)
             {

@@ -1,11 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SaemDesk.Collections;
 using SaemDesk.Models;
 using SaemDesk.Repositories;
 
@@ -17,9 +17,12 @@ namespace SaemDesk.ViewModels.Pages;
 /// </summary>
 public partial class CourseManagementPageVM : ViewModelBase
 {
-    private readonly List<Course> _all = new();
 
-    public ObservableCollection<Course> Courses { get; } = new();
+    // 현재 필터 값 — YearSemesterPicker 이벤트로 주입
+    public int FilterYear     { get; private set; } = Settings.WorkYear.Value > 0 ? Settings.WorkYear.Value : DateTime.Today.Year;
+    public int FilterSemester { get; private set; } = Settings.WorkSemester.Value >= 1 ? Settings.WorkSemester.Value : 1;
+
+    public OptimizedObservableCollection<Course> Courses { get; } = new();
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsEmpty))]
@@ -30,26 +33,20 @@ public partial class CourseManagementPageVM : ViewModelBase
     [NotifyPropertyChangedFor(nameof(HasSelection))]
     private Course? _selectedCourse;
 
-    [ObservableProperty] private decimal _workYear     = DateTime.Today.Year;
-    [ObservableProperty] private int     _workSemester = 1;
-    [ObservableProperty] private string  _searchText   = string.Empty;
-    [ObservableProperty] private string  _typeFilter   = "전체";
-    [ObservableProperty] private string  _statusText   = string.Empty;
-    [ObservableProperty] private string  _errorText    = string.Empty;
-
-    public ObservableCollection<string> TypeFilters { get; } = new(new[]
-    {
-        "전체", CourseTypes.Class, CourseTypes.Selective, CourseTypes.Club,
-    });
+    [ObservableProperty] private string _statusText  = string.Empty;
+    [ObservableProperty] private string _errorText   = string.Empty;
 
     public bool HasCourses   => Courses.Count > 0;
     public bool IsEmpty      => !IsLoading && !HasCourses && string.IsNullOrEmpty(ErrorText);
     public bool HasSelection => SelectedCourse is not null;
 
-    public CourseManagementPageVM()
+    public CourseManagementPageVM() { }
+
+    /// <summary>YearSemesterPicker 이벤트로 호출 — 학년도/학기 갱신 후 재조회.</summary>
+    public void SetFilter(int year, int semester)
     {
-        WorkYear     = Settings.WorkYear.Value > 0 ? Settings.WorkYear.Value : DateTime.Today.Year;
-        WorkSemester = Math.Max(1, Settings.WorkSemester.Value);
+        FilterYear     = year;
+        FilterSemester = semester;
         _ = QueryAsync();
     }
 
@@ -62,22 +59,19 @@ public partial class CourseManagementPageVM : ViewModelBase
         try
         {
             string sc = Settings.SchoolCode.Value;
-            int year = (int)WorkYear;
-            int sem  = WorkSemester;
             if (string.IsNullOrEmpty(sc))
             {
                 ErrorText = "학교 코드가 설정되어 있지 않습니다.";
-                _all.Clear();
-                ApplyFilter();
+                Courses.Clear();
                 return;
             }
 
             using var repo = new CourseRepository(SchoolDatabase.DbPath);
-            var list = await repo.GetBySchoolAsync(sc, year, sem);
-            _all.Clear();
-            _all.AddRange(list);
-            ApplyFilter();
-            StatusText = $"총 {_all.Count}개 수업";
+            var list = await repo.GetBySchoolAsync(sc, FilterYear, FilterSemester);
+
+            Courses.ReplaceAll(list.OrderBy(x => x.Grade).ThenBy(x => x.Subject));
+
+            StatusText = $"총 {list.Count}개 수업";
         }
         catch (Exception ex)
         {
@@ -92,31 +86,50 @@ public partial class CourseManagementPageVM : ViewModelBase
         }
     }
 
-    partial void OnSearchTextChanged(string value) => ApplyFilter();
-    partial void OnTypeFilterChanged(string value) => ApplyFilter();
-
-    private void ApplyFilter()
+    [RelayCommand]
+    private async Task EnrollStudentsAsync(Course? course)
     {
-        Courses.Clear();
-        IEnumerable<Course> filtered = _all;
+        if (course is null) return;
+        await SaemDesk.Services.DialogService.ShowCourseEnrollmentAsync(course);
+    }
 
-        if (TypeFilter != "전체")
-            filtered = filtered.Where(c => c.EffectiveType == TypeFilter);
+    [RelayCommand]
+    private async Task ScheduleCourseAsync(Course? course)
+    {
+        if (course is null) return;
+        await SaemDesk.Services.DialogService.ShowCourseScheduleAsync(course);
+    }
 
-        string keyword = SearchText ?? string.Empty;
-        if (!string.IsNullOrWhiteSpace(keyword))
+    /// <summary>카드 버튼 전용 — 특정 Course 직접 수정.</summary>
+    [RelayCommand]
+    private async Task EditItemAsync(Course? course)
+    {
+        if (course is null) return;
+        var saved = await SaemDesk.Services.DialogService.ShowCourseEditAsync(
+            course.SchoolCode, course.TeacherID, course.Year, course.Semester, course);
+        if (saved is not null) await QueryAsync();
+    }
+
+    /// <summary>카드 버튼 전용 — 특정 Course 직접 삭제.</summary>
+    [RelayCommand]
+    private async Task DeleteItemAsync(Course? course)
+    {
+        if (course is null) return;
+        bool ok = await SaemDesk.Services.DialogService.ShowConfirmAsync(
+            "수업 삭제",
+            $"'{course.Subject}' 수업을 삭제하시겠습니까?\n관련 차시·진도·수강 정보가 함께 영향을 받을 수 있습니다.");
+        if (!ok) return;
+        try
         {
-            filtered = filtered.Where(c =>
-                (c.Subject?.Contains(keyword, StringComparison.CurrentCultureIgnoreCase) == true) ||
-                (c.Rooms?.Contains(keyword, StringComparison.CurrentCultureIgnoreCase)   == true) ||
-                (c.Remark?.Contains(keyword, StringComparison.CurrentCultureIgnoreCase)  == true));
+            using var repo = new CourseRepository(SchoolDatabase.DbPath);
+            await repo.DeleteAsync(course.No);
+            if (SelectedCourse?.No == course.No) SelectedCourse = null;
+            await QueryAsync();
         }
-
-        foreach (var c in filtered.OrderBy(x => x.Grade).ThenBy(x => x.Subject))
-            Courses.Add(c);
-
-        OnPropertyChanged(nameof(HasCourses));
-        OnPropertyChanged(nameof(IsEmpty));
+        catch (Exception ex)
+        {
+            ErrorText = $"삭제 실패: {ex.Message}";
+        }
     }
 
     [RelayCommand]
@@ -129,7 +142,7 @@ public partial class CourseManagementPageVM : ViewModelBase
             return;
         }
         var saved = await SaemDesk.Services.DialogService.ShowCourseEditAsync(
-            sc, Settings.UserName.Value, (int)WorkYear, WorkSemester);
+            sc, Settings.User.Value, FilterYear, FilterSemester);
         if (saved is not null) await QueryAsync();
     }
 

@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using SaemDesk.Collections;
 using SaemDesk.Models;
 using SaemDesk.Repositories;
 using SaemDesk.Services;
@@ -24,22 +25,22 @@ namespace SaemDesk.ViewModels
         #region Collections
 
         /// <summary>교사의 Course 목록</summary>
-        public ObservableCollection<Course> Courses { get; } = new();
+        public OptimizedObservableCollection<Course> Courses { get; } = new();
 
         /// <summary>선택된 Course의 연간계획 목록</summary>
-        public ObservableCollection<SubjectYearPlan> YearPlans { get; } = new();
+        public OptimizedObservableCollection<SubjectYearPlan> YearPlans { get; } = new();
 
         /// <summary>주차별 시수 목록</summary>
-        public ObservableCollection<WeeklyLessonHours> WeeklyHours { get; } = new();
+        public OptimizedObservableCollection<WeeklyLessonHours> WeeklyHours { get; } = new();
 
         /// <summary>단원 목록 (CourseSection 기반)</summary>
-        public ObservableCollection<CourseSection> Units { get; } = new();
+        public OptimizedObservableCollection<CourseSection> Units { get; } = new();
 
         /// <summary>주차별 단원 배치 (CourseSection 기반)</summary>
-        public ObservableCollection<WeeklyUnitPlan> UnitPlans { get; } = new();
+        public OptimizedObservableCollection<WeeklyUnitPlan> UnitPlans { get; } = new();
 
         /// <summary>대상 학급 목록 (ClassTimetable에서 추출)</summary>
-        public ObservableCollection<TargetClassInfo> TargetClasses { get; } = new();
+        public OptimizedObservableCollection<TargetClassInfo> TargetClasses { get; } = new();
 
         #endregion
 
@@ -222,14 +223,7 @@ namespace SaemDesk.ViewModels
                 using var courseRepo = new CourseRepository(_dbPath);
                 var courses = await courseRepo.GetByTeacherAsync(teacherId, Year, Semester);
 
-                _dispatcherQueue.Post(() =>
-                {
-                    Courses.Clear();
-                    foreach (var course in courses)
-                    {
-                        Courses.Add(course);
-                    }
-                });
+                _dispatcherQueue.Post(() => Courses.ReplaceAll(courses));
             }
             catch (Exception ex)
             {
@@ -278,21 +272,18 @@ namespace SaemDesk.ViewModels
 
                 _dispatcherQueue.Post(() =>
                 {
-                    TargetClasses.Clear();
-
-                    // 학년 전체 옵션 추가
-                    TargetClasses.Add(new TargetClassInfo
+                    var all = new List<TargetClassInfo>
                     {
-                        Grade = SelectedCourse.Grade,
-                        Class = null,
-                        WeeklyHours = SelectedCourse.Unit,
-                        TimetableInfo = "학년 전체"
-                    });
-
-                    foreach (var classInfo in classGroups)
-                    {
-                        TargetClasses.Add(classInfo);
-                    }
+                        new TargetClassInfo
+                        {
+                            Grade = SelectedCourse.Grade,
+                            Class = null,
+                            WeeklyHours = SelectedCourse.Unit,
+                            TimetableInfo = "학년 전체"
+                        }
+                    };
+                    all.AddRange(classGroups);
+                    TargetClasses.ReplaceAll(all);
                 });
 
                 // CourseSection 로드
@@ -320,11 +311,7 @@ namespace SaemDesk.ViewModels
 
                 _dispatcherQueue.Post(() =>
                 {
-                    Units.Clear();
-                    foreach (var section in sections)
-                    {
-                        Units.Add(section);
-                    }
+                    Units.ReplaceAll(sections);
                     UpdateStatistics();
                 });
             }
@@ -406,11 +393,7 @@ namespace SaemDesk.ViewModels
 
                 _dispatcherQueue.Post(() =>
                 {
-                    WeeklyHours.Clear();
-                    foreach (var h in hours)
-                    {
-                        WeeklyHours.Add(h);
-                    }
+                    WeeklyHours.ReplaceAll(hours);
                     UpdateStatistics();
                 });
             }
@@ -457,11 +440,7 @@ namespace SaemDesk.ViewModels
 
                 _dispatcherQueue.Post(() =>
                 {
-                    WeeklyHours.Clear();
-                    foreach (var h in calculatedHours)
-                    {
-                        WeeklyHours.Add(h);
-                    }
+                    WeeklyHours.ReplaceAll(calculatedHours);
                     UpdateStatistics();
                 });
 

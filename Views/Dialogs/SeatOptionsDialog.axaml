@@ -72,7 +72,7 @@
             </StackPanel>
             <StackPanel Orientation="Horizontal" Spacing="8">
               <ComboBox x:Name="CbxFrontStudent" PlaceholderText="학생 선택" MinWidth="200"/>
-              <Button Content="추가" Padding="10,6" Click="OnAddFront"/>
+              <Button Content="추가" Classes="btn-sm" Click="OnAddFront"/>
             </StackPanel>
             <ListBox x:Name="FrontListView" MaxHeight="140"
                      Background="Transparent" BorderThickness="0" SelectionMode="Single"/>
@@ -90,8 +90,8 @@
                       HorizontalAlignment="Stretch"/>
           </Grid>
           <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-            <Button Content="🚫 분리 추가" Padding="10,6" Click="OnAddExclusion"/>
-            <Button Content="📌 고정 추가" Padding="10,6" Click="OnAddFixed"/>
+            <Button Content="🚫 분리 추가" Classes="btn-sm" Click="OnAddExclusion"/>
+            <Button Content="📌 고정 추가" Classes="btn-sm" Click="OnAddFixed"/>
           </StackPanel>
           <ListBox x:Name="PairListView" MaxHeight="220"
                    Background="Transparent" BorderThickness="0" SelectionMode="Single"/>
@@ -123,8 +123,8 @@
     <!-- 버튼 바 -->
     <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right"
                 Spacing="8" Margin="0,12,0,0">
-      <Button Content="취소" Padding="14,8" Click="OnCancel"/>
-      <Button Content="확인" Classes="accent" Padding="16,8" Click="OnConfirm"/>
+      <Button Content="취소" Classes="btn-md" Click="OnCancel"/>
+      <Button Content="확인" Classes="accent btn-md" Click="OnConfirm"/>
     </StackPanel>
 
   </Grid>

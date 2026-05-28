@@ -56,10 +56,14 @@ namespace SaemDesk
                 }
 
                 Debug.WriteLine($"[SchoolDatabase] DB 경로: {DbPath}");
-                Debug.WriteLine($"[SchoolDatabase] DB 존재: {File.Exists(DbPath)}");
-                Debug.WriteLine($"[SchoolDatabase] 초기화 상태: {Settings.School_Inited.Value}");
 
-                // 데이터베이스 초기화 (CREATE TABLE IF NOT EXISTS → 항상 안전)
+                // DB 파일이 이미 있고 초기화 완료 상태면 스킵
+                if (File.Exists(DbPath) && Settings.School_Inited.Value)
+                {
+                    Debug.WriteLine("[SchoolDatabase] 이미 초기화됨 — 스킵");
+                    return;
+                }
+
                 Debug.WriteLine("[SchoolDatabase] 데이터베이스 초기화 시작");
                 bool success = await InitDatabaseAsync();
 

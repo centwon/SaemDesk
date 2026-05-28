@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SaemDesk.Collections;
 using SaemDesk.Models;
 using SaemDesk.Repositories;
 using SaemDesk.Services;
@@ -17,7 +18,7 @@ public partial class LessonsPageVM : ViewModelBase
     // 전체 시간표 (5일치 캐시)
     private List<ClassTimetable> _allSlots = [];
 
-    public ObservableCollection<ClassTimetable> DaySlots { get; } = [];
+    public OptimizedObservableCollection<ClassTimetable> DaySlots { get; } = new();
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasSlots))]
@@ -109,11 +110,8 @@ public partial class LessonsPageVM : ViewModelBase
 
     private void FilterByDay(int day)
     {
-        DaySlots.Clear();
         SelectedSlot = null;
-
-        foreach (var s in _allSlots.Where(x => x.DayOfWeek == day).OrderBy(x => x.Period))
-            DaySlots.Add(s);
+        DaySlots.ReplaceAll(_allSlots.Where(x => x.DayOfWeek == day).OrderBy(x => x.Period));
 
         OnPropertyChanged(nameof(HasSlots));
         OnPropertyChanged(nameof(IsEmpty));

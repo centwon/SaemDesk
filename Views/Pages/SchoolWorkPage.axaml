@@ -1,13 +1,13 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:SaemDesk.ViewModels.Pages"
-             xmlns:models="using:SaemDesk.Models"
+             xmlns:models="using:SaemDesk.Board.Models"
              xmlns:ctrl="using:SaemDesk.Views.Controls"
              x:Class="SaemDesk.Views.Pages.SchoolWorkPage"
              x:DataType="vm:SchoolWorkPageVM"
              Classes="page">
 
-  <Grid RowDefinitions="Auto,*" ColumnDefinitions="380,*" Margin="20,16">
+  <Grid RowDefinitions="Auto,*" ColumnDefinitions="380,*">
 
     <!-- 헤더 -->
     <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal"
@@ -19,7 +19,7 @@
                  FontSize="13"
                  Foreground="{DynamicResource SystemBaseMediumColor}"
                  VerticalAlignment="Center"/>
-      <Button Content="새로고침" Padding="10,6"
+      <Button Content="새로고침" Classes="btn-sm"
               Command="{Binding ReloadCommand}"/>
       <ProgressBar Width="100" IsIndeterminate="True"
                    IsVisible="{Binding IsBusy}"
@@ -50,9 +50,14 @@
                 Padding="10,6">
           <TextBlock Text="📋 업무 게시판" FontWeight="SemiBold"/>
         </Border>
-        <ScrollViewer Grid.Row="1">
-          <ItemsControl ItemsSource="{Binding WorkPosts}">
-            <ItemsControl.ItemTemplate>
+        <ListBox Grid.Row="1" ItemsSource="{Binding WorkPosts}" SelectionMode="Single">
+            <ListBox.Styles>
+              <Style Selector="ListBoxItem">
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="MinHeight" Value="0"/>
+              </Style>
+            </ListBox.Styles>
+            <ListBox.ItemTemplate>
               <DataTemplate DataType="models:Post">
                 <Border BorderThickness="0,0,0,1"
                         BorderBrush="{DynamicResource ContentSeparatorBrush}"
@@ -74,9 +79,8 @@
                   </Grid>
                 </Border>
               </DataTemplate>
-            </ItemsControl.ItemTemplate>
-          </ItemsControl>
-        </ScrollViewer>
+            </ListBox.ItemTemplate>
+        </ListBox>
       </Grid>
     </Border>
   </Grid>

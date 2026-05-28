@@ -75,7 +75,7 @@ public partial class SeatsPage : UserControl, IDisposable
     {
         _seatSvc = new SeatService();
 
-        FilterBar.SelectionChanged  += OnFilterBarChanged;
+        ClassFilter.ClassChanged    += OnFilterBarChanged;
         StudentList.StudentSelected += OnStudentSelected;
 
         _jul  = 5;
@@ -85,7 +85,7 @@ public partial class SeatsPage : UserControl, IDisposable
 
     private void OnUnloaded(object? sender, RoutedEventArgs e)
     {
-        FilterBar.SelectionChanged  -= OnFilterBarChanged;
+        ClassFilter.ClassChanged    -= OnFilterBarChanged;
         StudentList.StudentSelected -= OnStudentSelected;
         DetachCardEvents();
         _seatSvc?.Dispose();
@@ -103,7 +103,7 @@ public partial class SeatsPage : UserControl, IDisposable
     //  FilterBar
     // ────────────────────────────────────────────────────
 
-    private async void OnFilterBarChanged(object? sender, FilterChangedEventArgs e)
+    private async void OnFilterBarChanged(object? sender, ClassChangedEventArgs e)
     {
         _grade     = e.Grade;
         _classRoom = e.Class;
@@ -214,9 +214,9 @@ public partial class SeatsPage : UserControl, IDisposable
                 card.FixedChanged   += Card_FixedChanged;
 
                 DragDrop.SetAllowDrop(card, true);
-                card.AddHandler(DragDrop.DragOverEvent, Card_DragOver);
-                card.AddHandler(DragDrop.DropEvent,     Card_Drop);
-                card.PointerPressed += Card_Tapped;
+                card.AddHandler(DragDrop.DragOverEvent, Card_DragOver, RoutingStrategies.Tunnel);
+                card.AddHandler(DragDrop.DropEvent,     Card_Drop,     RoutingStrategies.Bubble);
+                card.Clicked += Card_Clicked;
 
                 double top  = roomH - _spaceRow * (i + 1) - cardH * (i + 1);
                 double left = roomW - _spaceSide - (j + 1) * cardW
@@ -243,10 +243,9 @@ public partial class SeatsPage : UserControl, IDisposable
     //  카드 클릭 — 클릭 기반 배치
     // ────────────────────────────────────────────────────
 
-    private void Card_Tapped(object? sender, PointerPressedEventArgs e)
+    private void Card_Clicked(object? sender, EventArgs e)
     {
         if (sender is not PhotoCard card) return;
-        if (!e.GetCurrentPoint(card).Properties.IsLeftButtonPressed) return;
 
         if (_selectedStudentFromList != null)
         {
@@ -276,6 +275,7 @@ public partial class SeatsPage : UserControl, IDisposable
             e.DragEffects = DragDropEffects.Move;
         else
             e.DragEffects = DragDropEffects.None;
+        // e.Handled = true 제거 — Drop 이벤트 차단 방지
     }
 
     private void Card_Drop(object? sender, DragEventArgs e)
@@ -283,7 +283,10 @@ public partial class SeatsPage : UserControl, IDisposable
         if (sender is not PhotoCard target) return;
 
         // ── 경우 1: PhotoCard → PhotoCard (카드끼리 교환/이동) ──
-        var dragged = e.DataTransfer.TryGetValue(PhotoCard.StudentDragFormat);
+        StudentCardData? dragged = null;
+        if (e.DataTransfer.Contains(PhotoCard.StudentDragFormat))
+            dragged = e.DataTransfer.TryGetValue(PhotoCard.StudentDragFormat);
+
         if (dragged is not null)
         {
             var source = _cards.FirstOrDefault(c =>
@@ -307,7 +310,10 @@ public partial class SeatsPage : UserControl, IDisposable
         }
 
         // ── 경우 2: ListStudent(명렬) → PhotoCard ──
-        var enrollment = e.DataTransfer.TryGetValue(PhotoCard.EnrollmentDragFormat);
+        Enrollment? enrollment = null;
+        if (e.DataTransfer.Contains(PhotoCard.EnrollmentDragFormat))
+            enrollment = e.DataTransfer.TryGetValue(PhotoCard.EnrollmentDragFormat);
+
         if (enrollment is not null)
         {
             var student = _students.FirstOrDefault(s => s.StudentID == enrollment.StudentID);
@@ -386,7 +392,7 @@ public partial class SeatsPage : UserControl, IDisposable
             c.FixedChanged   -= Card_FixedChanged;
             c.RemoveHandler(DragDrop.DragOverEvent, Card_DragOver);
             c.RemoveHandler(DragDrop.DropEvent,     Card_Drop);
-            c.PointerPressed -= Card_Tapped;
+            c.Clicked -= Card_Clicked;
         }
     }
 

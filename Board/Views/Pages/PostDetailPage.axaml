@@ -10,115 +10,191 @@
   <Grid RowDefinitions="Auto,*">
 
     <!-- ── 툴바 ─────────────────────────────────────────── -->
-    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="6"
-                Margin="16,10,16,0">
-      <Button Content="◀ 목록"  Padding="10,5" Click="BtnBack_Click"/>
-      <Button Content="수정"     Padding="10,5" Click="BtnEdit_Click"/>
-      <Button Content="삭제"     Padding="10,5" Click="BtnDelete_Click"/>
-      <Button Content="인쇄"     Padding="10,5" Click="BtnPrint_Click"/>
-    </StackPanel>
+    <Grid Grid.Row="0" Margin="16,10,16,0" ColumnDefinitions="Auto,*,Auto">
+      <!-- 좌: 뒤로가기 -->
+      <Button Grid.Column="0" Padding="10,6" Click="BtnBack_Click">
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <TextBlock Text="←" FontSize="13"/>
+          <TextBlock Text="목록" FontSize="13"/>
+        </StackPanel>
+      </Button>
+      <!-- 우: 수정·삭제·인쇄 -->
+      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6">
+        <Button Content="수정"  Padding="10,6" Click="BtnEdit_Click"/>
+        <Button Content="삭제"  Padding="10,6" Classes="danger" Click="BtnDelete_Click"/>
+        <Button Content="🖨 인쇄" Padding="10,6" Click="BtnPrint_Click"/>
+      </StackPanel>
+    </Grid>
 
     <!-- ── 본문 ─────────────────────────────────────────── -->
     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
-                  Margin="16,8,16,16">
-      <StackPanel Spacing="12">
+                  Margin="16,10,16,16">
+      <StackPanel Spacing="0">
 
-        <!-- 로딩 -->
-        <ProgressBar IsVisible="{Binding IsLoading}"
-                     IsIndeterminate="True"/>
+        <ProgressBar IsVisible="{Binding IsLoading}" IsIndeterminate="True" Margin="0,0,0,8"/>
 
-        <!-- 제목 + 메타 -->
-        <StackPanel Spacing="4">
-          <TextBlock Text="{Binding Post.Title}"
-                     FontSize="20" FontWeight="SemiBold"
-                     TextWrapping="Wrap"/>
-          <StackPanel Orientation="Horizontal" Spacing="12">
-            <TextBlock Text="{Binding Post.Category}"  FontSize="12"
-                       Foreground="{DynamicResource BrandPrimaryBrush}"/>
-            <TextBlock Text="{Binding Post.Subject}"   FontSize="12"
-                       IsVisible="{Binding SubjectVisible}"
-                       Foreground="{DynamicResource SystemBaseMediumColor}"/>
-            <TextBlock Text="{Binding Post.User}"      FontSize="12"
-                       Foreground="{DynamicResource SystemBaseMediumColor}"/>
-            <TextBlock Text="{Binding Post.DateTimeDisplay}" FontSize="12"
-                       Foreground="{DynamicResource SystemBaseMediumLowColor}"/>
-            <TextBlock Text="{Binding Post.ReadCount, StringFormat=조회 \{0\}}" FontSize="12"
-                       Foreground="{DynamicResource SystemBaseMediumLowColor}"/>
+        <!-- ── 헤더 카드 (NewSchool 구조 이식) ── -->
+        <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                BorderThickness="1,1,1,0" CornerRadius="8,8,0,0"
+                Padding="20,16,20,14">
+          <StackPanel Spacing="10">
+
+            <!-- 카테고리 배지 + 주제 배지 + 제목 -->
+            <Grid ColumnDefinitions="Auto,Auto,*">
+              <Border Grid.Column="0" CornerRadius="4" Padding="8,3"
+                      Background="{DynamicResource BrandPrimaryBrush}"
+                      VerticalAlignment="Center" Margin="0,0,8,0">
+                <TextBlock Text="{Binding Post.Category}" FontSize="12" Foreground="White"/>
+              </Border>
+              <Border Grid.Column="1" CornerRadius="4" Padding="8,3"
+                      Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+                      BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                      BorderThickness="1"
+                      IsVisible="{Binding SubjectVisible}"
+                      VerticalAlignment="Center" Margin="0,0,10,0">
+                <TextBlock Text="{Binding Post.Subject}" FontSize="12"
+                           Foreground="{DynamicResource SystemBaseMediumColor}"/>
+              </Border>
+              <TextBlock Grid.Column="2"
+                         Text="{Binding Post.Title}"
+                         FontSize="18" FontWeight="SemiBold"
+                         TextWrapping="Wrap" VerticalAlignment="Center"/>
+            </Grid>
+
+            <!-- 메타 정보 행 -->
+            <Grid ColumnDefinitions="*,Auto">
+              <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="16">
+                <TextBlock Text="{Binding Post.User}"
+                           FontSize="12" Foreground="{DynamicResource SystemBaseMediumColor}"/>
+                <TextBlock Text="{Binding Post.DateTimeDisplay}"
+                           FontSize="12" Foreground="{DynamicResource SystemBaseMediumLowColor}"/>
+              </StackPanel>
+              <TextBlock Grid.Column="1"
+                         Text="{Binding Post.ReadCount, StringFormat=조회 \{0\}}"
+                         FontSize="12" Foreground="{DynamicResource SystemBaseMediumLowColor}"/>
+            </Grid>
+
+            <!-- 구분선 -->
+            <Border Height="1"
+                    Background="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                    Margin="0,2,0,0"/>
           </StackPanel>
-        </StackPanel>
+        </Border>
 
-        <Separator/>
+        <!-- ── 내용 카드 ── -->
+        <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                BorderThickness="1,0,1,1" CornerRadius="0,0,8,8"
+                Padding="20,0,20,16">
+          <StackPanel Spacing="10">
+            <ctrl:JoditEditor x:Name="ContentViewer" MinHeight="200"/>
+            <boardCtrl:PostFileListBox x:Name="FileListBox" IsVisible="False"/>
+          </StackPanel>
+        </Border>
 
-        <!-- 내용 (JoditEditor ReadOnly) -->
-        <ctrl:JoditEditor x:Name="ContentViewer" MinHeight="200"/>
+        <!-- ── 댓글 섹션 ── -->
+        <StackPanel Spacing="0" Margin="0,20,0,0">
 
-        <!-- 첨부파일 -->
-        <boardCtrl:PostFileListBox x:Name="FileListBox" IsVisible="False"/>
+          <TextBlock Text="댓글" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10"/>
 
-        <Separator/>
+          <!-- 댓글 작성 박스 -->
+          <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                  BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                  BorderThickness="1" CornerRadius="8" Padding="14" Margin="0,0,0,12">
+            <StackPanel Spacing="8">
+              <TextBlock x:Name="CommentEditTitle" Text="댓글 작성"
+                         FontWeight="SemiBold" FontSize="13"/>
+              <TextBox x:Name="TxtComment"
+                       Text="{Binding NewCommentContent, Mode=TwoWay}"
+                       PlaceholderText="댓글 내용을 입력하세요"
+                       AcceptsReturn="True" TextWrapping="Wrap"
+                       MinHeight="70" MaxHeight="150"/>
+              <!-- 파일 첨부 -->
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Content="📎 파일 첨부" Padding="8,4" Click="BtnAttachFile_Click"/>
+                <!-- 첨부 파일 정보 (파일명 + 크기) -->
+                <Border x:Name="AttachInfoPanel" IsVisible="False"
+                        Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+                        BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                        BorderThickness="1" CornerRadius="4" Padding="8,3">
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock x:Name="AttachedFileName" FontSize="11"
+                               Foreground="{DynamicResource SystemBaseMediumColor}"
+                               VerticalAlignment="Center"/>
+                    <TextBlock x:Name="AttachedFileSize" FontSize="10"
+                               Foreground="{DynamicResource SystemBaseMediumLowColor}"
+                               VerticalAlignment="Center"/>
+                    <Button x:Name="BtnRemoveAttach" Content="✕" Padding="3,1" FontSize="10"
+                            Click="BtnRemoveAttach_Click"/>
+                  </StackPanel>
+                </Border>
+              </StackPanel>
+              <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                <Button x:Name="BtnCancelEdit" Content="수정 취소" IsVisible="False"
+                        Padding="10,5" Click="BtnCancelEdit_Click"/>
+                <Button x:Name="BtnSaveComment" Content="댓글 작성" Classes="accent"
+                        Padding="10,5" Click="BtnSaveComment_Click"/>
+              </StackPanel>
+            </StackPanel>
+          </Border>
 
-        <!-- 댓글 목록 -->
-        <StackPanel Spacing="0">
-          <TextBlock Text="댓글" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
-
+          <!-- 댓글 목록 — 각 댓글을 Card Border로 (NewSchool 동등) -->
           <ItemsControl ItemsSource="{Binding Comments}">
             <ItemsControl.ItemTemplate>
               <DataTemplate DataType="models:Comment">
-                <Border BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
-                        BorderThickness="0,0,0,1" Padding="12,8">
-                  <Grid ColumnDefinitions="*,Auto">
-                    <StackPanel Grid.Column="0" Spacing="4">
-                      <StackPanel Orientation="Horizontal" Spacing="10">
-                        <TextBlock Text="{Binding User}" FontWeight="SemiBold" FontSize="12"/>
-                        <TextBlock Text="{Binding DateTime, StringFormat=\{0:M/d HH:mm\}}"
-                                   FontSize="11" Foreground="{DynamicResource SystemBaseMediumColor}"/>
+                <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                        BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                        BorderThickness="1" CornerRadius="8"
+                        Padding="14" Margin="0,0,0,8">
+                  <Grid RowDefinitions="Auto,Auto,Auto">
+                    <!-- 댓글 헤더: 작성자·날짜 / 수정·삭제 -->
+                    <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,*,Auto" Margin="0,0,0,8">
+                      <TextBlock Grid.Column="0" Text="{Binding User}"
+                                 FontWeight="SemiBold" FontSize="12" Margin="0,0,8,0"/>
+                      <TextBlock Grid.Column="1" Text="|"
+                                 Foreground="{DynamicResource SystemBaseMediumLowColor}"
+                                 Margin="0,0,8,0"/>
+                      <TextBlock Grid.Column="2"
+                                 Text="{Binding DateTime, StringFormat=\{0:M/d HH:mm\}}"
+                                 FontSize="11"
+                                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+                      <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4">
+                        <Button Content="수정" Padding="6,2" FontSize="11"
+                                Tag="{Binding}" Click="BtnEditComment_Click"/>
+                        <Button Content="삭제" Padding="6,2" FontSize="11"
+                                Tag="{Binding}" Click="BtnDeleteComment_Click"/>
                       </StackPanel>
-                      <TextBlock Text="{Binding Content}" FontSize="13" TextWrapping="Wrap"/>
-                      <Button Content="📎 파일 열기" Padding="6,2" FontSize="11"
-                              IsVisible="{Binding HasFile}"
-                              Tag="{Binding}"
-                              Click="BtnOpenCommentFile_Click"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
-                      <Button Content="수정" Padding="6,2" FontSize="11"
-                              Tag="{Binding}" Click="BtnEditComment_Click"/>
-                      <Button Content="삭제" Padding="6,2" FontSize="11"
-                              Tag="{Binding}" Click="BtnDeleteComment_Click"/>
-                    </StackPanel>
+                    </Grid>
+                    <!-- 댓글 내용 -->
+                    <TextBlock Grid.Row="1" Text="{Binding Content}"
+                               FontSize="13" TextWrapping="Wrap"/>
+                    <!-- 첨부 파일 (파일명 + 크기) -->
+                    <Border Grid.Row="2" IsVisible="{Binding HasFile}"
+                            Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+                            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                            BorderThickness="1" CornerRadius="4"
+                            Padding="8,4" Margin="0,8,0,0">
+                      <Button Background="Transparent" BorderThickness="0"
+                              Padding="0" HorizontalAlignment="Left"
+                              Tag="{Binding}" Click="BtnOpenCommentFile_Click">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                          <TextBlock Text="📎" FontSize="12" VerticalAlignment="Center"/>
+                          <TextBlock Text="{Binding FileName}" FontSize="11"
+                                     VerticalAlignment="Center"/>
+                          <TextBlock Text="{Binding FileSize, StringFormat=\{0:N0\} B}"
+                                     FontSize="10" VerticalAlignment="Center"
+                                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+                        </StackPanel>
+                      </Button>
+                    </Border>
                   </Grid>
                 </Border>
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
+
         </StackPanel>
-
-        <!-- 댓글 작성 -->
-        <Border BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
-                BorderThickness="1" CornerRadius="6" Padding="10">
-          <StackPanel Spacing="8">
-            <TextBlock x:Name="CommentEditTitle" Text="댓글 작성" FontWeight="SemiBold"/>
-            <TextBox x:Name="TxtComment"
-                     Text="{Binding NewCommentContent, Mode=TwoWay}"
-                     PlaceholderText="댓글 내용을 입력하세요"
-                     AcceptsReturn="True" TextWrapping="Wrap"
-                     MinHeight="60" MaxHeight="150"/>
-            <!-- 파일 첨부 -->
-            <StackPanel Orientation="Horizontal" Spacing="8">
-              <Button Content="📎 파일 첨부" Padding="8,4" Click="BtnAttachFile_Click"/>
-              <TextBlock x:Name="AttachedFileName" VerticalAlignment="Center" FontSize="11"
-                         Foreground="{DynamicResource SystemBaseMediumColor}"/>
-              <Button x:Name="BtnRemoveAttach" Content="✕" Padding="4,2" IsVisible="False"
-                      Click="BtnRemoveAttach_Click"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
-              <Button x:Name="BtnCancelEdit" Content="수정 취소" IsVisible="False"
-                      Padding="10,5" Click="BtnCancelEdit_Click"/>
-              <Button x:Name="BtnSaveComment" Content="댓글 작성" Classes="accent"
-                      Padding="10,5" Click="BtnSaveComment_Click"/>
-            </StackPanel>
-          </StackPanel>
-        </Border>
-
       </StackPanel>
     </ScrollViewer>
 

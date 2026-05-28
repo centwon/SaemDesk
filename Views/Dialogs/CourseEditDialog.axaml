@@ -34,7 +34,8 @@
         <!-- 대상 학년 -->
         <StackPanel Spacing="4">
           <TextBlock Text="대상 학년 *" FontWeight="SemiBold" FontSize="13"/>
-          <ComboBox x:Name="CBoxGrade" HorizontalAlignment="Stretch" SelectedIndex="0">
+          <ComboBox x:Name="CBoxGrade" HorizontalAlignment="Stretch" SelectedIndex="0"
+                    SelectionChanged="OnGradeOrTypeChanged">
             <ComboBoxItem Tag="1">1학년</ComboBoxItem>
             <ComboBoxItem Tag="2">2학년</ComboBoxItem>
             <ComboBoxItem Tag="3">3학년</ComboBoxItem>
@@ -53,7 +54,8 @@
         <!-- 유형 -->
         <StackPanel Spacing="4">
           <TextBlock Text="수업 유형" FontWeight="SemiBold" FontSize="13"/>
-          <ComboBox x:Name="CBoxType" HorizontalAlignment="Stretch" SelectedIndex="0">
+          <ComboBox x:Name="CBoxType" HorizontalAlignment="Stretch" SelectedIndex="0"
+                    SelectionChanged="OnGradeOrTypeChanged">
             <ComboBoxItem Tag="Class">학급 공통</ComboBoxItem>
             <ComboBoxItem Tag="Selective">선택 과목</ComboBoxItem>
             <ComboBoxItem Tag="Club">동아리</ComboBoxItem>
@@ -64,14 +66,29 @@
         <StackPanel Spacing="6">
           <TextBlock Text="강의실 *" FontWeight="SemiBold" FontSize="13"/>
           <TextBox x:Name="TxtRooms"
-                   PlaceholderText="예) 1반-5반 / 1반,3반,5반 / A,B,C / 미술실, 음악실"/>
+                   PlaceholderText="예) 1반-5반 / 1반,3반,5반 / A,B,C / 미술실, 음악실"
+                   TextChanged="OnRoomsTextChanged"/>
+          <TextBlock x:Name="TxtRoomsPreview"
+                     FontSize="12"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"
+                     TextWrapping="Wrap"
+                     IsVisible="False"/>
           <StackPanel Orientation="Horizontal" Spacing="6">
-            <Button Content="1반-5반" Padding="10,4" Click="OnPresetClass15"/>
-            <Button Content="1,3,5,7반" Padding="10,4" Click="OnPresetOdd"/>
-            <Button Content="A,B,C반"  Padding="10,4" Click="OnPresetABC"/>
-            <Button Content="특별실"   Padding="10,4" Click="OnPresetSpecial"/>
+            <Button Content="1반-5반" Classes="btn-sm" Click="OnPresetClass15"/>
+            <Button Content="1,3,5,7반" Classes="btn-sm" Click="OnPresetOdd"/>
+            <Button Content="A,B,C반"  Classes="btn-sm" Click="OnPresetABC"/>
+            <Button Content="특별실"   Classes="btn-sm" Click="OnPresetSpecial"/>
           </StackPanel>
         </StackPanel>
+
+        <!-- 안내 -->
+        <Border Background="{DynamicResource SystemControlBackgroundChromeLowBrush}"
+                BorderBrush="{DynamicResource SystemBaseLowColor}"
+                BorderThickness="1" CornerRadius="4" Padding="10,7">
+          <TextBlock Text="💡 수업을 저장한 후 '시간표 배치' 버튼으로 시간표를 설정할 수 있습니다."
+                     FontSize="12" TextWrapping="Wrap"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+        </Border>
 
         <!-- 비고 -->
         <StackPanel Spacing="4">
@@ -89,11 +106,11 @@
     <!-- 푸터 -->
     <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0">
       <TextBlock Grid.Column="0" x:Name="StatusText"
-                 FontSize="11" Foreground="#D9372A"
+                 FontSize="11" Foreground="{DynamicResource ErrorForegroundBrush}"
                  VerticalAlignment="Center"
                  TextWrapping="Wrap"/>
-      <Button Grid.Column="1" Content="취소" Padding="14,6" Margin="0,0,6,0" Click="OnCancel"/>
-      <Button Grid.Column="2" Content="저장" Padding="14,6" Classes="accent" Click="OnSave"/>
+      <Button Grid.Column="1" Content="취소" Classes="btn-md" Margin="0,0,6,0" Click="OnCancel"/>
+      <Button Grid.Column="2" Content="저장" Classes="accent btn-md" Click="OnSave"/>
     </Grid>
   </Grid>
 </Window>

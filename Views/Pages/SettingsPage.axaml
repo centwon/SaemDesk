@@ -8,10 +8,10 @@
 
   <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                 VerticalScrollBarVisibility="Auto">
-    <StackPanel Margin="24,16" Spacing="12" MaxWidth="640">
+    <StackPanel Spacing="12" MaxWidth="640">
 
       <!-- 페이지 제목 -->
-      <TextBlock Text="설정" FontSize="22" FontWeight="SemiBold" Margin="0,0,0,4" />
+      <TextBlock Text="설정" Classes="page-title"/>
 
       <!-- ────────── 사용자 / 담임 정보 ────────── -->
       <Expander Header="사용자 및 담임 정보" IsExpanded="True">
@@ -53,9 +53,8 @@
           <!-- 학교 검색 버튼 -->
           <Button Content="학교 검색 (NEIS)"
                   Command="{Binding SearchSchoolCommand}"
-                  Classes="accent"
-                  HorizontalAlignment="Left"
-                  Padding="14,6"/>
+                  Classes="accent btn-md"
+                  HorizontalAlignment="Left"/>
 
           <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
             <Grid.Styles>
@@ -167,9 +166,8 @@
                      Foreground="{DynamicResource SystemBaseMediumColor}"/>
           <Button Content="일정 설정 열기…"
                   Command="{Binding OpenCalendarSettingsCommand}"
-                  Classes="accent"
-                  HorizontalAlignment="Left"
-                  Padding="14,6"/>
+                  Classes="accent btn-md"
+                  HorizontalAlignment="Left"/>
         </StackPanel>
       </Expander>
 

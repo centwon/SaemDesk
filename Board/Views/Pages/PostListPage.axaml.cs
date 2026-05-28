@@ -8,6 +8,7 @@ using Avalonia.Interactivity;
 using SaemDesk.Board.Models;
 using SaemDesk.Board.Services;
 using SaemDesk.Board.ViewModels;
+using SaemDesk.Models;
 
 namespace SaemDesk.Board.Views.Pages;
 
@@ -22,13 +23,31 @@ public partial class PostListPage : UserControl
     private PostListPageParameter? _param;
     private BoardViewMode _viewMode = BoardViewMode.Table;
 
+    // ── Ctrl+F 단축키 ────────────────────────────────────
+
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        base.OnKeyDown(e);
+        if (e.Key == Key.F && e.KeyModifiers == KeyModifiers.Control)
+        {
+            // XAML의 TextBox (Grid.Column=2) 에 포커스
+            var searchBox = this.FindControl<TextBox>("SearchBox");
+            searchBox?.Focus();
+            searchBox?.SelectAll();
+            e.Handled = true;
+        }
+    }
+
     // ── 이벤트 (Frame 대신 이벤트로 네비게이션) ──────────
     public event EventHandler<int>?                    PostSelected;   // PostNo
     public event EventHandler<PostEditPageParameter>?  NewPostRequested;
 
     // ── 기본 카테고리 / 주제 제안 ────────────────────────
-    private static readonly List<string> DefaultCategories = new()
-        { "업무", "수업", "학급", "동아리", "개인", "기타" };
+    // CategoryNames.All(수업/학급/업무/개인) + 게시판 전용 추가 항목
+    private static readonly List<string> DefaultCategories =
+        [.. CategoryNames.All, "동아리", "기타"];
+
+    // CheckBox -> ToggleButton 전환으로 x:Name 제거 (XAML이 바인딩 직접 처리)
 
     private static readonly Dictionary<string, List<string>> DefaultTopics = new()
     {
@@ -166,6 +185,11 @@ public partial class PostListPage : UserControl
         await ViewModel.LoadPostsAsync();
     }
 
+    private async void OnSearchKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter) await ViewModel.SearchPostsAsync();
+    }
+
     private async void BtnSearch_Click(object? sender, RoutedEventArgs e)
         => await ViewModel.SearchPostsAsync();
 
@@ -201,7 +225,8 @@ public partial class PostListPage : UserControl
         var next = _viewMode switch
         {
             BoardViewMode.Table   => BoardViewMode.Card,
-            BoardViewMode.Card    => BoardViewMode.Table,
+            BoardViewMode.Card    => BoardViewMode.Gallery,
+            BoardViewMode.Gallery => BoardViewMode.Table,
             _                     => BoardViewMode.Table,
         };
         ApplyViewMode(next);
@@ -210,15 +235,29 @@ public partial class PostListPage : UserControl
     private void ApplyViewMode(BoardViewMode mode)
     {
         _viewMode = mode;
-        TableViewContainer.IsVisible = mode == BoardViewMode.Table;
-        CardViewContainer.IsVisible  = mode == BoardViewMode.Card;
+        TableViewContainer.IsVisible  = mode == BoardViewMode.Table;
+        CardViewContainer.IsVisible   = mode == BoardViewMode.Card;
+        GalleryViewContainer.IsVisible = mode == BoardViewMode.Gallery;
+
+        if (mode == BoardViewMode.Card)
+            CardViewRepeater.ItemsSource = ViewModel.Posts;
+        else if (mode == BoardViewMode.Gallery)
+            GalleryViewRepeater.ItemsSource = ViewModel.Posts;
 
         BtnViewMode.Content = mode switch
         {
-            BoardViewMode.Table => "⊞",
-            BoardViewMode.Card  => "☰",
-            _                   => "⊞",
+            BoardViewMode.Table   => "⊞",
+            BoardViewMode.Card    => "☰",
+            BoardViewMode.Gallery => "▦",
+            _                     => "⊞",
         };
+        ToolTip.SetTip(BtnViewMode, mode switch
+        {
+            BoardViewMode.Table   => "뷰 전환 (표 → 카드 → 갤러리)",
+            BoardViewMode.Card    => "뷰 전환 (카드 → 갤러리 → 표)",
+            BoardViewMode.Gallery => "뷰 전환 (갤러리 → 표 → 카드)",
+            _                     => "뷰 전환",
+        });
     }
 
     // ── 외부 호출 (새로고침) ─────────────────────────────

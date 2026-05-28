@@ -4,9 +4,11 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using SaemDesk.Models;
-using SaemDesk.Repositories;
+using SaemDesk.Collections;
+using SaemDesk.Board.Models;
+using SaemDesk.Board.Repositories;
 using SaemDesk.Services;
+using BoardDb = SaemDesk.Board.BoardDatabase;
 
 namespace SaemDesk.ViewModels.Pages;
 
@@ -35,8 +37,8 @@ public partial class BoardPageVM : ViewModelBase
     /// <summary>현재 적용된 파라미터 — BoardPage.axaml.cs 에서 참조.</summary>
     public BoardPageParameter? Parameter { get; private set; }
 
-    public ObservableCollection<Post>   Posts      { get; } = [];
-    public ObservableCollection<string> Categories { get; } = [];
+    public OptimizedObservableCollection<Post>   Posts      { get; } = new();
+    public OptimizedObservableCollection<string> Categories { get; } = new();
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasPosts))]
@@ -68,6 +70,7 @@ public partial class BoardPageVM : ViewModelBase
     // ── 파라미터 생성자 (NewSchool WorkFrame.Navigate 파라미터 대응) ──
     public BoardPageVM(BoardPageParameter? param)
     {
+        Parameter = param;  // BoardPage.DataContextChanged 에서 읽기 위해 저장
         if (param is not null)
         {
             PageTitle           = param.Title ?? "게시판";
@@ -89,7 +92,7 @@ public partial class BoardPageVM : ViewModelBase
 
         try
         {
-            using var repo = new PostRepository(BoardDatabase.DbPath);
+            using var repo = new PostRepository(BoardDb.DbPath);
             var posts = await repo.GetAllAsync();
             var cats  = await repo.GetCategoriesAsync();
 
@@ -102,9 +105,9 @@ public partial class BoardPageVM : ViewModelBase
             _suppressFilter = true;
             try
             {
-                Categories.Clear();
-                Categories.Add("전체");
-                foreach (var c in cats) Categories.Add(c);
+                var allCats = new List<string> { "전체" };
+                allCats.AddRange(cats);
+                Categories.ReplaceAll(allCats);
 
                 // 고정 카테고리가 있으면 해당으로 고정, 없으면 이전 선택 복원
                 SelectedCategory = (_fixedCategory is not null && Categories.Contains(_fixedCategory))
@@ -168,7 +171,7 @@ public partial class BoardPageVM : ViewModelBase
 
         try
         {
-            using var repo = new PostRepository(BoardDatabase.DbPath);
+            using var repo = new PostRepository(BoardDb.DbPath);
             await repo.DeleteAsync(SelectedPost.No);
             SelectedPost = null;
             await LoadPostsAsync();
@@ -190,10 +193,10 @@ public partial class BoardPageVM : ViewModelBase
 
     private void ApplyFilter()
     {
-        Posts.Clear();
         string keyword = SearchText ?? string.Empty;
         string cat = SelectedCategory ?? "전체";
 
+        var filtered = new List<Post>();
         foreach (var p in _allPosts)
         {
             if (cat != "전체" && p.Category != cat) continue;
@@ -202,8 +205,9 @@ public partial class BoardPageVM : ViewModelBase
                      || p.Content.Contains(keyword, StringComparison.CurrentCultureIgnoreCase)
                      || p.User.Contains(keyword, StringComparison.CurrentCultureIgnoreCase)))
                 continue;
-            Posts.Add(p);
+            filtered.Add(p);
         }
+        Posts.ReplaceAll(filtered);
 
         OnPropertyChanged(nameof(HasPosts));
         OnPropertyChanged(nameof(IsEmpty));

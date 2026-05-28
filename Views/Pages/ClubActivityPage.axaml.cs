@@ -68,15 +68,13 @@ public partial class ClubActivityPage : UserControl, IDisposable
 
         try
         {
-            using var repo = new SaemDesk.Repositories.ClubEnrollmentRepository(SchoolDatabase.DbPath);
-            var enrollments = await repo.GetByClubAsync(club.No);
+            using var clubRepo = new SaemDesk.Repositories.ClubEnrollmentRepository(SchoolDatabase.DbPath);
+            var clubEnrollments = await clubRepo.GetByClubAsync(club.No);
+            var studentIds = clubEnrollments.Select(e => e.StudentID).ToHashSet();
 
-            // Enrollment 로 변환 (ClubEnrollment → Enrollment)
-            var students = enrollments.Select(e => new Enrollment
-            {
-                StudentID = e.StudentID,
-                SchoolCode = Settings.SchoolCode.Value,
-            }).ToList();
+            using var enrollRepo = new SaemDesk.Repositories.EnrollmentRepository(SchoolDatabase.DbPath);
+            var all = await enrollRepo.GetBySchoolAndYearAsync(Settings.SchoolCode.Value, VM.Year);
+            var students = all.Where(e => studentIds.Contains(e.StudentID)).ToList();
 
             StudentList.LoadStudents(students);
             TxtMemberCount.Text = $"{students.Count}명";
@@ -92,7 +90,6 @@ public partial class ClubActivityPage : UserControl, IDisposable
     private async void OnStudentSelected(object? sender, Enrollment student)
     {
         _selectedStudent = student;
-        TxtSelectedStudent.Text = $"{student.Name} 활동 기록";
         await LoadLogsAsync();
     }
 
@@ -115,7 +112,6 @@ public partial class ClubActivityPage : UserControl, IDisposable
             foreach (var l in logs) vms.Add(new StudentLogViewModel(l));
 
             LogList.LoadLogs(vms);
-            TxtLogCount.Text = $"{logs.Count}건";
         }
         catch (Exception ex)
         {
@@ -146,7 +142,8 @@ public partial class ClubActivityPage : UserControl, IDisposable
         var owner = TopLevel.GetTopLevel(this) as Window;
         if (owner is null) return;
 
-        var dlg = new Views.Dialogs.StudentLogEditDialog(log.StudentID, _selectedStudent?.Name ?? "", null);
+        var displayName = $"{_selectedStudent.Name}({_selectedStudent.Grade}{_selectedStudent.Class:D2}{_selectedStudent.Number:D2})";
+        var dlg = new Views.Dialogs.StudentLogEditDialog(log.StudentID, displayName, log);
         await dlg.ShowDialog(owner);
         if (dlg.Result != null) await LoadLogsAsync();
     }

@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SaemDesk.Collections;
 using SaemDesk.Models;
 using SaemDesk.Services;
 
@@ -27,7 +28,7 @@ public partial class CalendarPageVM : ViewModelBase
     public bool HasApiKey => !string.IsNullOrWhiteSpace(Settings.NeisApiKey.Value);
 
     // ── 이벤트 목록 ───────────────────────────────────────
-    public ObservableCollection<SchoolScheduleGroup> Events { get; } = [];
+    public OptimizedObservableCollection<SchoolScheduleGroup> Events { get; } = new();
 
     // ── 상태 ─────────────────────────────────────────────
     [ObservableProperty]
@@ -75,9 +76,7 @@ public partial class CalendarPageVM : ViewModelBase
                 Settings.SchoolCode.Value, Settings.WorkYear.Value);
             var groups = SchoolScheduleGroupHelper.GroupSchedules(list);
 
-            Events.Clear();
-            foreach (var g in groups)
-                Events.Add(g);
+            Events.ReplaceAll(groups);
 
             StatusText = Events.Count > 0 ? $"{Events.Count}개 일정" : string.Empty;
             OnPropertyChanged(nameof(HasEvents));

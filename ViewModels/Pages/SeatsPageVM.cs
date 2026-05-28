@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SaemDesk.Collections;
 using SaemDesk.Models;
 using SaemDesk.Repositories;
 using SaemDesk.Services;
@@ -27,7 +28,7 @@ public partial class SeatsPageVM : ViewModelBase
     public Dictionary<string, (string Name, int Number)> StudentMeta { get; } = new();
 
     /// <summary>현재 학급의 명렬 (번호순).</summary>
-    public ObservableCollection<RosterEntry> Roster { get; } = new();
+    public OptimizedObservableCollection<RosterEntry> Roster { get; } = new();
 
     /// <summary>좌석 격자 — Rows × Jul. 각 셀의 StudentID 가 빈 문자열이면 미배정.</summary>
     public SeatCell[,]? Grid { get; private set; }
@@ -98,15 +99,16 @@ public partial class SeatsPageVM : ViewModelBase
             var byId = students.ToDictionary(s => s.StudentID, s => s);
 
             StudentMeta.Clear();
-            Roster.Clear();
+            var rosterItems = new List<RosterEntry>();
             foreach (var en in enrolls.OrderBy(x => x.Number))
             {
                 if (byId.TryGetValue(en.StudentID, out var s))
                 {
                     StudentMeta[en.StudentID] = (s.Name, en.Number);
-                    Roster.Add(new RosterEntry(en.StudentID, en.Number, s.Name));
+                    rosterItems.Add(new RosterEntry(en.StudentID, en.Number, s.Name));
                 }
             }
+            Roster.ReplaceAll(rosterItems);
 
             // 2) 기존 좌석 배치
             using var seatSvc = new SeatService();

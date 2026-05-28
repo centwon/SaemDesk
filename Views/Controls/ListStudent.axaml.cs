@@ -16,8 +16,9 @@ namespace SaemDesk.Views.Controls;
 /// Enrollment 모델 직접 사용. NewSchool ListStudent 1:1 이식.
 ///
 /// 열 너비는 StyledProperty → XAML 바인딩으로 제어.
-/// ShowCheckBox  : 체크박스 + 하단 카운터 표시 여부 (다중선택 UI)
+/// ShowCheckBox     : 체크박스 + 하단 카운터 표시 여부 (다중선택 UI)
 /// AllowMultiSelect : 체크박스 없이 다중 선택 허용 (자리배정 등)
+///                    이 모드에서도 단일 클릭 시 StudentSelected 는 발화한다.
 /// </summary>
 public partial class ListStudent : UserControl
 {
@@ -67,6 +68,7 @@ public partial class ListStudent : UserControl
     /// <summary>
     /// 체크박스 UI 없이 다중 선택만 허용.
     /// ShowCheckBox=True 이면 이 값과 무관하게 다중선택이 켜진다.
+    /// 단일 클릭 시 StudentSelected 는 여전히 발화한다.
     /// </summary>
     public bool AllowMultiSelect
     {
@@ -116,7 +118,10 @@ public partial class ListStudent : UserControl
 
     // ── 이벤트 ───────────────────────────────────────────
 
-    /// <summary>단일 선택 모드 전용 — 아이템 선택 시 발화.</summary>
+    /// <summary>
+    /// 단일 선택 / AllowMultiSelect 모드 공통 — 아이템 클릭 시 발화.
+    /// ShowCheckBox=True 모드에서는 발화하지 않는다.
+    /// </summary>
     public event EventHandler<Enrollment>? StudentSelected;
 
     /// <summary>
@@ -207,7 +212,6 @@ public partial class ListStudent : UserControl
 
     // ── SelectionMode 결정 ───────────────────────────────
 
-    /// <summary>ShowCheckBox / AllowMultiSelect 조합으로 SelectionMode 결정.</summary>
     private void ApplySelectionMode()
     {
         bool multi = GetValue(ShowCheckBoxProperty) || GetValue(AllowMultiSelectProperty);
@@ -262,11 +266,13 @@ public partial class ListStudent : UserControl
 
     private void OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        // 단일 선택 모드(ShowCheckBox=false, AllowMultiSelect=false)일 때만 StudentSelected 발화
-        if (!GetValue(ShowCheckBoxProperty) && !GetValue(AllowMultiSelectProperty)
-            && StudentListView.SelectedItem is Enrollment selected)
+        // ShowCheckBox 모드가 아닌 경우(단일 선택 / AllowMultiSelect 공통)
+        // → 가장 최근에 추가된 항목을 StudentSelected 로 발화
+        if (!GetValue(ShowCheckBoxProperty))
         {
-            StudentSelected?.Invoke(this, selected);
+            var added = e.AddedItems?.Count > 0 ? e.AddedItems[0] as Enrollment : null;
+            if (added != null)
+                StudentSelected?.Invoke(this, added);
         }
 
         if (GetValue(ShowCheckBoxProperty))
@@ -306,7 +312,7 @@ public partial class ListStudent : UserControl
             : $"전체 {total}명";
     }
 
-    // ── Pointer / Context Menu / Drag ────────────────────
+    // ── Pointer / Drag ───────────────────────────────────
 
     private Point?                  _dragStartPoint;
     private Enrollment?              _dragCandidate;
@@ -337,7 +343,7 @@ public partial class ListStudent : UserControl
 
         if (!props.IsLeftButtonPressed || item is null) return;
 
-        // 체크박스 모드: 행 영역 클릭 → IsSelected 토글
+        // ShowCheckBox 모드: 행 영역 클릭 → IsSelected 토글
         if (GetValue(ShowCheckBoxProperty))
         {
             bool isCheckBoxSelf = v is CheckBox
@@ -354,6 +360,7 @@ public partial class ListStudent : UserControl
             return;
         }
 
+        // 단일 선택 / AllowMultiSelect 모드 모두 드래그 가능
         _dragStartPoint = e.GetCurrentPoint(StudentListView).Position;
         _dragCandidate  = item;
         _dragPressArgs  = e;

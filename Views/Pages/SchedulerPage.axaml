@@ -39,7 +39,7 @@
                 Margin="20,12,20,0">
       <Button Content="새로고침"
               Command="{Binding LoadWeeklyCommand}"
-              Padding="12,6"/>
+              Classes="btn-md"/>
     </StackPanel>
 
     <!-- ── 본문 ──────────────────────────────────────────── -->

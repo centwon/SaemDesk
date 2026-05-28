@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using SaemDesk.ViewModels.Pages;
+using SaemDesk.Views.Controls;
 using SaemDesk.Views.Dialogs;
 
 namespace SaemDesk.Views.Pages;
@@ -23,16 +24,23 @@ public partial class StudentsPage : UserControl
         InitializeComponent();
         DataContext = new StudentsPageVM();
 
+        YearSemPicker.YearSemesterChanged += OnYearSemesterChanged;
+
         // Students 컬렉션 변경 시 UI 갱신
         VM.Students.CollectionChanged += (_, _) => UpdateUI();
         UpdateUI();
     }
 
+    private async void OnYearSemesterChanged(object? sender, YearSemesterChangedEventArgs e)
+    {
+        await ClassFilter.LoadAsync(e.Year, e.Semester);
+    }
+
     private async void OnQueryClick(object? sender, RoutedEventArgs e)
     {
-        VM.FilterYear  = FilterBar.Year;
-        VM.FilterGrade = FilterBar.Grade;
-        VM.FilterClass = FilterBar.ClassNum;
+        VM.FilterYear  = YearSemPicker.Year;
+        VM.FilterGrade = ClassFilter.Grade;
+        VM.FilterClass = ClassFilter.ClassNum;
         await VM.LoadStudentsAsync();
         UpdateUI();
     }
