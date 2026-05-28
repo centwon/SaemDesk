@@ -162,4 +162,13 @@ public partial class ClubActivityPage : UserControl, IDisposable
 
     private void BtnRefresh_Click(object? sender, RoutedEventArgs e)
         => _ = LoadStudentsAsync();
+
+    private void BtnClubManage_Click(object? sender, RoutedEventArgs e)
+    {
+        if (TopLevel.GetTopLevel(this) is Views.MainWindow mw
+            && mw.DataContext is ViewModels.MainWindowViewModel mainVm)
+        {
+            mainVm.CurrentPage = new ClubManagementPageVM();
+        }
+    }
 }

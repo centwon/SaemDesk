@@ -86,7 +86,6 @@ public partial class MainWindow : Window
             "Timetable_Teacher"         => new TeacherTimetablePageVM(),
             "ClubActivity"              => new ClubActivityPageVM(),
             "LessonBoard"               => new BoardPageVM(),
-            "ClubManagement"            => new ClubManagementPageVM(),
             "CourseManagement"          => new CourseManagementPageVM(),
 
             // 업무

@@ -10,11 +10,20 @@
   <Grid RowDefinitions="Auto,Auto,*,Auto">
 
     <!-- 헤더 -->
-    <StackPanel Grid.Row="0" Spacing="2" Margin="0,0,0,4">
-      <TextBlock Text="🎭 동아리 관리" Classes="page-title"/>
-      <TextBlock Text="학년도별 담당 동아리 CRUD 및 부원 관리"
-                 Classes="page-subtitle"/>
-    </StackPanel>
+    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,4">
+      <StackPanel Grid.Column="0" Spacing="2">
+        <TextBlock Text="🎭 동아리 관리" Classes="page-title"/>
+        <TextBlock Text="학년도별 담당 동아리 CRUD 및 부원 관리"
+                   Classes="page-subtitle"/>
+      </StackPanel>
+      <Button Grid.Column="1" Classes="btn-md" Click="BtnBackToActivity_Click"
+              VerticalAlignment="Center">
+        <StackPanel Orientation="Horizontal" Spacing="4">
+          <TextBlock Text="←" FontSize="16" VerticalAlignment="Center"/>
+          <TextBlock Text="동아리 활동" VerticalAlignment="Center"/>
+        </StackPanel>
+      </Button>
+    </Grid>
 
     <!-- 필터 / 툴바 -->
     <Grid Grid.Row="1" Margin="0,8,0,8"

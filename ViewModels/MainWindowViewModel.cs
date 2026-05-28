@@ -45,10 +45,9 @@ public partial class MainWindowViewModel : ViewModelBase
             new NavItem("누가 기록",       "✏",  () => new LessonActivityPageVM()),
             new NavItem("교과 세부능력 및 특기 사항", "📋", () => new LessonSpecPageVM()),
             new NavItem("수업 시간표",     "🗓", () => new TeacherTimetablePageVM()),
-            new NavItem("동아리 활동 기록","🎭", () => new ClubActivityPageVM()),
             new NavItem("수업 게시판",     "📌", () => new BoardPageVM()),
-            new NavItem("동아리 관리",     "🎪", () => new ClubManagementPageVM()),
             new NavItem("수업 관리",       "📚", () => new CourseManagementPageVM()),
+            new NavItem("동아리 활동",     "🎭", () => new ClubActivityPageVM()),
         }),
 
         // ── 업무 그룹 ──────────────────────────────────

@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using SaemDesk.ViewModels.Pages;
 using SaemDesk.Views.Controls;
 
@@ -12,12 +13,19 @@ public partial class ClubManagementPage : UserControl
     {
         InitializeComponent();
         DataContext = new ClubManagementPageVM();
-        // YearSemesterPicker가 Loaded 후 YearSemesterChanged를 발화하면
-        // OnYearSemesterChanged → VM.SetFilter → QueryAsync 자동 실행
     }
 
     private void OnYearSemesterChanged(object? sender, YearSemesterChangedEventArgs e)
     {
         VM.SetFilter(e.Year);
+    }
+
+    private void BtnBackToActivity_Click(object? sender, RoutedEventArgs e)
+    {
+        if (TopLevel.GetTopLevel(this) is Views.MainWindow mw
+            && mw.DataContext is ViewModels.MainWindowViewModel mainVm)
+        {
+            mainVm.CurrentPage = new ClubActivityPageVM();
+        }
     }
 }

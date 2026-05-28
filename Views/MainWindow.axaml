@@ -79,10 +79,9 @@
             <MenuItem Header="✏ 누가 기록"        Click="OnMenuClick" Tag="LessonActivity"/>
             <MenuItem Header="📋 교과 세부능력 및 특기 사항" Click="OnMenuClick" Tag="LessonSpec"/>
             <MenuItem Header="🗓 수업 시간표"      Click="OnMenuClick" Tag="Timetable_Teacher"/>
-            <MenuItem Header="🎭 동아리 활동 기록" Click="OnMenuClick" Tag="ClubActivity"/>
             <MenuItem Header="📌 수업 게시판"      Click="OnMenuClick" Tag="LessonBoard"/>
-            <MenuItem Header="🎪 동아리 관리"      Click="OnMenuClick" Tag="ClubManagement"/>
             <MenuItem Header="📚 수업 관리"        Click="OnMenuClick" Tag="CourseManagement"/>
+            <MenuItem Header="🎭 동아리 활동"      Click="OnMenuClick" Tag="ClubActivity"/>
           </MenuItem>
 
           <!-- 업무 -->
