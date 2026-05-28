@@ -5,6 +5,109 @@
              x:DataType="vm:AddStudentsPageVM"
              Classes="page">
 
+  <UserControl.Resources>
+    <!-- 컴팩트 스피너 RepeatButton 테마 (MinWidth 34→24, 아이콘 축소) -->
+    <ControlTheme x:Key="CompactSpinnerButton" TargetType="RepeatButton">
+      <Setter Property="MinWidth" Value="24"/>
+      <Setter Property="Template">
+        <ControlTemplate>
+          <ContentPresenter x:Name="PART_ContentPresenter"
+                            Background="Transparent"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Content="{TemplateBinding Content}"
+                            Padding="{TemplateBinding Padding}"
+                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+        </ControlTemplate>
+      </Setter>
+      <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource RepeatButtonBackgroundPointerOver}"/>
+      </Style>
+      <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource RepeatButtonBackgroundPressed}"/>
+      </Style>
+      <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Opacity" Value="0.4"/>
+      </Style>
+    </ControlTheme>
+
+    <!-- ButtonSpinner ControlTheme 오버라이드: 버튼 축소, 테두리 연하게 -->
+    <ControlTheme x:Key="{x:Type ButtonSpinner}" TargetType="ButtonSpinner">
+      <Setter Property="Foreground" Value="{DynamicResource TextControlForeground}"/>
+      <Setter Property="Padding" Value="10,0"/>
+      <Setter Property="Background" Value="{DynamicResource TextControlBackground}"/>
+      <Setter Property="BorderBrush" Value="#D8D8D8"/>
+      <Setter Property="BorderThickness" Value="0.75"/>
+      <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+      <Setter Property="MinHeight" Value="28"/>
+      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="Focusable" Value="True"/>
+      <Setter Property="Template">
+        <ControlTemplate>
+          <DataValidationErrors>
+            <Border Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="{TemplateBinding CornerRadius}"
+                    MinHeight="{TemplateBinding MinHeight}">
+              <DockPanel>
+                <StackPanel Name="PART_SpinnerPanel"
+                            TabIndex="2"
+                            DockPanel.Dock="Right"
+                            Orientation="Horizontal"
+                            IsVisible="{TemplateBinding ShowButtonSpinner}">
+                  <RepeatButton Name="PART_IncreaseButton"
+                                Theme="{StaticResource CompactSpinnerButton}"
+                                Background="Transparent"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="0.75,0,0,0"
+                                VerticalAlignment="Stretch"
+                                VerticalContentAlignment="Center"
+                                Foreground="{TemplateBinding Foreground}"
+                                MinWidth="24">
+                    <PathIcon Width="12" Height="6"
+                              Data="{StaticResource ButtonSpinnerIncreaseButtonIcon}"/>
+                  </RepeatButton>
+                  <RepeatButton Name="PART_DecreaseButton"
+                                Theme="{StaticResource CompactSpinnerButton}"
+                                Background="Transparent"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="0.75,0,0,0"
+                                VerticalAlignment="Stretch"
+                                VerticalContentAlignment="Center"
+                                Foreground="{TemplateBinding Foreground}"
+                                MinWidth="24">
+                    <PathIcon Width="12" Height="6"
+                              Data="{StaticResource ButtonSpinnerDecreaseButtonIcon}"/>
+                  </RepeatButton>
+                </StackPanel>
+                <ContentPresenter Name="PART_ContentPresenter"
+                                  TabIndex="1"
+                                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                                  Content="{TemplateBinding Content}"
+                                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                  Padding="{TemplateBinding Padding}"/>
+              </DockPanel>
+            </Border>
+          </DataValidationErrors>
+        </ControlTemplate>
+      </Setter>
+      <Style Selector="^:error">
+        <Setter Property="BorderBrush" Value="{DynamicResource SystemErrorTextColor}"/>
+      </Style>
+    </ControlTheme>
+  </UserControl.Resources>
+
+  <UserControl.Styles>
+    <Style Selector="NumericUpDown">
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+  </UserControl.Styles>
+
   <Grid RowDefinitions="Auto,Auto,*,Auto">
 
     <!-- ── 헤더 ──────────────────────────────────────────── -->
@@ -29,25 +132,29 @@
         <NumericUpDown Grid.Column="1"
                        Value="{Binding Year, Mode=TwoWay}"
                        Minimum="2000" Maximum="2100" Increment="1"
-                       Width="100" Margin="0,0,12,0"/>
+                       FormatString="0"
+                       Width="130" Margin="0,0,12,0"/>
 
         <TextBlock Grid.Column="2" Text="학년" VerticalAlignment="Center" Margin="0,0,6,0"/>
         <NumericUpDown Grid.Column="3"
                        Value="{Binding Grade, Mode=TwoWay}"
                        Minimum="1" Maximum="6" Increment="1"
-                       Width="80" Margin="0,0,12,0"/>
+                       FormatString="0"
+                       Width="100" Margin="0,0,12,0"/>
 
         <TextBlock Grid.Column="4" Text="반" VerticalAlignment="Center" Margin="0,0,6,0"/>
         <NumericUpDown Grid.Column="5"
                        Value="{Binding ClassNo, Mode=TwoWay}"
                        Minimum="1" Maximum="50" Increment="1"
-                       Width="80" Margin="0,0,12,0"/>
+                       FormatString="0"
+                       Width="100" Margin="0,0,12,0"/>
 
         <TextBlock Grid.Column="6" Text="번호" VerticalAlignment="Center" Margin="0,0,6,0"/>
         <NumericUpDown Grid.Column="7"
                        Value="{Binding Number, Mode=TwoWay}"
                        Minimum="1" Maximum="99" Increment="1"
-                       Width="80" Margin="0,0,12,0"/>
+                       FormatString="0"
+                       Width="100" Margin="0,0,12,0"/>
 
         <TextBlock Grid.Column="8" Text="이름" VerticalAlignment="Center" Margin="0,0,6,0"/>
         <TextBox Grid.Column="9"

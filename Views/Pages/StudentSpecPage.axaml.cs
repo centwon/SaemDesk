@@ -124,9 +124,72 @@ public partial class StudentSpecPage : UserControl, IDisposable
         await LoadSpecsAsync(_currentStudents);
     }
 
-    private void OnBatchExportClick(object? sender, RoutedEventArgs e)
+    private async void OnBatchExportClick(object? sender, RoutedEventArgs e)
     {
-        // TODO: 일괄 출력 (PDF/Excel)
+        if (!_currentStudents.Any() || VM.Grade == 0 || VM.ClassNum == 0)
+        {
+            await DialogService.ShowInfoAsync("학년, 반을 먼저 선택해주세요.");
+            return;
+        }
+
+        var owner = TopLevel.GetTopLevel(this) as Window;
+        if (owner is null) return;
+
+        var dlg = new Views.Dialogs.SpecExportFilterDialog();
+        await dlg.ShowDialog(owner);
+        if (!dlg.IsSuccess) return;
+
+        var filterType  = dlg.SelectedType;
+        var statusFilter = dlg.StatusFilter;
+        bool excludeEmpty = dlg.ExcludeEmpty;
+        bool isPdf = dlg.IsPdf;
+
+        try
+        {
+            var studentSpecsList = new List<(int Number, string Name, List<StudentSpecial> Specs)>();
+
+            foreach (var student in _currentStudents.OrderBy(s => s.Number))
+            {
+                List<StudentSpecial> specs;
+
+                if (!string.IsNullOrEmpty(filterType))
+                    specs = await _specialService.GetByTypeAsync(student.StudentID, VM.WorkYear, filterType);
+                else
+                    specs = await _specialService.GetByStudentAsync(student.StudentID, VM.WorkYear);
+
+                if (statusFilter == "draft")
+                    specs = specs.Where(s => !s.IsFinalized).ToList();
+                else if (statusFilter == "finalized")
+                    specs = specs.Where(s => s.IsFinalized).ToList();
+
+                if (excludeEmpty)
+                    specs = specs.Where(s => !string.IsNullOrWhiteSpace(s.Content)).ToList();
+
+                if (specs.Count == 0) continue;
+                studentSpecsList.Add((student.Number, student.Name, specs));
+            }
+
+            if (studentSpecsList.Count == 0)
+            {
+                await DialogService.ShowInfoAsync("조건에 맞는 기록이 없습니다.");
+                return;
+            }
+
+            string filePath;
+            if (isPdf)
+                filePath = new StudentSpecPrintService()
+                    .GenerateClassSpecPdf(VM.WorkYear, VM.Grade, VM.ClassNum, studentSpecsList);
+            else
+                filePath = new StudentSpecExportService()
+                    .ExportClassSpecsToExcel(VM.WorkYear, VM.Grade, VM.ClassNum, studentSpecsList);
+
+            System.Diagnostics.Process.Start(
+                new System.Diagnostics.ProcessStartInfo(filePath) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            await DialogService.ShowInfoAsync($"출력 중 오류가 발생했습니다: {ex.Message}");
+        }
     }
 
     private void SldFontSize_ValueChanged(object? sender, Avalonia.Controls.Primitives.RangeBaseValueChangedEventArgs e)

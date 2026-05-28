@@ -404,25 +404,25 @@ public interface IKoreanImeService
 - [x] `PostDetailDialog`
 - [x] `PostEditDialog` (JoditEditor 포함)
 - [x] `UnifiedItemDialog` (스케줄러 복합)
-- [ ] **전체 통합 테스트** ⏳ 진행 중
+- [x] **전체 통합 테스트**
 
 ### Phase 8 — Native AOT 검증
 - [x] `dotnet publish -r win-x64 -c Release` 빌드
 - [x] Trimming 경고 분석 및 `TrimmerRoots.xml` 보완
 - [x] QuestPDF, MiniExcel, Avalonia.WebView AOT 이슈 해결
-- [ ] 시나리오 테스트 (전체 통합 테스트와 연계):
-  - [ ] DB CRUD (학생/수업/게시판)
-  - [ ] Google OAuth 로그인 + Calendar 동기화
-  - [ ] Jodit 에디터 텍스트 입력/저장
-  - [ ] Excel/PDF 내보내기
-  - [ ] 학생부 NEIS 바이트 계산
-  - [ ] 자리 배치 저장/복원
+- [x] 시나리오 테스트 (전체 통합 테스트와 연계):
+  - [x] DB CRUD (학생/수업/게시판)
+  - [ ] Google OAuth 로그인 + Calendar 동기화 — ⏸ 보류 (차후 진행)
+  - [x] Jodit 에디터 텍스트 입력/저장
+  - [x] Excel/PDF 내보내기
+  - [x] 학생부 NEIS 바이트 계산
+  - [x] 자리 배치 저장/복원
 
 ### Phase 9 — 마무리
-- [ ] 앱 아이콘 (`Assets/icon.ico`)
-- [ ] `app.manifest` (DPI aware, Windows 10+ 지원)
-- [ ] 버전 정보 (`AssemblyInfo`, `FileVersion`)
-- [ ] `CHANGELOG.md` 초기화
+- [x] 앱 아이콘 (`Assets/icon.ico`)
+- [x] `app.manifest` (DPI aware, Windows 10+ 지원)
+- [x] 버전 정보 (`AssemblyInfo`, `FileVersion`) — v1.0.0
+- [x] `CHANGELOG.md` 업데이트
 - [ ] GitHub 리포 연결 (`git remote add origin`)
 - [ ] `v1.0.0` 태그 + 릴리스 draft
 

@@ -5,7 +5,7 @@ NewSchool (WinUI3) → SaemDesk (Avalonia 12) 마이그레이션 프로젝트.
 학교 업무 통합 데스크탑 앱 (학생·수업·학급일지·게시판·스케줄러·NEIS·Google Calendar).
 
 - **스택**: C# / .NET 10 / Avalonia 12.0.1 / CommunityToolkit.Mvvm / SQLite (ADO.NET) / Native AOT
-- **버전**: 0.2.0-alpha
+- **버전**: 1.0.0
 - **플랫폼**: Windows 우선, 차후 크로스플랫폼 예정
 
 ## 폴더 구조

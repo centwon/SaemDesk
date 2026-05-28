@@ -33,7 +33,7 @@
 
         <!-- ── 우측: 버전 표시 ───────────────────────── -->
         <TextBlock DockPanel.Dock="Right"
-                   Text="v0.2.0-alpha"
+                   Text="v1.0.0"
                    FontSize="10"
                    VerticalAlignment="Center"
                    Margin="0,0,16,0"
@@ -79,6 +79,7 @@
             <MenuItem Header="📅 연간 수업 계획"   Click="OnMenuClick" Tag="AnnualLessonPlan"/>
             <MenuItem Header="📊 진도 관리"        Click="OnMenuClick" Tag="ProgressMatrix"/>
             <MenuItem Header="✏ 누가 기록"        Click="OnMenuClick" Tag="LessonActivity"/>
+            <MenuItem Header="📋 교과 세부능력 및 특기 사항" Click="OnMenuClick" Tag="LessonSpec"/>
             <MenuItem Header="🗓 수업 시간표"      Click="OnMenuClick" Tag="Timetable_Teacher"/>
             <MenuItem Header="🎭 동아리 활동 기록" Click="OnMenuClick" Tag="ClubActivity"/>
             <MenuItem Header="📌 수업 게시판"      Click="OnMenuClick" Tag="LessonBoard"/>

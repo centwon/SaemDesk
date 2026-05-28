@@ -258,9 +258,9 @@ public partial class UnifiedExportPageVM : ViewModelBase
 
     private bool ValidateFilter()
     {
-        if (Year == 0 || Grade == 0 || ClassNo == 0)
+        if (Year == 0 || Grade == 0)
         {
-            ErrorText = "학년도, 학년, 반을 모두 선택해주세요.";
+            ErrorText = "학년도, 학년을 선택해주세요.";
             return false;
         }
         return true;

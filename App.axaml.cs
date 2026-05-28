@@ -203,5 +203,6 @@ public partial class App : Application
         ViewLocator.Register<TeacherTimetablePageVM>         (() => new TeacherTimetablePage());
         ViewLocator.Register<SchoolWorkPageVM>               (() => new SchoolWorkPage());
         ViewLocator.Register<AnnualLessonPlanPageVM>         (() => new AnnualLessonPlanPage());
+        ViewLocator.Register<LessonSpecPageVM>                (() => new LessonSpecPage());
     }
 }

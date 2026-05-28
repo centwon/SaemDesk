@@ -7,6 +7,27 @@
 
 ## [Unreleased]
 
+- Google OAuth + Calendar 동기화 (보류 중)
+
+---
+
+## [1.0.0] — 2026-05-29
+
+NewSchool (WinUI3) → SaemDesk (Avalonia 12) 마이그레이션 완료. Native AOT 검증 통과.
+
+### Added
+- **교과 세부능력 및 특기 사항 페이지** (`LessonSpecPage`) — 수업 메뉴 하위, 교과활동 고정 카테고리, 학년도/학기 + 과목/강의실 필터
+- **일괄 출력 기능** — StudentSpecPage, LessonSpecPage 모두 PDF/Excel 일괄 내보내기 지원
+- **일괄 출력 사용자 피드백** — 가드 조건 실패·빈 결과·예외 시 알림 다이얼로그 표시
+- **통합 내보내기 전체 학생 지원** — ClassNo=0 (전체) 선택 시 학년 전체 학생 내보내기 가능
+
+### Changed
+- 수업 메뉴 "학생부 관리" → "교과 세부능력 및 특기 사항"으로 명칭 변경
+- 버전 `0.2.0-alpha` → `1.0.0` 정식 릴리스
+
+### Fixed
+- NumericUpDown (AddStudentsPage) 가운데 정렬, 테두리, 버튼 크기 커스텀 ControlTheme 적용
+
 ### Fixed — Board(게시판) 버그 수정 및 구조 개선 (2026-05-23)
 
 #### BoardDatabase 이중화 문제 해결

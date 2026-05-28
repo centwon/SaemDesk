@@ -131,15 +131,10 @@ public partial class StudentsPage : UserControl
 
     private void OnAddStudentClick(object? sender, RoutedEventArgs e)
     {
-        // AddStudentsPage 로 네비게이션
-        // MainWindowViewModel 을 통해 페이지 전환
         if (TopLevel.GetTopLevel(this) is Window w &&
             w.DataContext is SaemDesk.ViewModels.MainWindowViewModel mvm)
         {
-            var target = SaemDesk.ViewModels.MainWindowViewModel.AllNavItems
-                .SelectMany(n => n.Children ?? System.Array.Empty<SaemDesk.ViewModels.NavItem>())
-                .FirstOrDefault(n => n.Title == "학생 관리");
-            if (target is not null) mvm.SelectedNavItem = target;
+            mvm.CurrentPage = new AddStudentsPageVM();
         }
     }
 }

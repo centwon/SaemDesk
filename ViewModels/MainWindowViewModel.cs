@@ -45,6 +45,7 @@ public partial class MainWindowViewModel : ViewModelBase
             new NavItem("연간 수업 계획",  "📅", () => new AnnualLessonPlanPageVM()),
             new NavItem("진도 관리",       "📊", () => new ProgressMatrixPageVM()),
             new NavItem("누가 기록",       "✏",  () => new LessonActivityPageVM()),
+            new NavItem("교과 세부능력 및 특기 사항", "📋", () => new LessonSpecPageVM()),
             new NavItem("수업 시간표",     "🗓", () => new TeacherTimetablePageVM()),
             new NavItem("동아리 활동 기록","🎭", () => new ClubActivityPageVM()),
             new NavItem("수업 게시판",     "📌", () => new BoardPageVM()),
