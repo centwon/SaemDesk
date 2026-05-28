@@ -134,6 +134,9 @@ public partial class JoditEditor : UserControl, IDisposable
 
         await Dispatcher.UIThread.InvokeAsync(async () =>
         {
+            // ⚠ _isInitialized를 먼저 설정해야 ApplyModeAsync/SetEditorTextAsync가 동작
+            _isInitialized = true;
+
             // 모드 적용
             await ApplyModeAsync();
 
@@ -145,24 +148,54 @@ public partial class JoditEditor : UserControl, IDisposable
             if (LoadingOverlay is not null)
                 LoadingOverlay.IsVisible = false;
 
-            _isInitialized = true;
             Debug.WriteLine("[JoditEditor] 초기화 완료");
         });
     }
 
     private void OnWebMessageReceived(object? sender, WebMessageReceivedEventArgs e)
     {
-        // JS: window.chrome.webview.postMessage(html)
-        string? html = e.Body;
-        if (html is null) return;
+        string? raw = e.Body;
+        if (raw is null) return;
 
-        Dispatcher.UIThread.Post(() =>
+        // JS가 JSON.stringify({ type, content, ... }) 으로 전송
+        try
         {
-            _isUpdatingFromEditor = true;
-            Text = html;
-            _isUpdatingFromEditor = false;
-            TextChanged?.Invoke(this, html);
-        });
+            var msg = JsonSerializer.Deserialize(raw, JoditEditorJsonContext.Default.JoditMessage);
+            if (msg is null) return;
+
+            switch (msg.Type)
+            {
+                case "contentChanged":
+                    string html = msg.Content ?? "";
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        _isUpdatingFromEditor = true;
+                        Text = html;
+                        _isUpdatingFromEditor = false;
+                        TextChanged?.Invoke(this, html);
+                    });
+                    break;
+
+                case "ready":
+                    Debug.WriteLine("[JoditEditor] JS ready 수신");
+                    break;
+
+                case "contentHeight":
+                    // 필요 시 높이 조정에 활용
+                    break;
+            }
+        }
+        catch (JsonException)
+        {
+            // JSON 파싱 실패 → 레거시: raw를 그대로 HTML로 처리
+            Dispatcher.UIThread.Post(() =>
+            {
+                _isUpdatingFromEditor = true;
+                Text = raw;
+                _isUpdatingFromEditor = false;
+                TextChanged?.Invoke(this, raw);
+            });
+        }
     }
 
     // ────────────────────────────────────────────────────
@@ -218,6 +251,19 @@ public partial class JoditEditor : UserControl, IDisposable
     {
         if (!_isInitialized) return;
         await SafeExecAsync("printContent()");
+    }
+
+    /// <summary>Jodit 에디터의 현재 커서 위치에 HTML을 삽입합니다.</summary>
+    public async Task InsertHtmlAsync(string html)
+    {
+        if (!_isInitialized) return;
+        string escaped = html.Replace("\\", "\\\\")
+                             .Replace("'", "\\'")
+                             .Replace("\"", "\\\"")
+                             .Replace("\n", "\\n")
+                             .Replace("\r", "")
+                             .Replace("</", "<\\/");
+        await SafeExecAsync($"editor.selection.insertHTML('{escaped}');");
     }
 
     // ────────────────────────────────────────────────────

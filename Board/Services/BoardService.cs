@@ -129,6 +129,12 @@ public sealed class BoardService : IDisposable
         return await cr.GetByPostAsync(postNo);
     }
 
+    public async Task<Dictionary<int, int>> GetCommentCountsByPostsAsync(List<int> postNos)
+    {
+        using var cr = new CommentRepository(_dbPath);
+        return await cr.GetCountsByPostsAsync(postNos);
+    }
+
     // ── PostFile ──────────────────────────────────────────
 
     public async Task<int> AddPostFileAsync(PostFile pf)

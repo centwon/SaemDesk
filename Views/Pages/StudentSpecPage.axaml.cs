@@ -30,8 +30,9 @@ public partial class StudentSpecPage : UserControl, IDisposable
         DataContext = new StudentSpecPageVM();
         Unloaded += (_, _) => Dispose();
 
-        // 반 선택 시 자동 로드
-        FilterBar.SelectionChanged += OnFilterBarChanged;
+        // 필터 이벤트 연결
+        YearSemPicker.YearSemesterChanged += OnYearSemesterChanged;
+        ClassFilter.ClassChanged          += OnClassFilterChanged;
     }
 
     public void Dispose()
@@ -52,7 +53,12 @@ public partial class StudentSpecPage : UserControl, IDisposable
         await LoadSpecsAsync(_currentStudents);
     }
 
-    private async void OnFilterBarChanged(object? sender, FilterChangedEventArgs e)
+    private async void OnYearSemesterChanged(object? sender, YearSemesterChangedEventArgs e)
+    {
+        await ClassFilter.LoadAsync(e.Year, e.Semester);
+    }
+
+    private async void OnClassFilterChanged(object? sender, ClassChangedEventArgs e)
     {
         VM.WorkYear  = e.Year;
         VM.Grade     = e.Grade;
@@ -102,9 +108,20 @@ public partial class StudentSpecPage : UserControl, IDisposable
         }
     }
 
-    private void OnBatchInputClick(object? sender, RoutedEventArgs e)
+    private async void OnBatchInputClick(object? sender, RoutedEventArgs e)
     {
-        // TODO: StudentSpecBatchDialog
+        var owner = TopLevel.GetTopLevel(this) as Window;
+        if (owner is null) return;
+
+        string? defaultType = VM.SelectedCategory == LogCategory.전체
+            ? null
+            : VM.SelectedCategory.ToString();
+
+        var dlg = new Views.Dialogs.StudentSpecBatchDialog(
+            VM.WorkYear, Settings.WorkSemester.Value, VM.Grade, VM.ClassNum, defaultType);
+
+        await dlg.ShowDialog(owner);
+        await LoadSpecsAsync(_currentStudents);
     }
 
     private void OnBatchExportClick(object? sender, RoutedEventArgs e)

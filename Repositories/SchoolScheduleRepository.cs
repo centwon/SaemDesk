@@ -43,7 +43,7 @@ namespace SaemDesk.Repositories
                 AddScheduleParameters(cmd, schedule);
 
                 var result = await cmd.ExecuteScalarAsync();
-                schedule.No = Convert.ToInt32(result);
+                schedule.No = Convert.ToInt32(result ?? 0);
 
                 LogInfo($"학사일정 생성 완료: No={schedule.No}, Date={schedule.AA_YMD:yyyy-MM-dd}");
                 return schedule.No;

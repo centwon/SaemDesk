@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using SaemDesk.Board.Models;
+using SaemDesk.Repositories;
 
 namespace SaemDesk.Board.Repositories;
 
-public class CommentRepository : BoardBaseRepository
+public class CommentRepository : BaseRepository
 {
     public CommentRepository(string dbPath) : base(dbPath) { }
 
@@ -19,7 +20,7 @@ public class CommentRepository : BoardBaseRepository
         AddParams(cmd, c);
         await cmd.ExecuteNonQueryAsync();
         cmd.CommandText = "SELECT last_insert_rowid()";
-        c.No = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+        c.No = Convert.ToInt32(await cmd.ExecuteScalarAsync() ?? 0);
         return c.No;
     }
 
@@ -43,7 +44,28 @@ public class CommentRepository : BoardBaseRepository
     {
         using var cmd = CreateCommand("SELECT COUNT(*) FROM Comment WHERE Post=@Post");
         cmd.Parameters.Add("@Post", SqliteType.Integer).Value = postNo;
-        return Convert.ToInt32(await cmd.ExecuteScalarAsync());
+        return Convert.ToInt32(await cmd.ExecuteScalarAsync() ?? 0);
+    }
+
+    public async Task<Dictionary<int, int>> GetCountsByPostsAsync(List<int> postNos)
+    {
+        var result = new Dictionary<int, int>();
+        if (postNos.Count == 0) return result;
+
+        var placeholders = new string[postNos.Count];
+        using var cmd = Connection.CreateCommand();
+        cmd.Transaction = Transaction;
+        for (int i = 0; i < postNos.Count; i++)
+        {
+            placeholders[i] = $"@p{i}";
+            cmd.Parameters.Add($"@p{i}", SqliteType.Integer).Value = postNos[i];
+        }
+        cmd.CommandText = $"SELECT Post, COUNT(*) FROM Comment WHERE Post IN ({string.Join(",", placeholders)}) GROUP BY Post";
+
+        using var r = await cmd.ExecuteReaderAsync().ConfigureAwait(false);
+        while (await r.ReadAsync().ConfigureAwait(false))
+            result[r.GetInt32(0)] = r.GetInt32(1);
+        return result;
     }
 
     public async Task<bool> UpdateAsync(Comment c)

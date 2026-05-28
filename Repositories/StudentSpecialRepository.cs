@@ -39,7 +39,7 @@ namespace SaemDesk.Repositories
                 AddSpecialParameters(cmd, special);
 
                 var result = await cmd.ExecuteScalarAsync();
-                special.No = Convert.ToInt32(result);
+                special.No = Convert.ToInt32(result ?? 0);
 
                 LogInfo($"학생부 기록 생성 완료: No={special.No}, StudentID={special.StudentID}");
                 return special.No;

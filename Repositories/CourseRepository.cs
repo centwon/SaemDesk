@@ -39,7 +39,7 @@ namespace SaemDesk.Repositories
                 AddCourseParameters(cmd, course);
 
                 var result = await cmd.ExecuteScalarAsync();
-                course.No = Convert.ToInt32(result);
+                course.No = Convert.ToInt32(result ?? 0);
 
                 LogInfo($"수업 생성 완료: No={course.No}, Subject={course.Subject}");
                 return course.No;

@@ -37,7 +37,7 @@ namespace SaemDesk.Repositories
                 AddHistoryParameters(cmd, history);
 
                 var result = await cmd.ExecuteScalarAsync();
-                history.No = Convert.ToInt32(result);
+                history.No = Convert.ToInt32(result ?? 0);
 
                 LogInfo($"교사 근무이력 생성 완료: No={history.No}, TeacherID={history.TeacherID}");
                 return history.No;

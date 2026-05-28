@@ -43,7 +43,7 @@ namespace SaemDesk.Repositories
                 AddEnrollmentParameters(cmd, enrollment);
 
                 var result = await cmd.ExecuteScalarAsync();
-                enrollment.No = Convert.ToInt32(result);
+                enrollment.No = Convert.ToInt32(result ?? 0);
 
                 LogInfo($"학적 생성 완료: No={enrollment.No}, StudentID={enrollment.StudentID}");
                 return enrollment.No;
@@ -497,7 +497,7 @@ namespace SaemDesk.Repositories
                 cmd.Parameters.AddWithValue("@Semester", semester);
 
                 var result = await cmd.ExecuteScalarAsync();
-                return Convert.ToInt32(result);
+                return Convert.ToInt32(result ?? 0);
             }
             catch (Exception ex)
             {
@@ -629,7 +629,7 @@ namespace SaemDesk.Repositories
                 cmd.Parameters.AddWithValue("@Class", classNum);
 
                 var result = await cmd.ExecuteScalarAsync();
-                int count = Convert.ToInt32(result);
+                int count = Convert.ToInt32(result ?? 0);
 
                 LogInfo($"반별 학생 수 조회 완료: {grade}학년 {classNum}반 = {count}명");
                 return count;
@@ -943,8 +943,8 @@ namespace SaemDesk.Repositories
                 TransferInDate = reader.IsDBNull(reader.GetOrdinal("TransferInDate")) ? string.Empty : reader.GetString(reader.GetOrdinal("TransferInDate")),
                 TransferInSchool = reader.IsDBNull(reader.GetOrdinal("TransferInSchool")) ? string.Empty : reader.GetString(reader.GetOrdinal("TransferInSchool")),
                 Memo = reader.IsDBNull(reader.GetOrdinal("Memo")) ? string.Empty : reader.GetString(reader.GetOrdinal("Memo")),
-                CreatedAt = DateTime.Parse(reader.GetString(reader.GetOrdinal("CreatedAt"))),
-                UpdatedAt = DateTime.Parse(reader.GetString(reader.GetOrdinal("UpdatedAt"))),
+                CreatedAt = DateTime.TryParse(reader.GetString(reader.GetOrdinal("CreatedAt")), out var ca) ? ca : DateTime.MinValue,
+                UpdatedAt = DateTime.TryParse(reader.GetString(reader.GetOrdinal("UpdatedAt")), out var ua) ? ua : DateTime.MinValue,
                 IsDeleted = reader.GetInt32(reader.GetOrdinal("IsDeleted")) == 1
             };
         }
@@ -999,8 +999,8 @@ namespace SaemDesk.Repositories
                 TransferInDate = reader.IsDBNull(transferInDateIdx) ? string.Empty : reader.GetString(transferInDateIdx),
                 TransferInSchool = reader.IsDBNull(transferInSchoolIdx) ? string.Empty : reader.GetString(transferInSchoolIdx),
                 Memo = reader.IsDBNull(memoIdx) ? string.Empty : reader.GetString(memoIdx),
-                CreatedAt = DateTime.Parse(reader.GetString(createdAtIdx)),
-                UpdatedAt = DateTime.Parse(reader.GetString(updatedAtIdx)),
+                CreatedAt = DateTime.TryParse(reader.GetString(createdAtIdx), out var ca2) ? ca2 : DateTime.MinValue,
+                UpdatedAt = DateTime.TryParse(reader.GetString(updatedAtIdx), out var ua2) ? ua2 : DateTime.MinValue,
                 IsDeleted = reader.GetInt32(isDeletedIdx) == 1
             };
         }

@@ -35,7 +35,7 @@ namespace SaemDesk.Repositories
                 AddEnrollmentParameters(cmd, enrollment);
 
                 var result = await cmd.ExecuteScalarAsync();
-                enrollment.No = Convert.ToInt32(result);
+                enrollment.No = Convert.ToInt32(result ?? 0);
 
                 LogInfo($"수강 신청 생성 완료: No={enrollment.No}, StudentID={enrollment.StudentID}");
                 return enrollment.No;
@@ -89,7 +89,7 @@ namespace SaemDesk.Repositories
                     cmd.Parameters["@UpdatedAt"].Value = enrollment.UpdatedAt;
 
                     var result = await cmd.ExecuteScalarAsync();
-                    enrollment.No = Convert.ToInt32(result);
+                    enrollment.No = Convert.ToInt32(result ?? 0);
                     count++;
                 }
 

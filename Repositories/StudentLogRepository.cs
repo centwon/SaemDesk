@@ -43,7 +43,7 @@ namespace SaemDesk.Repositories
                 AddLogParameters(cmd, log);
 
                 var result = await cmd.ExecuteScalarAsync();
-                log.No = Convert.ToInt32(result);
+                log.No = Convert.ToInt32(result ?? 0);
 
                 LogInfo($"학생 기록 생성 완료: No={log.No}");
                 return log.No;

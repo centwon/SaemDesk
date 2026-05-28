@@ -67,7 +67,7 @@ namespace SaemDesk.Repositories
                 AddDiaryParameters(cmd, diary);
 
                 var result = await cmd.ExecuteScalarAsync();
-                diary.No = Convert.ToInt32(result);
+                diary.No = Convert.ToInt32(result ?? 0);
 
                 LogInfo($"학급 일지 생성: No={diary.No}, Date={diary.Date:yyyy-MM-dd}, {diary.Grade}학년 {diary.Class}반");
                 return diary.No;
@@ -478,7 +478,7 @@ namespace SaemDesk.Repositories
                 cmd.Parameters.AddWithValue("@Class", classNum);
 
                 var result = await cmd.ExecuteScalarAsync();
-                return Convert.ToInt32(result);
+                return Convert.ToInt32(result ?? 0);
             }
             catch (Exception ex)
             {

@@ -15,7 +15,7 @@ namespace SaemDesk.Board.ViewModels;
 /// <summary>
 /// Post 목록 ViewModel — NewSchool PostListViewModel 이식 (WinUI3 제거).
 /// </summary>
-public class PostListViewModel : INotifyPropertyChanged
+public class PostListViewModel : INotifyPropertyChanged, IDisposable
 {
     private readonly BoardService _service;
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -47,8 +47,11 @@ public class PostListViewModel : INotifyPropertyChanged
 
     private string _searchText = "";
     public  string SearchText  { get => _searchText;  set { _searchText = value;  Notify(); } }
-    public  bool   SearchInTitle   { get; set; } = true;
-    public  bool   SearchInContent { get; set; }
+
+    private bool _searchInTitle   = true;
+    private bool _searchInContent = false;
+    public  bool SearchInTitle   { get => _searchInTitle;   set { _searchInTitle   = value; Notify(); } }
+    public  bool SearchInContent { get => _searchInContent; set { _searchInContent = value; Notify(); } }
 
     // ── 상태 ─────────────────────────────────────────────
 
@@ -96,11 +99,14 @@ public class PostListViewModel : INotifyPropertyChanged
             var result = await _service.GetPostsPagedAsync(
                 CurrentPage, PageSize, SelectedCategory, SelectedSubject);
 
-            var items = new List<PostItemViewModel>();
+            var postNos = result.Items.ConvertAll(p => p.No);
+            var commentCounts = await _service.GetCommentCountsByPostsAsync(postNos);
+
+            var items = new List<PostItemViewModel>(result.Items.Count);
             foreach (var p in result.Items)
             {
-                var comments = await _service.GetCommentsByPostAsync(p.No);
-                items.Add(new PostItemViewModel(p, comments.Count));
+                commentCounts.TryGetValue(p.No, out int count);
+                items.Add(new PostItemViewModel(p, count));
             }
 
             await Dispatcher.UIThread.InvokeAsync(() =>
@@ -130,11 +136,14 @@ public class PostListViewModel : INotifyPropertyChanged
                 CurrentPage, PageSize, SelectedCategory, SelectedSubject,
                 SearchInTitle, SearchInContent, SearchText);
 
-            var items = new List<PostItemViewModel>();
+            var postNos = result.Items.ConvertAll(p => p.No);
+            var commentCounts = await _service.GetCommentCountsByPostsAsync(postNos);
+
+            var items = new List<PostItemViewModel>(result.Items.Count);
             foreach (var p in result.Items)
             {
-                var comments = await _service.GetCommentsByPostAsync(p.No);
-                items.Add(new PostItemViewModel(p, comments.Count));
+                commentCounts.TryGetValue(p.No, out int count);
+                items.Add(new PostItemViewModel(p, count));
             }
 
             await Dispatcher.UIThread.InvokeAsync(() =>
@@ -180,6 +189,8 @@ public class PostListViewModel : INotifyPropertyChanged
         await _service.DeletePostAsync(item.No, item.Category);
         await RefreshAsync();
     }
+
+    public void Dispose() => _service.Dispose();
 
     protected void Notify([CallerMemberName] string? name = null)
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

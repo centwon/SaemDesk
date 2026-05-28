@@ -47,7 +47,7 @@ namespace SaemDesk.Repositories
                 AddStudentDetailParameters(cmd, detail);
 
                 var result = await cmd.ExecuteScalarAsync();
-                detail.No = Convert.ToInt32(result);
+                detail.No = Convert.ToInt32(result ?? 0);
 
                 LogInfo($"학생 상세정보 생성 완료: No={detail.No}, StudentID={detail.StudentID}");
                 return detail.No;

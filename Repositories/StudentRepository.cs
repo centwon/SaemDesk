@@ -44,7 +44,7 @@ namespace SaemDesk.Repositories
                 AddStudentParameters(cmd, student);
 
                 var result = await cmd.ExecuteScalarAsync();
-                student.No = Convert.ToInt32(result);
+                student.No = Convert.ToInt32(result ?? 0);
 
                 LogInfo($"학생 생성: No={student.No}");
                 return student.No;
@@ -348,7 +348,7 @@ namespace SaemDesk.Repositories
             {
                 using var cmd = CreateCommand(query);
                 var result = await cmd.ExecuteScalarAsync();
-                return Convert.ToInt32(result);
+                return Convert.ToInt32(result ?? 0);
             }
             catch (Exception ex)
             {

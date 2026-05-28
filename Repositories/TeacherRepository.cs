@@ -40,7 +40,7 @@ namespace SaemDesk.Repositories
                 AddTeacherParameters(cmd, teacher);
 
                 var result = await cmd.ExecuteScalarAsync();
-                teacher.No = Convert.ToInt32(result);
+                teacher.No = Convert.ToInt32(result ?? 0);
 
                 LogInfo($"교사 생성 완료: No={teacher.No}");
                 return teacher.No;

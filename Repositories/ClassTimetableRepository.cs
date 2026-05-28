@@ -37,7 +37,7 @@ namespace SaemDesk.Repositories
                 AddTimetableParameters(cmd, timetable);
 
                 var result = await cmd.ExecuteScalarAsync();
-                timetable.No = Convert.ToInt32(result);
+                timetable.No = Convert.ToInt32(result ?? 0);
 
                 LogInfo($"학급 시간표 생성 완료: No={timetable.No}, {timetable.Grade}학년 {timetable.Class}반");
                 return timetable.No;
@@ -57,21 +57,57 @@ namespace SaemDesk.Repositories
             if (timetables == null || timetables.Count == 0)
                 return 0;
 
-            int count = 0;
+            const string query = @"
+                INSERT INTO ClassTimetable (
+                    SchoolCode, Year, Semester, Grade, Class,
+                    DayOfWeek, Period, SubjectName, TeacherName, Room
+                ) VALUES (
+                    @SchoolCode, @Year, @Semester, @Grade, @Class,
+                    @DayOfWeek, @Period, @SubjectName, @TeacherName, @Room
+                );
+                SELECT last_insert_rowid();";
 
             try
             {
-                foreach (var timetable in timetables)
+                BeginTransaction();
+                using var cmd = CreateCommand(query);
+                cmd.Parameters.Add("@SchoolCode", SqliteType.Text);
+                cmd.Parameters.Add("@Year", SqliteType.Integer);
+                cmd.Parameters.Add("@Semester", SqliteType.Integer);
+                cmd.Parameters.Add("@Grade", SqliteType.Integer);
+                cmd.Parameters.Add("@Class", SqliteType.Integer);
+                cmd.Parameters.Add("@DayOfWeek", SqliteType.Integer);
+                cmd.Parameters.Add("@Period", SqliteType.Integer);
+                cmd.Parameters.Add("@SubjectName", SqliteType.Text);
+                cmd.Parameters.Add("@TeacherName", SqliteType.Text);
+                cmd.Parameters.Add("@Room", SqliteType.Text);
+
+                int count = 0;
+                foreach (var t in timetables)
                 {
-                    await CreateAsync(timetable);
+                    cmd.Parameters["@SchoolCode"].Value  = t.SchoolCode ?? string.Empty;
+                    cmd.Parameters["@Year"].Value         = t.Year;
+                    cmd.Parameters["@Semester"].Value      = t.Semester;
+                    cmd.Parameters["@Grade"].Value         = t.Grade;
+                    cmd.Parameters["@Class"].Value         = t.Class;
+                    cmd.Parameters["@DayOfWeek"].Value     = t.DayOfWeek;
+                    cmd.Parameters["@Period"].Value        = t.Period;
+                    cmd.Parameters["@SubjectName"].Value   = t.SubjectName ?? string.Empty;
+                    cmd.Parameters["@TeacherName"].Value   = t.TeacherName ?? string.Empty;
+                    cmd.Parameters["@Room"].Value          = t.Room ?? string.Empty;
+
+                    var result = await cmd.ExecuteScalarAsync();
+                    t.No = Convert.ToInt32(result ?? 0);
                     count++;
                 }
 
+                Commit();
                 LogInfo($"학급 시간표 일괄 생성 완료: {count}개");
                 return count;
             }
             catch (Exception ex)
             {
+                Rollback();
                 LogError($"학급 시간표 일괄 생성 실패", ex);
                 throw;
             }

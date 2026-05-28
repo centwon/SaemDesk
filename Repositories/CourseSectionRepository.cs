@@ -155,7 +155,7 @@ public class CourseSectionRepository : BaseRepository
             AddParameters(cmd, section);
 
             var result = await cmd.ExecuteScalarAsync();
-            section.No = Convert.ToInt32(result);
+            section.No = Convert.ToInt32(result ?? 0);
 
             LogInfo($"단원 생성 완료: No={section.No}, {section.FullPath}");
             return section.No;
@@ -344,7 +344,7 @@ public class CourseSectionRepository : BaseRepository
             cmd.Parameters.AddWithValue("@Course", courseNo);
 
             var result = await cmd.ExecuteScalarAsync();
-            return Convert.ToInt32(result);
+            return Convert.ToInt32(result ?? 0);
         }
         catch (Exception ex)
         {

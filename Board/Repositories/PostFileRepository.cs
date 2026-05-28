@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using SaemDesk.Board.Models;
+using SaemDesk.Repositories;
 
 namespace SaemDesk.Board.Repositories;
 
-public class PostFileRepository : BoardBaseRepository
+public class PostFileRepository : BaseRepository
 {
     public PostFileRepository(string dbPath) : base(dbPath) { }
 
@@ -20,7 +21,7 @@ public class PostFileRepository : BoardBaseRepository
         cmd.Parameters.AddWithValue("@FileSize", pf.FileSize);
         await cmd.ExecuteNonQueryAsync();
         cmd.CommandText = "SELECT last_insert_rowid()";
-        pf.No = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+        pf.No = Convert.ToInt32(await cmd.ExecuteScalarAsync() ?? 0);
         return pf.No;
     }
 
@@ -44,7 +45,7 @@ public class PostFileRepository : BoardBaseRepository
     {
         using var cmd = CreateCommand("SELECT COUNT(*) FROM PostFile WHERE Post=@Post");
         cmd.Parameters.Add("@Post", SqliteType.Integer).Value = postNo;
-        return Convert.ToInt32(await cmd.ExecuteScalarAsync());
+        return Convert.ToInt32(await cmd.ExecuteScalarAsync() ?? 0);
     }
 
     public async Task<bool> DeleteAsync(int no)

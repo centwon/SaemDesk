@@ -39,12 +39,12 @@ public partial class ClassDiaryBox : UserControl
         NoticeBox.Text = ViewModel.Notice ?? string.Empty;
         UpdateNoticePreview();
 
-        LoadTimetable(grade, classNumber, Settings.WorkYear);
+        await LoadTimetableAsync(grade, classNumber, Settings.WorkYear);
         _isChanged = false;
         ResetTextBoxStyles();
     }
 
-    private async void LoadTimetable(int grade, int classNumber, int year)
+    private async Task LoadTimetableAsync(int grade, int classNumber, int year)
     {
         if (grade == 0 || classNumber == 0 || year == 0) return;
 

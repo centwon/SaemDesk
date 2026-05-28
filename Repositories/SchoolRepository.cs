@@ -43,7 +43,7 @@ namespace SaemDesk.Repositories
                 AddSchoolParameters(cmd, school);
 
                 var result = await cmd.ExecuteScalarAsync();
-                school.No = Convert.ToInt32(result);
+                school.No = Convert.ToInt32(result ?? 0);
 
                 LogInfo($"학교 생성 완료: No={school.No}, SchoolCode={school.SchoolCode}, Name={school.SchoolName}");
                 return school.No;

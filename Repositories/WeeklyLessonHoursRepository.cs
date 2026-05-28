@@ -73,7 +73,7 @@ namespace SaemDesk.Repositories
                 AddParameters(cmd, hours);
 
                 var result = await cmd.ExecuteScalarAsync();
-                hours.No = Convert.ToInt32(result);
+                hours.No = Convert.ToInt32(result ?? 0);
 
                 LogInfo($"주차별 시수 생성 완료: No={hours.No}, Week={hours.Week}");
                 return hours.No;
@@ -252,7 +252,7 @@ namespace SaemDesk.Repositories
                 cmd.Parameters.AddWithValue("@YearPlanNo", yearPlanNo);
 
                 var result = await cmd.ExecuteScalarAsync();
-                return Convert.ToInt32(result);
+                return Convert.ToInt32(result ?? 0);
             }
             catch (Exception ex)
             {
@@ -277,7 +277,7 @@ namespace SaemDesk.Repositories
                 cmd.Parameters.AddWithValue("@YearPlanNo", yearPlanNo);
 
                 var result = await cmd.ExecuteScalarAsync();
-                return Convert.ToInt32(result);
+                return Convert.ToInt32(result ?? 0);
             }
             catch (Exception ex)
             {

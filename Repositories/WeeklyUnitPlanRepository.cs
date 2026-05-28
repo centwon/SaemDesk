@@ -128,7 +128,7 @@ namespace SaemDesk.Repositories
                 AddParameters(cmd, plan);
 
                 var result = await cmd.ExecuteScalarAsync();
-                plan.No = Convert.ToInt32(result);
+                plan.No = Convert.ToInt32(result ?? 0);
 
                 LogInfo($"단원 배치 생성 완료: No={plan.No}, Week={plan.Week}, SectionNo={plan.SectionNo}");
                 return plan.No;
@@ -372,7 +372,7 @@ namespace SaemDesk.Repositories
                 cmd.Parameters.AddWithValue("@Week", week);
 
                 var result = await cmd.ExecuteScalarAsync();
-                return Convert.ToInt32(result);
+                return Convert.ToInt32(result ?? 0);
             }
             catch (Exception ex)
             {
@@ -398,7 +398,7 @@ namespace SaemDesk.Repositories
                 cmd.Parameters.AddWithValue("@Week", week);
 
                 var result = await cmd.ExecuteScalarAsync();
-                return Convert.ToInt32(result);
+                return Convert.ToInt32(result ?? 0);
             }
             catch (Exception ex)
             {

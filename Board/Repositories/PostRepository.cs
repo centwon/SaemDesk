@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using SaemDesk.Board.Models;
+using SaemDesk.Repositories;
 
 namespace SaemDesk.Board.Repositories;
 
 /// <summary>Post 리포지토리 — NewSchool Board PostRepository 이식.</summary>
-public class PostRepository : BoardBaseRepository
+public class PostRepository : BaseRepository
 {
     public PostRepository(string dbPath) : base(dbPath) { }
 
@@ -24,7 +25,7 @@ public class PostRepository : BoardBaseRepository
         using var cmd = CreateCommand(sql);
         AddParams(cmd, post);
         var r = await cmd.ExecuteScalarAsync();
-        post.No = Convert.ToInt32(r);
+        post.No = Convert.ToInt32(r ?? 0);
         LogInfo($"Post 생성: No={post.No}");
         return post.No;
     }
@@ -98,6 +99,21 @@ public class PostRepository : BoardBaseRepository
         return list;
     }
 
+    public async Task<List<Post>> GetAllAsync()
+    {
+        using var cmd = CreateCommand(
+            "SELECT * FROM Post ORDER BY DateTime DESC, No DESC");
+        return await ExecuteListAsync(cmd, (r, c) => Map(r, c));
+    }
+
+    public async Task<List<Post>> GetByCategoryAsync(string category)
+    {
+        using var cmd = CreateCommand(
+            "SELECT * FROM Post WHERE Category=@C ORDER BY DateTime DESC, No DESC");
+        cmd.Parameters.AddWithValue("@C", category);
+        return await ExecuteListAsync(cmd, (r, c) => Map(r, c));
+    }
+
     // ── Update ────────────────────────────────────────────
 
     public async Task<bool> UpdateAsync(Post post)
@@ -144,6 +160,24 @@ public class PostRepository : BoardBaseRepository
     }
 
     // ── Delete ────────────────────────────────────────────
+
+    public async Task<List<Post>> GetForMemoAsync(string category = "", string subject = "")
+    {
+        string sql = "SELECT * FROM Post WHERE 1=1";
+        using var cmd = CreateCommand(sql);
+        if (!string.IsNullOrEmpty(category))
+        {
+            cmd.CommandText += " AND Category=@Category";
+            cmd.Parameters.AddWithValue("@Category", category);
+        }
+        if (!string.IsNullOrEmpty(subject))
+        {
+            cmd.CommandText += " AND Subject=@Subject";
+            cmd.Parameters.AddWithValue("@Subject", subject);
+        }
+        cmd.CommandText += " ORDER BY DateTime DESC";
+        return await ExecuteListAsync(cmd, (r, c) => Map(r, c));
+    }
 
     public async Task<bool> DeleteAsync(int postNo)
     {

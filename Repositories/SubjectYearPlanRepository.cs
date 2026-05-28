@@ -79,7 +79,7 @@ namespace SaemDesk.Repositories
                 AddParameters(cmd, plan);
 
                 var result = await cmd.ExecuteScalarAsync();
-                plan.No = Convert.ToInt32(result);
+                plan.No = Convert.ToInt32(result ?? 0);
 
                 LogInfo($"연간계획 생성 완료: No={plan.No}, CourseNo={plan.CourseNo}");
                 return plan.No;

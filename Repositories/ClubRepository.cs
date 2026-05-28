@@ -37,7 +37,7 @@ namespace SaemDesk.Repositories
                 AddClubParameters(cmd, club);
 
                 var result = await cmd.ExecuteScalarAsync();
-                club.No = Convert.ToInt32(result);
+                club.No = Convert.ToInt32(result ?? 0);
 
                 LogInfo($"동아리 생성 완료: No={club.No}, ClubName={club.ClubName}");
                 return club.No;

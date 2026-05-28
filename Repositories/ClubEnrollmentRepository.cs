@@ -35,7 +35,7 @@ namespace SaemDesk.Repositories
                 AddEnrollmentParameters(cmd, enrollment);
 
                 var result = await cmd.ExecuteScalarAsync();
-                enrollment.No = Convert.ToInt32(result);
+                enrollment.No = Convert.ToInt32(result ?? 0);
 
                 LogInfo($"동아리 배정 생성 완료: No={enrollment.No}, StudentID={enrollment.StudentID}");
                 return enrollment.No;
@@ -55,14 +55,37 @@ namespace SaemDesk.Repositories
             if (enrollments == null || enrollments.Count == 0)
                 return 0;
 
+            const string query = @"
+                INSERT INTO ClubEnrollment (
+                    StudentID, ClubNo, Status, Remark, CreatedAt, UpdatedAt
+                ) VALUES (
+                    @StudentID, @ClubNo, @Status, @Remark, @CreatedAt, @UpdatedAt
+                );
+                SELECT last_insert_rowid();";
+
             try
             {
                 BeginTransaction();
+                using var cmd = CreateCommand(query);
+                cmd.Parameters.Add("@StudentID", SqliteType.Text);
+                cmd.Parameters.Add("@ClubNo", SqliteType.Integer);
+                cmd.Parameters.Add("@Status", SqliteType.Text);
+                cmd.Parameters.Add("@Remark", SqliteType.Text);
+                cmd.Parameters.Add("@CreatedAt", SqliteType.Text);
+                cmd.Parameters.Add("@UpdatedAt", SqliteType.Text);
 
                 int count = 0;
-                foreach (var enrollment in enrollments)
+                foreach (var e in enrollments)
                 {
-                    await CreateAsync(enrollment);
+                    cmd.Parameters["@StudentID"].Value = e.StudentID ?? string.Empty;
+                    cmd.Parameters["@ClubNo"].Value    = e.ClubNo;
+                    cmd.Parameters["@Status"].Value    = e.Status ?? ClubEnrollmentStatus.Active;
+                    cmd.Parameters["@Remark"].Value    = e.Remark ?? string.Empty;
+                    cmd.Parameters["@CreatedAt"].Value = e.CreatedAt.ToString("o");
+                    cmd.Parameters["@UpdatedAt"].Value = e.UpdatedAt.ToString("o");
+
+                    var result = await cmd.ExecuteScalarAsync();
+                    e.No = Convert.ToInt32(result ?? 0);
                     count++;
                 }
 

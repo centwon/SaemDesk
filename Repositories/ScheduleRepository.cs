@@ -81,7 +81,7 @@ public class ScheduleRepository : BaseRepository
             AddParameters(cmd, schedule);
 
             var result = await cmd.ExecuteScalarAsync();
-            schedule.No = Convert.ToInt32(result);
+            schedule.No = Convert.ToInt32(result ?? 0);
 
             LogInfo($"스케줄 생성 완료: No={schedule.No}, {schedule.FullSlotDisplay}");
             return schedule.No;
@@ -94,18 +94,70 @@ public class ScheduleRepository : BaseRepository
     }
 
     /// <summary>
-    /// 스케줄 일괄 생성
+    /// 스케줄 일괄 생성 (단일 트랜잭션 + 파라미터 재사용)
     /// </summary>
     public async Task<int> BulkCreateAsync(List<Schedule> schedules)
     {
-        int count = 0;
-        foreach (var schedule in schedules)
+        if (schedules == null || schedules.Count == 0)
+            return 0;
+
+        const string query = @"
+            INSERT INTO Schedule (
+                CourseId, Room, Date, Period, IsCompleted, CompletedAt,
+                IsCancelled, CancelReason, IsPinned, Memo, CreatedAt, UpdatedAt
+            ) VALUES (
+                @CourseId, @Room, @Date, @Period, @IsCompleted, @CompletedAt,
+                @IsCancelled, @CancelReason, @IsPinned, @Memo, @CreatedAt, @UpdatedAt
+            );
+            SELECT last_insert_rowid();";
+
+        try
         {
-            await CreateAsync(schedule);
-            count++;
+            BeginTransaction();
+            using var cmd = CreateCommand(query);
+            cmd.Parameters.Add("@CourseId", SqliteType.Integer);
+            cmd.Parameters.Add("@Room", SqliteType.Text);
+            cmd.Parameters.Add("@Date", SqliteType.Text);
+            cmd.Parameters.Add("@Period", SqliteType.Integer);
+            cmd.Parameters.Add("@IsCompleted", SqliteType.Integer);
+            cmd.Parameters.Add("@CompletedAt", SqliteType.Text);
+            cmd.Parameters.Add("@IsCancelled", SqliteType.Integer);
+            cmd.Parameters.Add("@CancelReason", SqliteType.Text);
+            cmd.Parameters.Add("@IsPinned", SqliteType.Integer);
+            cmd.Parameters.Add("@Memo", SqliteType.Text);
+            cmd.Parameters.Add("@CreatedAt", SqliteType.Text);
+            cmd.Parameters.Add("@UpdatedAt", SqliteType.Text);
+
+            int count = 0;
+            foreach (var s in schedules)
+            {
+                cmd.Parameters["@CourseId"].Value     = s.CourseId;
+                cmd.Parameters["@Room"].Value         = s.Room;
+                cmd.Parameters["@Date"].Value         = s.Date.ToString("yyyy-MM-dd");
+                cmd.Parameters["@Period"].Value       = s.Period;
+                cmd.Parameters["@IsCompleted"].Value  = s.IsCompleted ? 1 : 0;
+                cmd.Parameters["@CompletedAt"].Value  = (object?)s.CompletedAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? DBNull.Value;
+                cmd.Parameters["@IsCancelled"].Value  = s.IsCancelled ? 1 : 0;
+                cmd.Parameters["@CancelReason"].Value = s.CancelReason ?? string.Empty;
+                cmd.Parameters["@IsPinned"].Value     = s.IsPinned ? 1 : 0;
+                cmd.Parameters["@Memo"].Value         = s.Memo ?? string.Empty;
+                cmd.Parameters["@CreatedAt"].Value    = s.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss");
+                cmd.Parameters["@UpdatedAt"].Value    = s.UpdatedAt.ToString("yyyy-MM-dd HH:mm:ss");
+
+                var result = await cmd.ExecuteScalarAsync();
+                s.No = Convert.ToInt32(result ?? 0);
+                count++;
+            }
+
+            Commit();
+            LogInfo($"스케줄 일괄 생성 완료: {count}개");
+            return count;
         }
-        LogInfo($"스케줄 일괄 생성 완료: {count}개");
-        return count;
+        catch
+        {
+            Rollback();
+            throw;
+        }
     }
 
     /// <summary>

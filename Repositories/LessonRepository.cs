@@ -83,7 +83,7 @@ public class LessonRepository : BaseRepository
             AddLessonParameters(cmd, lesson);
 
             var result = await cmd.ExecuteScalarAsync();
-            lesson.No = Convert.ToInt32(result);
+            lesson.No = Convert.ToInt32(result ?? 0);
 
             LogInfo($"수업 생성 완료: No={lesson.No}");
             return lesson.No;
