@@ -76,8 +76,6 @@
           <!-- 수업 -->
           <MenuItem Header="📚 수업">
             <MenuItem Header="🏠 수업홈"           Click="OnMenuClick" Tag="LessonHome"/>
-            <MenuItem Header="📅 연간 수업 계획"   Click="OnMenuClick" Tag="AnnualLessonPlan"/>
-            <MenuItem Header="📊 진도 관리"        Click="OnMenuClick" Tag="ProgressMatrix"/>
             <MenuItem Header="✏ 누가 기록"        Click="OnMenuClick" Tag="LessonActivity"/>
             <MenuItem Header="📋 교과 세부능력 및 특기 사항" Click="OnMenuClick" Tag="LessonSpec"/>
             <MenuItem Header="🗓 수업 시간표"      Click="OnMenuClick" Tag="Timetable_Teacher"/>

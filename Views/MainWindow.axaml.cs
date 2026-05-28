@@ -81,8 +81,6 @@ public partial class MainWindow : Window
 
             // 수업
             "LessonHome"                => new LessonHomePageVM(),
-            "AnnualLessonPlan"          => new AnnualLessonPlanPageVM(),  // ← 수정
-            "ProgressMatrix"            => new ProgressMatrixPageVM(),
             "LessonActivity"            => new LessonActivityPageVM(),
             "LessonSpec"                => new LessonSpecPageVM(),
             "Timetable_Teacher"         => new TeacherTimetablePageVM(),

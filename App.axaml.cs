@@ -195,14 +195,12 @@ public partial class App : Application
         ViewLocator.Register<CourseManagementPageVM> (() => new CourseManagementPage());
         ViewLocator.Register<UnifiedExportPageVM>            (() => new UnifiedExportPage());
         ViewLocator.Register<StudentInfoExportPageVM>        (() => new StudentInfoExportPage());
-        ViewLocator.Register<ProgressMatrixPageVM>           (() => new ProgressMatrixPage());
         ViewLocator.Register<SchoolScheduleManagementPageVM> (() => new SchoolScheduleManagementPage());
         ViewLocator.Register<ClubHomePageVM>                 (() => new ClubHomePage());
         ViewLocator.Register<ClubManagementPageVM>           (() => new ClubManagementPage());
         ViewLocator.Register<ClubActivityPageVM>             (() => new ClubActivityPage());
         ViewLocator.Register<TeacherTimetablePageVM>         (() => new TeacherTimetablePage());
         ViewLocator.Register<SchoolWorkPageVM>               (() => new SchoolWorkPage());
-        ViewLocator.Register<AnnualLessonPlanPageVM>         (() => new AnnualLessonPlanPage());
         ViewLocator.Register<LessonSpecPageVM>                (() => new LessonSpecPage());
     }
 }
