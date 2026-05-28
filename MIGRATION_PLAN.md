@@ -424,7 +424,7 @@ public interface IKoreanImeService
 - [x] 버전 정보 (`AssemblyInfo`, `FileVersion`) — v1.0.0
 - [x] `CHANGELOG.md` 업데이트
 - [ ] GitHub 리포 연결 (`git remote add origin`)
-- [ ] `v1.0.0` 태그 + 릴리스 draft
+- [x] `v1.0.0` 태그
 
 ---
 

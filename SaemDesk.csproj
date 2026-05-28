@@ -1,5 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <!-- secrets.props 가 있으면 빌드 시 API 키 주입 (git 제외 파일) -->
+  <Import Project="secrets.props" Condition="Exists('secrets.props')" />
   <PropertyGroup>
+    <!-- secrets.props 미존재 시 빈 값 기본값 -->
+    <GoogleClientId    Condition="'$(GoogleClientId)'==''"></GoogleClientId>
+    <GoogleClientSecret Condition="'$(GoogleClientSecret)'==''"></GoogleClientSecret>
+    <NeisApiKey         Condition="'$(NeisApiKey)'==''"></NeisApiKey>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -32,12 +38,28 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- secrets.json 이 존재할 때만 출력 디렉터리에 복사 (git 제외) -->
-    <Content Include="secrets.json" Condition="Exists('secrets.json')">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <None Include="secrets.template.json" />
+    <None Include="secrets.props.template" />
   </ItemGroup>
+
+  <!-- 빌드 시 API 키를 C# 소스로 생성하여 바이너리에 내장 -->
+  <Target Name="GenerateSecrets" BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <_SecretsGenDir>$(IntermediateOutputPath)Generated\</_SecretsGenDir>
+    </PropertyGroup>
+    <MakeDir Directories="$(_SecretsGenDir)" />
+    <WriteLinesToFile File="$(_SecretsGenDir)BuildSecrets.g.cs" Overwrite="true" Lines="
+// &lt;auto-generated&gt; 빌드 시 secrets.props 로부터 생성됨. 수정 금지. &lt;/auto-generated&gt;
+namespace SaemDesk.Services%3B
+internal static class BuildSecrets
+{
+    internal const string GoogleClientId     = &quot;$(GoogleClientId)&quot;%3B
+    internal const string GoogleClientSecret = &quot;$(GoogleClientSecret)&quot;%3B
+    internal const string NeisApiKey          = &quot;$(NeisApiKey)&quot;%3B
+}" />
+    <ItemGroup>
+      <Compile Include="$(_SecretsGenDir)BuildSecrets.g.cs" />
+    </ItemGroup>
+  </Target>
 
   <ItemGroup>
     <!-- Avalonia UI -->

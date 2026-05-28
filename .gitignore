@@ -8,6 +8,7 @@
 
 # Local secrets — Google OAuth / NEIS API key
 secrets.json
+secrets.props
 
 # User-specific files
 *.rsuser
