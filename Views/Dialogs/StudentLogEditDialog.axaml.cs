@@ -89,6 +89,15 @@ public partial class StudentLogEditDialog : Window
         {
             var log = LogBox.BuildLog(_studentId, _sourceLog);
 
+            // 학생이 지정되지 않으면 FK 위반으로 크래시하므로 저장 전에 차단
+            if (string.IsNullOrWhiteSpace(log.StudentID))
+            {
+                LogBox.ShowError("학생이 선택되지 않아 기록을 저장할 수 없습니다.");
+                SaveButton.IsEnabled = true;
+                _isSaving = false;
+                return;
+            }
+
             using var repo = new StudentLogRepository(SchoolDatabase.DbPath);
             if (log.No > 0) await repo.UpdateAsync(log);
             else            await repo.CreateAsync(log);
