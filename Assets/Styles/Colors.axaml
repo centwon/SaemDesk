@@ -13,6 +13,9 @@
   <SolidColorBrush x:Key="BrandAccentBrush"           Color="{StaticResource BrandAccent}" />
   <SolidColorBrush x:Key="NavItemSelectedBorderBrush" Color="{StaticResource BrandPrimary}" />
 
+  <!-- Fluent 호환: 테마 무관 키 (Semi 테마가 제공하지 않음) -->
+  <CornerRadius x:Key="ControlCornerRadius">4</CornerRadius>
+
   <!-- ═══════════════════════════════════════════════════════
        테마별 색상
        ═══════════════════════════════════════════════════════ -->
@@ -21,24 +24,27 @@
     <!-- ─── 라이트 모드 ─────────────────────────────────── -->
     <ResourceDictionary x:Key="Light">
 
-      <!-- 버튼 배경 → 투명 -->
-      <SolidColorBrush x:Key="ButtonBackground"              Color="Transparent" />
-      <SolidColorBrush x:Key="ButtonBackgroundPointerOver"    Color="#08000000" />
-      <SolidColorBrush x:Key="ButtonBackgroundPressed"        Color="#12000000" />
-      <SolidColorBrush x:Key="ButtonBackgroundDisabled"       Color="Transparent" />
+      <!-- Fluent 호환 키 (Semi 테마 미제공분 보완) -->
+      <Color x:Key="SystemBaseMediumColor">#99000000</Color>
+      <Color x:Key="SystemBaseMediumLowColor">#66000000</Color>
+      <Color x:Key="SystemBaseLowColor">#33000000</Color>
+      <Color x:Key="SystemListLowColor">#19000000</Color>
+      <Color x:Key="SystemListMediumColor">#33000000</Color>
+      <Color x:Key="SystemAccentColor">#FF0078D4</Color>
+      <Color x:Key="SystemAccentColorDark1">#FF005A9E</Color>
+      <Color x:Key="SystemErrorTextColor">#FFC42B1C</Color>
+      <SolidColorBrush x:Key="SystemControlForegroundBaseHighBrush"      Color="#FF000000" />
+      <SolidColorBrush x:Key="SystemControlForegroundBaseMediumBrush"     Color="#99000000" />
+      <SolidColorBrush x:Key="SystemControlForegroundBaseMediumLowBrush"  Color="#66000000" />
+      <SolidColorBrush x:Key="SystemControlForegroundBaseLowBrush"        Color="#33000000" />
+      <SolidColorBrush x:Key="SystemControlBackgroundAltHighBrush"        Color="#FFFFFFFF" />
+      <SolidColorBrush x:Key="SystemControlBackgroundListLowBrush"        Color="#19000000" />
+      <SolidColorBrush x:Key="SystemControlBackgroundChromeLowBrush"      Color="#FFF2F2F2" />
+      <SolidColorBrush x:Key="TextControlForeground"                      Color="#FF000000" />
+      <SolidColorBrush x:Key="RepeatButtonBackgroundPointerOver"          Color="#0A000000" />
+      <SolidColorBrush x:Key="RepeatButtonBackgroundPressed"              Color="#06000000" />
 
-      <!-- 입력 컨트롤 배경 → 투명 -->
-      <SolidColorBrush x:Key="TextControlBackground"              Color="Transparent" />
-      <SolidColorBrush x:Key="TextControlBackgroundPointerOver"    Color="Transparent" />
-      <SolidColorBrush x:Key="TextControlBackgroundFocused"        Color="Transparent" />
-      <SolidColorBrush x:Key="ComboBoxBackground"                  Color="Transparent" />
-      <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver"       Color="Transparent" />
-
-      <!-- 달력 배경 → 투명 -->
-      <SolidColorBrush x:Key="CalendarItemBackground"              Color="Transparent" />
-      <SolidColorBrush x:Key="CalendarDayButtonBackground"         Color="Transparent" />
-      <SolidColorBrush x:Key="CalendarButtonBackground"            Color="Transparent" />
-      <SolidColorBrush x:Key="CalendarItemBorderBrush"             Color="#E0E0E0" />
+      <!-- 버튼·입력·달력 배경 덮어쓰기 제거 → Semi 테마 기본 스타일 사용 -->
 
       <!-- 네비게이션 패널 -->
       <SolidColorBrush x:Key="NavBackgroundBrush"    Color="#F3F3F3" />
@@ -78,24 +84,27 @@
     <!-- ─── 다크 모드 ──────────────────────────────────── -->
     <ResourceDictionary x:Key="Dark">
 
-      <!-- 버튼 배경 → 투명 -->
-      <SolidColorBrush x:Key="ButtonBackground"              Color="Transparent" />
-      <SolidColorBrush x:Key="ButtonBackgroundPointerOver"    Color="#12FFFFFF" />
-      <SolidColorBrush x:Key="ButtonBackgroundPressed"        Color="#18FFFFFF" />
-      <SolidColorBrush x:Key="ButtonBackgroundDisabled"       Color="Transparent" />
+      <!-- Fluent 호환 키 (Semi 테마 미제공분 보완) -->
+      <Color x:Key="SystemBaseMediumColor">#99FFFFFF</Color>
+      <Color x:Key="SystemBaseMediumLowColor">#66FFFFFF</Color>
+      <Color x:Key="SystemBaseLowColor">#33FFFFFF</Color>
+      <Color x:Key="SystemListLowColor">#19FFFFFF</Color>
+      <Color x:Key="SystemListMediumColor">#33FFFFFF</Color>
+      <Color x:Key="SystemAccentColor">#FF4CC2FF</Color>
+      <Color x:Key="SystemAccentColorDark1">#FF005A9E</Color>
+      <Color x:Key="SystemErrorTextColor">#FFFF99A4</Color>
+      <SolidColorBrush x:Key="SystemControlForegroundBaseHighBrush"      Color="#FFFFFFFF" />
+      <SolidColorBrush x:Key="SystemControlForegroundBaseMediumBrush"     Color="#99FFFFFF" />
+      <SolidColorBrush x:Key="SystemControlForegroundBaseMediumLowBrush"  Color="#66FFFFFF" />
+      <SolidColorBrush x:Key="SystemControlForegroundBaseLowBrush"        Color="#33FFFFFF" />
+      <SolidColorBrush x:Key="SystemControlBackgroundAltHighBrush"        Color="#FF1E1E1E" />
+      <SolidColorBrush x:Key="SystemControlBackgroundListLowBrush"        Color="#19FFFFFF" />
+      <SolidColorBrush x:Key="SystemControlBackgroundChromeLowBrush"      Color="#FF2B2B2B" />
+      <SolidColorBrush x:Key="TextControlForeground"                      Color="#FFFFFFFF" />
+      <SolidColorBrush x:Key="RepeatButtonBackgroundPointerOver"          Color="#0FFFFFFF" />
+      <SolidColorBrush x:Key="RepeatButtonBackgroundPressed"              Color="#0AFFFFFF" />
 
-      <!-- 입력 컨트롤 배경 → 투명 -->
-      <SolidColorBrush x:Key="TextControlBackground"              Color="Transparent" />
-      <SolidColorBrush x:Key="TextControlBackgroundPointerOver"    Color="Transparent" />
-      <SolidColorBrush x:Key="TextControlBackgroundFocused"        Color="Transparent" />
-      <SolidColorBrush x:Key="ComboBoxBackground"                  Color="Transparent" />
-      <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver"       Color="Transparent" />
-
-      <!-- 달력 배경 → 투명 -->
-      <SolidColorBrush x:Key="CalendarItemBackground"              Color="Transparent" />
-      <SolidColorBrush x:Key="CalendarDayButtonBackground"         Color="Transparent" />
-      <SolidColorBrush x:Key="CalendarButtonBackground"            Color="Transparent" />
-      <SolidColorBrush x:Key="CalendarItemBorderBrush"             Color="#3A3A3A" />
+      <!-- 버튼·입력·달력 배경 덮어쓰기 제거 → Semi 테마 기본 스타일 사용 -->
 
       <!-- 네비게이션 패널 -->
       <SolidColorBrush x:Key="NavBackgroundBrush"    Color="#1E1E1E" />

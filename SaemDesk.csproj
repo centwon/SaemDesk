@@ -76,6 +76,8 @@ internal static class BuildSecrets
     <!-- Database -->
     <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.8" />
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
+    <!-- UI 테마 -->
+    <PackageReference Include="Semi.Avalonia" Version="12.0.3" />
     <!-- Export -->
     <PackageReference Include="QuestPDF" Version="2026.5.0" />
     <PackageReference Include="MiniExcel" Version="1.44.1" />
