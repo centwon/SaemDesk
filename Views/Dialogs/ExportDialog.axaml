@@ -83,15 +83,15 @@
       <Button x:Name="OpenFolderButton"
               Content="폴더 열기"
               IsEnabled="False"
-              Classes="btn-md"
+             
               Click="OnOpenFolder"/>
       <Button x:Name="CloseButton"
               Content="닫기"
-              Classes="btn-md"
+             
               Click="OnClose"/>
       <Button x:Name="ExportButton"
               Content="내보내기"
-              Classes="accent btn-md"
+              Classes="accent"
               Click="OnExport"/>
     </StackPanel>
 

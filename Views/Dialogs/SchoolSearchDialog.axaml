@@ -21,7 +21,7 @@
                 x:Name="SearchButton"
                 Content="검색"
                 Margin="8,0,0,0"
-                Classes="accent btn-md"
+                Classes="accent"
                 Click="OnSearch"/>
         <ProgressBar Grid.Column="2"
                      x:Name="Loading"

@@ -16,7 +16,7 @@
         <TextBlock Text="학년도별 담당 동아리 CRUD 및 부원 관리"
                    Classes="page-subtitle"/>
       </StackPanel>
-      <Button Grid.Column="1" Classes="btn-md" Click="BtnBackToActivity_Click"
+      <Button Grid.Column="1" Click="BtnBackToActivity_Click"
               VerticalAlignment="Center">
         <StackPanel Orientation="Horizontal" Spacing="4">
           <TextBlock Text="←" FontSize="16" VerticalAlignment="Center"/>
@@ -37,11 +37,11 @@
                                YearSemesterChanged="OnYearSemesterChanged"/>
 
       <!-- 액션 버튼 -->
-      <Button Grid.Column="1" Content="동아리 추가" Classes="accent btn-md"
+      <Button Grid.Column="1" Content="동아리 추가" Classes="accent"
               Command="{Binding AddClubCommand}"
               HotKey="Ctrl+N"
               Margin="0,0,6,0"/>
-      <Button Grid.Column="2" Content="새로고침" Classes="btn-md"
+      <Button Grid.Column="2" Content="새로고침"
               Command="{Binding QueryCommand}"/>
     </Grid>
 
@@ -119,16 +119,16 @@
                   <StackPanel Grid.Column="1" Orientation="Horizontal"
                               Spacing="6" VerticalAlignment="Center">
                     <Button Content="👥 부원 관리"
-                            Classes="btn-sm"
+                           
                             ToolTip.Tip="부원 등록/해제 관리"
                             Command="{Binding $parent[UserControl].((vm:ClubManagementPageVM)DataContext).EnrollMembersCommand}"
                             CommandParameter="{Binding}"/>
                     <Button Content="✏ 수정"
-                            Classes="accent btn-sm"
+                            Classes="accent"
                             Command="{Binding $parent[UserControl].((vm:ClubManagementPageVM)DataContext).EditItemCommand}"
                             CommandParameter="{Binding}"/>
                     <Button Content="🗑"
-                            Classes="btn-sm"
+                           
                             ToolTip.Tip="삭제"
                             Command="{Binding $parent[UserControl].((vm:ClubManagementPageVM)DataContext).DeleteItemCommand}"
                             CommandParameter="{Binding}"/>

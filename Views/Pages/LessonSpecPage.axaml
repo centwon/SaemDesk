@@ -38,13 +38,13 @@
         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4"
                     VerticalAlignment="Center">
 
-          <Button Name="BtnSave" Classes="btn-md" Click="OnSaveClick">
+          <Button Name="BtnSave" Click="OnSaveClick">
             <StackPanel Orientation="Horizontal" Spacing="4">
               <TextBlock Text="&#x1F4BE;" FontSize="16" VerticalAlignment="Center"/>
               <TextBlock Text="저장" VerticalAlignment="Center"/>
             </StackPanel>
           </Button>
-          <Button Name="BtnDelete" Classes="btn-md" Click="OnDeleteClick">
+          <Button Name="BtnDelete" Click="OnDeleteClick">
             <StackPanel Orientation="Horizontal" Spacing="4">
               <TextBlock Text="&#x1F5D1;" FontSize="16" VerticalAlignment="Center"/>
               <TextBlock Text="삭제" VerticalAlignment="Center"/>
@@ -54,7 +54,7 @@
           <Border Width="1" Margin="4,4" VerticalAlignment="Stretch"
                   Background="{DynamicResource SystemControlForegroundBaseLowBrush}"/>
 
-          <Button Name="BtnBatchExport" ToolTip.Tip="일괄 출력" Classes="btn-sm" Click="OnBatchExportClick">
+          <Button Name="BtnBatchExport" ToolTip.Tip="일괄 출력" Click="OnBatchExportClick">
             <TextBlock Text="&#x1F4E4;" FontSize="20" VerticalAlignment="Center"/>
           </Button>
 

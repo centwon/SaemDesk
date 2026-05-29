@@ -45,31 +45,31 @@
                     VerticalAlignment="Center">
 
           <!-- 그룹1: 개별 기록 편집 -->
-          <Button Name="BtnNewActLog" Classes="btn-md" Click="BtnNewActLog_Click">
+          <Button Name="BtnNewActLog" Click="BtnNewActLog_Click">
             <StackPanel Orientation="Horizontal" Spacing="4">
               <TextBlock Text="➕" FontSize="16" VerticalAlignment="Center"/>
               <TextBlock Text="추가" VerticalAlignment="Center"/>
             </StackPanel>
           </Button>
-          <Button Name="BtnSaveActLog" Classes="accent btn-md" Click="BtnSaveActLog_Click">
+          <Button Name="BtnSaveActLog" Classes="accent" Click="BtnSaveActLog_Click">
             <StackPanel Orientation="Horizontal" Spacing="4">
               <TextBlock Text="💾" FontSize="16" VerticalAlignment="Center"/>
               <TextBlock Text="저장" VerticalAlignment="Center"/>
             </StackPanel>
           </Button>
-          <Button Name="BtnEditLog" Classes="btn-md" Click="BtnEditLog_Click">
+          <Button Name="BtnEditLog" Click="BtnEditLog_Click">
             <StackPanel Orientation="Horizontal" Spacing="4">
               <TextBlock Text="✏" FontSize="16" VerticalAlignment="Center"/>
               <TextBlock Text="상세" VerticalAlignment="Center"/>
             </StackPanel>
           </Button>
-          <Button Name="BtnPrint" Classes="btn-md" Click="BtnPrint_Click">
+          <Button Name="BtnPrint" Click="BtnPrint_Click">
             <StackPanel Orientation="Horizontal" Spacing="4">
               <TextBlock Text="🖨" FontSize="16" VerticalAlignment="Center"/>
               <TextBlock Text="인쇄" VerticalAlignment="Center"/>
             </StackPanel>
           </Button>
-          <Button Name="BtnDelActLog" Classes="btn-md" Click="BtnDelActLog_Click">
+          <Button Name="BtnDelActLog" Click="BtnDelActLog_Click">
             <StackPanel Orientation="Horizontal" Spacing="4">
               <TextBlock Text="🗑" FontSize="16" VerticalAlignment="Center"/>
               <TextBlock Text="삭제" VerticalAlignment="Center"/>
@@ -81,10 +81,10 @@
                   Background="{DynamicResource SystemControlForegroundBaseLowBrush}"/>
 
           <!-- 그룹2: 일괄 작업 -->
-          <Button Name="BtnAddLogAll" ToolTip.Tip="일괄 입력" Classes="btn-sm" Click="BtnAddLogAll_Click">
+          <Button Name="BtnAddLogAll" ToolTip.Tip="일괄 입력" Click="BtnAddLogAll_Click">
             <TextBlock Text="📝" FontSize="20" VerticalAlignment="Center"/>
           </Button>
-          <Button Name="BtnBatchExport" ToolTip.Tip="일괄 출력" Classes="btn-sm" Click="BtnBatchExport_Click">
+          <Button Name="BtnBatchExport" ToolTip.Tip="일괄 출력" Click="BtnBatchExport_Click">
             <TextBlock Text="📤" FontSize="20" VerticalAlignment="Center"/>
           </Button>
 

@@ -51,9 +51,9 @@
                    FontSize="12"
                    Foreground="{DynamicResource SystemBaseMediumColor}"
                    Margin="0,0,12,0"/>
-        <Button Content="취소" Classes="btn-md" Click="OnCancel"/>
+        <Button Content="취소" Click="OnCancel"/>
         <Button x:Name="SaveButton" Content="선택 학생에 저장"
-                Classes="accent btn-md" Click="OnSave"/>
+                Classes="accent" Click="OnSave"/>
       </StackPanel>
 
     </Grid>

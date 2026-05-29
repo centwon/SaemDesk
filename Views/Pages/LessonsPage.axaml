@@ -36,19 +36,19 @@
                 Margin="20,12,20,0"
                 Spacing="6">
       <Button Content="월" Command="{Binding SelectMonCommand}"
-              Classes.accent="{Binding IsMonSelected}" Classes="btn-md"/>
+              Classes.accent="{Binding IsMonSelected}"/>
       <Button Content="화" Command="{Binding SelectTueCommand}"
-              Classes.accent="{Binding IsTueSelected}" Classes="btn-md"/>
+              Classes.accent="{Binding IsTueSelected}"/>
       <Button Content="수" Command="{Binding SelectWedCommand}"
-              Classes.accent="{Binding IsWedSelected}" Classes="btn-md"/>
+              Classes.accent="{Binding IsWedSelected}"/>
       <Button Content="목" Command="{Binding SelectThuCommand}"
-              Classes.accent="{Binding IsThuSelected}" Classes="btn-md"/>
+              Classes.accent="{Binding IsThuSelected}"/>
       <Button Content="금" Command="{Binding SelectFriCommand}"
-              Classes.accent="{Binding IsFriSelected}" Classes="btn-md"/>
+              Classes.accent="{Binding IsFriSelected}"/>
       <Button Content="새로고침"
               Command="{Binding LoadTimetableCommand}"
               Margin="8,0,0,0"
-              Classes="btn-md"/>
+             />
     </StackPanel>
 
     <!-- ── CRUD 툴바 ──────────────────────────────────────── -->
@@ -58,15 +58,15 @@
                 Spacing="6">
       <Button Content="추가"
               Command="{Binding AddSlotCommand}"
-              Classes="accent btn-md"/>
+              Classes="accent"/>
       <Button Content="수정"
               Command="{Binding EditSelectedSlotCommand}"
               IsEnabled="{Binding HasSelection}"
-              Classes="btn-md"/>
+             />
       <Button Content="삭제"
               Command="{Binding DeleteSelectedSlotCommand}"
               IsEnabled="{Binding HasSelection}"
-              Classes="btn-md"/>
+             />
     </StackPanel>
 
     <!-- ── 선택 요일 표시 ─────────────────────────────────── -->

@@ -19,7 +19,7 @@
                  FontSize="13"
                  Foreground="{DynamicResource SystemBaseMediumColor}"
                  VerticalAlignment="Center"/>
-      <Button Content="새로고침" Classes="btn-sm"
+      <Button Content="새로고침"
               Command="{Binding ReloadCommand}"/>
       <ProgressBar Width="100" IsIndeterminate="True"
                    IsVisible="{Binding IsBusy}"

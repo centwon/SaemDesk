@@ -76,11 +76,11 @@
                   IsEnabled="{Binding !IsBusy}"
                   Command="{Binding PreviewCommand}"/>
           <Button Content="내보내기"
-                  Classes="accent btn-sm"
+                  Classes="accent"
                   IsEnabled="{Binding !IsBusy}"
                   Command="{Binding ExportCommand}"/>
           <Button Content="복사"
-                  Classes="btn-sm"
+                 
                   IsEnabled="{Binding IsCsvEnabled}"
                   IsVisible="{Binding IsCsvEnabled}"
                   Command="{Binding ClipboardCommand}"

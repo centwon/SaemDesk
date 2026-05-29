@@ -14,7 +14,7 @@
       <Button Grid.Column="0"
               Content="◀"
               Click="OnPreviousMonth"
-              Classes="btn-sm"
+             
               Background="Transparent"/>
       <Button Grid.Column="1"
               x:Name="MonthPickerButton"
@@ -23,7 +23,7 @@
               FontWeight="SemiBold"
               Background="Transparent"
               BorderThickness="0"
-              Classes="btn-sm"
+             
               VerticalAlignment="Center"
               Margin="6,0"
               ToolTip.Tip="연도/월 선택">
@@ -53,23 +53,23 @@
       <Button Grid.Column="2"
               Content="▶"
               Click="OnNextMonth"
-              Classes="btn-sm"
+             
               Background="Transparent"/>
 
       <Button Grid.Column="4"
               Content="오늘"
               Click="OnToday"
-              Classes="btn-sm"
+             
               Margin="0,0,6,0"/>
       <Button Grid.Column="5"
               Content="새로고침"
               Click="OnRefresh"
-              Classes="btn-sm"
+             
               Margin="0,0,6,0"/>
       <Button Grid.Column="6"
               Content="⚙"
               Click="OnSettings"
-              Classes="btn-sm"
+             
               ToolTip.Tip="일정 설정"/>
     </Grid>
 

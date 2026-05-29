@@ -29,19 +29,19 @@
         <!-- 구분선 -->
         <Separator Width="1" Height="20" Background="{DynamicResource SystemControlForegroundBaseLowBrush}" Margin="4,0"/>
         <!-- 학생카드 버튼 -->
-        <Button Name="BtnSave"  Content="💾 저장"  Classes="accent btn-sm"
+        <Button Name="BtnSave"  Content="💾 저장"  Classes="accent"
                 IsEnabled="False" Click="BtnSave_Click"/>
-        <Button Name="BtnPrint" Content="📄 PDF"   Classes="btn-sm"
+        <Button Name="BtnPrint" Content="📄 PDF"  
                 IsEnabled="False" Click="BtnPrint_Click"/>
-        <Button Name="BtnReset" Content="초기화"    Classes="btn-sm"
+        <Button Name="BtnReset" Content="초기화"   
                 IsEnabled="False" Click="BtnReset_Click"/>
         <!-- 구분선 -->
         <Separator Width="1" Height="20" Background="{DynamicResource SystemControlForegroundBaseLowBrush}" Margin="4,0"/>
         <!-- 엑셀 일괄 버튼 -->
         <Button Name="BtnDownloadTemplate" Content="📥 양식" ToolTip.Tip="학생정보 엑셀 양식 다운로드"
-                Classes="btn-sm" Click="BtnDownloadTemplate_Click"/>
+                Click="BtnDownloadTemplate_Click"/>
         <Button Name="BtnBulkImport" Content="📤 일괄입력" ToolTip.Tip="엑셀 파일로 학생정보 일괄 입력"
-                Classes="btn-sm" Click="BtnBulkImport_Click"/>
+                Click="BtnBulkImport_Click"/>
       </StackPanel>
     </Border>
 

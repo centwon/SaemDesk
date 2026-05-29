@@ -63,66 +63,8 @@
     <Setter Property="Margin" Value="0,0,0,10" />
   </Style>
 
-  <!-- ══════════════════════════════════════
-       버튼 크기
-       ══════════════════════════════════════ -->
-  <Style Selector="Button.btn-sm">
-    <Setter Property="Padding" Value="10,4" />
-    <Setter Property="FontSize" Value="12" />
-  </Style>
-
-  <Style Selector="Button.btn-md">
-    <Setter Property="Padding" Value="16,6" />
-  </Style>
-
-  <!-- ══════════════════════════════════════════════════════
-       입력 컨트롤 테두리 — 검은색/굵은 테두리 → 연한 회색으로
-       ══════════════════════════════════════════════════════ -->
-
-  <!-- TextBox -->
-  <Style Selector="TextBox">
-    <Setter Property="BorderBrush" Value="#C8C8C8" />
-    <Setter Property="BorderThickness" Value="1" />
-    <Setter Property="CornerRadius" Value="4" />
-  </Style>
-  <Style Selector="TextBox:pointerover">
-    <Setter Property="BorderBrush" Value="#A0A0A0" />
-  </Style>
-  <Style Selector="TextBox:focus">
-    <Setter Property="BorderBrush" Value="#0078D4" />
-  </Style>
-
-  <!-- ComboBox -->
-  <Style Selector="ComboBox">
-    <Setter Property="BorderBrush" Value="#C8C8C8" />
-    <Setter Property="BorderThickness" Value="1" />
-    <Setter Property="CornerRadius" Value="4" />
-  </Style>
-  <Style Selector="ComboBox:pointerover">
-    <Setter Property="BorderBrush" Value="#A0A0A0" />
-  </Style>
-  <Style Selector="ComboBox:focus">
-    <Setter Property="BorderBrush" Value="#0078D4" />
-  </Style>
-
-  <!-- NumericUpDown -->
-  <Style Selector="NumericUpDown">
-    <Setter Property="BorderBrush" Value="#C8C8C8" />
-    <Setter Property="BorderThickness" Value="1" />
-    <Setter Property="CornerRadius" Value="4" />
-  </Style>
-  <Style Selector="NumericUpDown:pointerover">
-    <Setter Property="BorderBrush" Value="#A0A0A0" />
-  </Style>
-  <Style Selector="NumericUpDown:focus">
-    <Setter Property="BorderBrush" Value="#0078D4" />
-  </Style>
-
-  <!-- DatePicker -->
-  <Style Selector="DatePicker">
-    <Setter Property="BorderBrush" Value="#C8C8C8" />
-    <Setter Property="BorderThickness" Value="1" />
-    <Setter Property="CornerRadius" Value="4" />
-  </Style>
+  <!-- 버튼 크기 클래스(btn-sm/btn-md) 제거 → Semi 테마 기본 버튼 스타일 사용 -->
+  <!-- 입력 컨트롤(TextBox/ComboBox/NumericUpDown/DatePicker) 테두리 덮어쓰기 제거
+       → Semi 테마 기본 입력 스타일 사용 -->
 
 </Styles>

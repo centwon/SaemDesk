@@ -24,8 +24,8 @@
     <!-- 버튼 바 -->
     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right"
                 Spacing="8" Margin="0,12,0,0">
-      <Button Content="취소" Classes="btn-md" Click="OnCancel"/>
-      <Button x:Name="ApplyButton" Content="적용" Classes="accent btn-md"
+      <Button Content="취소" Click="OnCancel"/>
+      <Button x:Name="ApplyButton" Content="적용" Classes="accent"
               IsEnabled="False" Click="OnApply"/>
     </StackPanel>
 

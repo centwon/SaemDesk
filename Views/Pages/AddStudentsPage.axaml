@@ -165,7 +165,7 @@
 
         <Button Grid.Column="10"
                 Content="추가"
-                Classes="accent btn-md"
+                Classes="accent"
                 Command="{Binding AddOneCommand}"/>
       </Grid>
     </Border>
@@ -251,22 +251,22 @@
     <!-- ── 하단 버튼 ─────────────────────────────────────── -->
     <Grid Grid.Row="3" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,Auto" Margin="0,12,0,0">
       <Button Grid.Column="0" Content="📂 Excel 가져오기"
-              Classes="btn-md"
+             
               Command="{Binding ImportFromExcelCommand}"
               ToolTip.Tip="xlsx 명렬 파일에서 일괄 가져오기"
               Margin="0,0,6,0"/>
       <Button Grid.Column="1" Content="📑 템플릿 저장"
-              Classes="btn-md"
+             
               Command="{Binding DownloadTemplateCommand}"
               ToolTip.Tip="입력용 xlsx 템플릿 저장"
               Margin="0,0,12,0"/>
 
       <Button Grid.Column="2" Content="선택 삭제"
-              Classes="btn-md"
+             
               Command="{Binding RemoveSelectedCommand}"
               Margin="0,0,6,0"/>
       <Button Grid.Column="3" Content="모두 비우기"
-              Classes="btn-md"
+             
               Command="{Binding ClearCommand}"
               Margin="0,0,6,0"/>
       <TextBlock Grid.Column="4"
@@ -289,7 +289,7 @@
                    VerticalAlignment="Center"
                    Margin="0,0,6,0"/>
       <Button Grid.Column="7" Content="데이터베이스에 저장"
-              Classes="accent btn-md"
+              Classes="accent"
               IsEnabled="{Binding CanSave}"
               Command="{Binding SaveCommand}"/>
     </Grid>

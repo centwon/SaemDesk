@@ -27,16 +27,16 @@
 
           <!-- 조회 버튼 -->
           <Button Content="조회"
-                  Classes="accent btn-md"
+                  Classes="accent"
                   VerticalAlignment="Bottom"
                   Click="OnQueryClick"/>
         </StackPanel>
 
         <!-- 2행: 액션 버튼 -->
         <StackPanel Orientation="Horizontal" Spacing="8">
-          <Button Name="BtnSave"   Content="저장"   Classes="btn-md" Click="OnSaveClick"/>
-          <Button Name="BtnDelete" Content="삭제"   Classes="btn-md" Click="OnDeleteClick"/>
-          <Button Name="BtnAdd"    Content="학생 추가" Classes="accent btn-md" Click="OnAddStudentClick"/>
+          <Button Name="BtnSave"   Content="저장"   Click="OnSaveClick"/>
+          <Button Name="BtnDelete" Content="삭제"   Click="OnDeleteClick"/>
+          <Button Name="BtnAdd"    Content="학생 추가" Classes="accent" Click="OnAddStudentClick"/>
 
           <TextBlock Name="TxtStudentCount"
                      Text="{Binding StatusText}"

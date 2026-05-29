@@ -74,10 +74,10 @@
                      TextWrapping="Wrap"
                      IsVisible="False"/>
           <StackPanel Orientation="Horizontal" Spacing="6">
-            <Button Content="1반-5반" Classes="btn-sm" Click="OnPresetClass15"/>
-            <Button Content="1,3,5,7반" Classes="btn-sm" Click="OnPresetOdd"/>
-            <Button Content="A,B,C반"  Classes="btn-sm" Click="OnPresetABC"/>
-            <Button Content="특별실"   Classes="btn-sm" Click="OnPresetSpecial"/>
+            <Button Content="1반-5반" Click="OnPresetClass15"/>
+            <Button Content="1,3,5,7반" Click="OnPresetOdd"/>
+            <Button Content="A,B,C반"  Click="OnPresetABC"/>
+            <Button Content="특별실"   Click="OnPresetSpecial"/>
           </StackPanel>
         </StackPanel>
 
@@ -109,8 +109,8 @@
                  FontSize="11" Foreground="{DynamicResource ErrorForegroundBrush}"
                  VerticalAlignment="Center"
                  TextWrapping="Wrap"/>
-      <Button Grid.Column="1" Content="취소" Classes="btn-md" Margin="0,0,6,0" Click="OnCancel"/>
-      <Button Grid.Column="2" Content="저장" Classes="accent btn-md" Click="OnSave"/>
+      <Button Grid.Column="1" Content="취소" Margin="0,0,6,0" Click="OnCancel"/>
+      <Button Grid.Column="2" Content="저장" Classes="accent" Click="OnSave"/>
     </Grid>
   </Grid>
 </Window>

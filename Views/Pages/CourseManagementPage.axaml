@@ -29,11 +29,11 @@
 
       <!-- 액션 버튼 -->
       <Button Grid.Column="1" Content="추가"
-              Classes="accent btn-md"
+              Classes="accent"
               Command="{Binding AddCourseCommand}"
               HotKey="Ctrl+N"
               Margin="0,0,6,0"/>
-      <Button Grid.Column="2" Content="새로고침" Classes="btn-md"
+      <Button Grid.Column="2" Content="새로고침"
               Command="{Binding QueryCommand}"/>
     </Grid>
 
@@ -112,20 +112,20 @@
                   <StackPanel Grid.Column="1" Orientation="Horizontal"
                               Spacing="6" VerticalAlignment="Center">
                     <Button Content="수강 학생"
-                            Classes="btn-sm"
+                           
                             ToolTip.Tip="수강 학생 관리"
                             Command="{Binding $parent[UserControl].((vm:CourseManagementPageVM)DataContext).EnrollStudentsCommand}"
                             CommandParameter="{Binding}"/>
                     <Button Content="시간표 배치"
-                            Classes="btn-sm"
+                           
                             Command="{Binding $parent[UserControl].((vm:CourseManagementPageVM)DataContext).ScheduleCourseCommand}"
                             CommandParameter="{Binding}"/>
                     <Button Content="✏ 수정"
-                            Classes="accent btn-sm"
+                            Classes="accent"
                             Command="{Binding $parent[UserControl].((vm:CourseManagementPageVM)DataContext).EditItemCommand}"
                             CommandParameter="{Binding}"/>
                     <Button Content="🗑"
-                            Classes="btn-sm"
+                           
                             ToolTip.Tip="삭제"
                             Command="{Binding $parent[UserControl].((vm:CourseManagementPageVM)DataContext).DeleteItemCommand}"
                             CommandParameter="{Binding}"/>

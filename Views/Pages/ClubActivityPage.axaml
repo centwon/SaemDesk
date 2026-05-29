@@ -47,15 +47,15 @@
       </StackPanel>
 
       <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
-        <Button Name="BtnAddLog"    Content="추가"  Classes="btn-md" Click="BtnAddLog_Click"/>
-        <Button Name="BtnSaveLog"   Content="저장"  Classes="accent btn-md" Click="BtnSaveLog_Click"/>
-        <Button Name="BtnDeleteLog" Content="삭제"  Classes="btn-md" Click="BtnDeleteLog_Click"/>
+        <Button Name="BtnAddLog"    Content="추가"  Click="BtnAddLog_Click"/>
+        <Button Name="BtnSaveLog"   Content="저장"  Classes="accent" Click="BtnSaveLog_Click"/>
+        <Button Name="BtnDeleteLog" Content="삭제"  Click="BtnDeleteLog_Click"/>
         <Button Name="BtnRefresh"   Content="⟳"    Padding="8,6" Click="BtnRefresh_Click"/>
 
         <Border Width="1" Margin="4,4" VerticalAlignment="Stretch"
                 Background="{DynamicResource SystemControlForegroundBaseLowBrush}"/>
 
-        <Button Name="BtnClubManage" ToolTip.Tip="동아리 관리" Classes="btn-md" Click="BtnClubManage_Click">
+        <Button Name="BtnClubManage" ToolTip.Tip="동아리 관리" Click="BtnClubManage_Click">
           <StackPanel Orientation="Horizontal" Spacing="4">
             <TextBlock Text="🎪" FontSize="16" VerticalAlignment="Center"/>
             <TextBlock Text="동아리 관리" VerticalAlignment="Center"/>

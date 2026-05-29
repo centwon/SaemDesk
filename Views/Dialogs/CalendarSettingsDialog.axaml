@@ -81,11 +81,11 @@
             <StackPanel Orientation="Horizontal" Spacing="6">
               <Button x:Name="GoogleAuthButton"
                       Content="연결"
-                      Classes="accent btn-md"
+                      Classes="accent"
                       Click="OnGoogleAuthClicked"/>
               <Button x:Name="GoogleSignOutButton"
                       Content="연결 해제"
-                      Classes="btn-md"
+                     
                       IsEnabled="False"
                       Click="OnGoogleSignOutClicked"/>
             </StackPanel>
@@ -128,7 +128,7 @@
             <Button x:Name="GoogleCalendarSaveButton"
                     Content="동기화 캘린더 저장"
                     HorizontalAlignment="Right"
-                    Classes="btn-md"
+                   
                     IsEnabled="False"
                     Click="OnGoogleCalendarSaveClicked"/>
           </StackPanel>
@@ -154,7 +154,7 @@
             <StackPanel Orientation="Horizontal" Spacing="6">
               <Button x:Name="GoogleSyncNowButton"
                       Content="지금 동기화"
-                      Classes="accent btn-md"
+                      Classes="accent"
                       IsEnabled="False"
                       Click="OnGoogleSyncNowClicked"/>
               <ProgressBar x:Name="GoogleSyncProgressRing"
@@ -180,7 +180,7 @@
             <StackPanel Orientation="Horizontal" Spacing="6">
               <Button x:Name="UploadSchoolScheduleButton"
                       Content="학사일정 업로드"
-                      Classes="btn-md"
+                     
                       IsEnabled="False"
                       Click="OnUploadSchoolScheduleClicked"/>
               <ProgressBar x:Name="UploadScheduleProgressRing"
@@ -205,7 +205,7 @@
                 HorizontalAlignment="Right"
                 Margin="0,12,0,0"
                 Spacing="6">
-      <Button Content="닫기" Classes="btn-md" Click="OnClose"/>
+      <Button Content="닫기" Click="OnClose"/>
     </StackPanel>
   </Grid>
 </Window>

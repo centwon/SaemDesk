@@ -46,10 +46,10 @@
                 Spacing="8">
       <Button Content="새로고침"
               Command="{Binding LoadCalendarCommand}"
-              Classes="btn-md"/>
+             />
       <Button Content="NEIS 다운로드"
               Command="{Binding DownloadFromNeisCommand}"
-              Classes="accent btn-md"/>
+              Classes="accent"/>
     </StackPanel>
 
     <!-- ── 본문 ──────────────────────────────────────────── -->

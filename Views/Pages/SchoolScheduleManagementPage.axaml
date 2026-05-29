@@ -30,25 +30,25 @@
 
         <StackPanel Orientation="Horizontal" Spacing="6">
           <!-- 조회 / 수동추가 / 저장 / 삭제 -->
-          <Button Content="🔍 조회" Classes="accent btn-md"
+          <Button Content="🔍 조회" Classes="accent"
                   Command="{Binding SearchCommand}"/>
-          <Button Content="➕ 수동 추가" Classes="btn-md"
+          <Button Content="➕ 수동 추가"
                   Command="{Binding AddManualCommand}"/>
-          <Button Content="💾 저장" Classes="btn-md"
+          <Button Content="💾 저장"
                   Command="{Binding SaveSelectedCommand}"
                   HotKey="Ctrl+S"
                   ToolTip.Tip="선택 + 변경된 항목 저장 (Ctrl+S)"/>
-          <Button Content="🗑 삭제" Classes="btn-md"
+          <Button Content="🗑 삭제"
                   Command="{Binding DeleteSelectedCommand}"/>
 
           <Border Width="1" Background="{DynamicResource ContentSeparatorBrush}" Margin="4,0"/>
 
           <!-- NEIS 동기화 / Excel / Google 업로드 -->
-          <Button Content="🔄 NEIS 동기화" Classes="btn-md"
+          <Button Content="🔄 NEIS 동기화"
                   Command="{Binding SyncFromNeisCommand}"/>
-          <Button Content="📊 Excel" Classes="btn-md"
+          <Button Content="📊 Excel"
                   Command="{Binding ExportExcelCommand}"/>
-          <Button Content="🗓 Google 업로드" Classes="btn-md"
+          <Button Content="🗓 Google 업로드"
                   Command="{Binding UploadToGoogleCommand}"
                   ToolTip.Tip="선택 항목(없으면 전체)을 Google Calendar 종일 이벤트로 등록"/>
 

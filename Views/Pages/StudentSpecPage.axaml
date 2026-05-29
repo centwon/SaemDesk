@@ -43,13 +43,13 @@
                     VerticalAlignment="Center">
 
           <!-- 그룹1: 개별 편집 -->
-          <Button Name="BtnSave"   Classes="btn-md" Click="OnSaveClick">
+          <Button Name="BtnSave"   Click="OnSaveClick">
             <StackPanel Orientation="Horizontal" Spacing="4">
               <TextBlock Text="💾" FontSize="16" VerticalAlignment="Center"/>
               <TextBlock Text="저장" VerticalAlignment="Center"/>
             </StackPanel>
           </Button>
-          <Button Name="BtnDelete" Classes="btn-md" Click="OnDeleteClick">
+          <Button Name="BtnDelete" Click="OnDeleteClick">
             <StackPanel Orientation="Horizontal" Spacing="4">
               <TextBlock Text="🗑" FontSize="16" VerticalAlignment="Center"/>
               <TextBlock Text="삭제" VerticalAlignment="Center"/>
@@ -61,10 +61,10 @@
                   Background="{DynamicResource SystemControlForegroundBaseLowBrush}"/>
 
           <!-- 그룹2: 일괄 작업 -->
-          <Button Name="BtnBatchInput"  ToolTip.Tip="일괄 입력" Classes="btn-sm" Click="OnBatchInputClick">
+          <Button Name="BtnBatchInput"  ToolTip.Tip="일괄 입력" Click="OnBatchInputClick">
             <TextBlock Text="📝" FontSize="20" VerticalAlignment="Center"/>
           </Button>
-          <Button Name="BtnBatchExport" ToolTip.Tip="일괄 출력" Classes="btn-sm" Click="OnBatchExportClick">
+          <Button Name="BtnBatchExport" ToolTip.Tip="일괄 출력" Click="OnBatchExportClick">
             <TextBlock Text="📤" FontSize="20" VerticalAlignment="Center"/>
           </Button>
 

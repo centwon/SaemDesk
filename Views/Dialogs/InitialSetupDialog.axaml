@@ -41,7 +41,7 @@
                            PlaceholderText="학교 찾기 버튼으로 검색하세요"/>
                 </StackPanel>
                 <Button Grid.Column="1" Content="학교 찾기"
-                        Classes="accent btn-md" VerticalAlignment="Bottom"
+                        Classes="accent" VerticalAlignment="Bottom"
                         Margin="8,0,0,0"
                         Click="OnSearchSchoolClick"/>
               </Grid>
@@ -205,10 +205,10 @@
                  VerticalAlignment="Center" TextWrapping="Wrap"
                  IsVisible="False"/>
       <Button Grid.Column="1" Content="취소"
-              Classes="btn-md" Margin="0,0,6,0"
+              Margin="0,0,6,0"
               Click="OnCancel"/>
       <Button Grid.Column="2" x:Name="CompleteButton"
-              Content="완료" Classes="accent btn-md"
+              Content="완료" Classes="accent"
               IsEnabled="False"
               Click="OnComplete"/>
     </Grid>

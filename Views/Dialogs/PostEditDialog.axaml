@@ -81,11 +81,11 @@
                  Foreground="{DynamicResource SystemBaseMediumColor}"/>
       <Button x:Name="CancelButton"
               Content="취소"
-              Classes="btn-md"
+             
               Click="OnCancel"/>
       <Button x:Name="SaveButton"
               Content="저장"
-              Classes="accent btn-md"
+              Classes="accent"
               Click="OnSave"/>
     </StackPanel>
 
