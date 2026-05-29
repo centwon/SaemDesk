@@ -23,6 +23,7 @@ namespace SaemDesk.Logging
 
         private string LogDirectory { get; }
         private LogLevel MinimumLevel { get; set; }
+        private DateTime _lastCleanup = DateTime.MinValue;
 
         private FileLogger()
         {
@@ -197,8 +198,12 @@ namespace SaemDesk.Logging
                     await Task.Run(() => File.Move(logFile, archivePath));
                 }
 
-                // 오래된 로그 삭제 (30일 이상)
-                CleanupOldLogs();
+                // 오래된 로그 삭제 (30일 이상) — 매 배치마다 전체 스캔하지 않도록 하루 1회로 제한
+                if ((DateTime.Now - _lastCleanup).TotalHours >= 24)
+                {
+                    _lastCleanup = DateTime.Now;
+                    CleanupOldLogs();
+                }
             }
             catch (Exception ex)
             {

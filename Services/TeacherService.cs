@@ -306,12 +306,16 @@ namespace SaemDesk.Services
             try
             {
                 var histories = await historyRepo.GetCurrentBySchoolCodeAsync(schoolCode);
-                var teachers = new List<TeacherWithHistory>();
 
+                // 교사를 한 번에 일괄 조회 (N+1 방지)
+                var teacherIds = histories.Select(h => h.TeacherID).Distinct().ToList();
+                var teacherById = (await teacherRepo.GetByIdsAsync(teacherIds))
+                    .ToDictionary(t => t.TeacherID);
+
+                var teachers = new List<TeacherWithHistory>();
                 foreach (var history in histories)
                 {
-                    var teacher = await teacherRepo.GetByTeacherIdAsync(history.TeacherID);
-                    if (teacher != null)
+                    if (teacherById.TryGetValue(history.TeacherID, out var teacher))
                     {
                         teachers.Add(new TeacherWithHistory
                         {

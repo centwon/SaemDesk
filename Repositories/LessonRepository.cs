@@ -14,7 +14,7 @@ public class LessonRepository : BaseRepository
 {
     public LessonRepository(string dbPath) : base(dbPath)
     {
-        EnsureTableExists();
+        EnsureSchemaOnce(EnsureTableExists);
     }
 
     #region Table Management
@@ -200,6 +200,40 @@ public class LessonRepository : BaseRepository
         catch (Exception ex)
         {
             LogError($"Course별 수업 조회 실패: Course={courseNo}", ex);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// 여러 Course의 수업을 한 번에 조회 (N+1 방지)
+    /// </summary>
+    public async Task<List<Lesson>> GetByCoursesAsync(IReadOnlyCollection<int> courseNos)
+    {
+        if (courseNos == null || courseNos.Count == 0)
+            return new List<Lesson>();
+
+        var paramNames = new string[courseNos.Count];
+        int i = 0;
+        foreach (var _ in courseNos)
+            paramNames[i] = $"@c{i++}";
+
+        string query = $@"
+            SELECT * FROM Lesson
+            WHERE Course IN ({string.Join(",", paramNames)})
+            ORDER BY DayOfWeek, Period";
+
+        try
+        {
+            using var cmd = CreateCommand(query);
+            i = 0;
+            foreach (var no in courseNos)
+                cmd.Parameters.AddWithValue(paramNames[i++], no);
+
+            return await ExecuteQueryAsync(cmd);
+        }
+        catch (Exception ex)
+        {
+            LogError($"Course 일괄 수업 조회 실패: {courseNos.Count}건", ex);
             throw;
         }
     }

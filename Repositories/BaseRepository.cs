@@ -19,6 +19,11 @@ namespace SaemDesk.Repositories
         protected SqliteTransaction? Transaction;
         private bool _disposed;
 
+        // 프로세스 내 중복 초기화 방지 — WAL(파일 영속) 및 스키마 DDL은 1회만 수행
+        private static readonly HashSet<string> _walInitialized = new(StringComparer.OrdinalIgnoreCase);
+        private static readonly HashSet<string> _schemaInitialized = new(StringComparer.Ordinal);
+        private static readonly object _initLock = new();
+
         public SqliteTransaction? GetTransaction() => Transaction;
         public SqliteConnection GetConnection() => Connection;
 
@@ -38,10 +43,15 @@ namespace SaemDesk.Repositories
                 Connection = new SqliteConnection(connectionString);
                 Connection.Open();
 
-                // WAL 모드 활성화 (동시 읽기/쓰기 개선)
-                using var cmd = Connection.CreateCommand();
-                cmd.CommandText = "PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000; PRAGMA cache_size=10000; PRAGMA mmap_size=30000000;";
-                cmd.ExecuteNonQuery();
+                // 연결별 튜닝 — 풀의 각 물리 연결에 적용되어야 하므로 매번 실행 (저비용)
+                using (var cmd = Connection.CreateCommand())
+                {
+                    cmd.CommandText = "PRAGMA busy_timeout=5000; PRAGMA cache_size=10000; PRAGMA mmap_size=30000000;";
+                    cmd.ExecuteNonQuery();
+                }
+
+                // WAL 모드는 DB 파일에 영속 — 프로세스 내 파일당 1회만 적용
+                EnsureWalMode();
 
                 LogDebug($"{GetType().Name} 연결 열림 (WAL 모드)");
             }
@@ -49,6 +59,36 @@ namespace SaemDesk.Repositories
             {
                 LogError($"{GetType().Name} 연결 실패", ex);
                 throw;
+            }
+        }
+
+        /// <summary>
+        /// WAL 모드를 프로세스 내 DB 파일당 1회만 적용 (파일에 영속됨)
+        /// </summary>
+        private void EnsureWalMode()
+        {
+            lock (_initLock)
+            {
+                if (_walInitialized.Contains(_dbPath)) return;
+                using var cmd = Connection.CreateCommand();
+                cmd.CommandText = "PRAGMA journal_mode=WAL;";
+                cmd.ExecuteNonQuery();
+                _walInitialized.Add(_dbPath);
+            }
+        }
+
+        /// <summary>
+        /// 스키마 초기화(CREATE TABLE/INDEX 등)를 프로세스 내 (DB 파일 × Repository) 당 1회만 수행.
+        /// 생성자마다 DDL을 재실행하는 비용 제거.
+        /// </summary>
+        protected void EnsureSchemaOnce(Action init)
+        {
+            string key = $"{_dbPath}::{GetType().Name}";
+            lock (_initLock)
+            {
+                if (_schemaInitialized.Contains(key)) return;
+                init();
+                _schemaInitialized.Add(key);
             }
         }
 

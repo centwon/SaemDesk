@@ -15,6 +15,9 @@ namespace SaemDesk.Database
     /// </summary>
     public sealed class DatabaseInitializer : IDisposable
     {
+        // 스키마 버전 — 테이블/인덱스 구조 변경 시 증가시키면 다음 시작에 DDL이 재실행됨
+        private const long SchemaVersion = 1;
+
         private readonly string _dbPath;
         private SqliteConnection? _connection;
         private bool _disposed;
@@ -36,8 +39,16 @@ namespace SaemDesk.Database
 
                 Debug.WriteLine("[DatabaseInitializer] 데이터베이스 연결 완료");
 
+                // 스키마 버전이 최신이면 DDL 재실행 생략 (시작 시간 단축)
+                if (await GetSchemaVersionAsync() == SchemaVersion)
+                {
+                    Debug.WriteLine("[DatabaseInitializer] 스키마 최신 — 초기화 생략");
+                    return true;
+                }
+
                 await CreateTablesAsync();
                 await CreateIndexesAsync();
+                await SetSchemaVersionAsync(SchemaVersion);
 
                 Debug.WriteLine("[DatabaseInitializer] 데이터베이스 초기화 완료");
                 return true;
@@ -47,6 +58,24 @@ namespace SaemDesk.Database
                 Debug.WriteLine($"[DatabaseInitializer] 초기화 실패: {ex.Message}");
                 throw;
             }
+        }
+
+        private async Task<long> GetSchemaVersionAsync()
+        {
+            if (_connection == null) return 0;
+            using var cmd = _connection.CreateCommand();
+            cmd.CommandText = "PRAGMA user_version;";
+            var result = await cmd.ExecuteScalarAsync();
+            return result == null ? 0 : Convert.ToInt64(result);
+        }
+
+        private async Task SetSchemaVersionAsync(long version)
+        {
+            if (_connection == null) return;
+            using var cmd = _connection.CreateCommand();
+            // PRAGMA는 파라미터 바인딩 불가 — 상수 정수만 사용
+            cmd.CommandText = $"PRAGMA user_version = {version};";
+            await cmd.ExecuteNonQueryAsync();
         }
 
         private async Task CreateTablesAsync()

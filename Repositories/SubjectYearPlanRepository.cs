@@ -14,7 +14,7 @@ namespace SaemDesk.Repositories
     {
         public SubjectYearPlanRepository(string dbPath) : base(dbPath)
         {
-            EnsureTableExists();
+            EnsureSchemaOnce(EnsureTableExists);
         }
 
         #region Table Setup

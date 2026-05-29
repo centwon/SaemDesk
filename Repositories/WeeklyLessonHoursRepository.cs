@@ -14,7 +14,7 @@ namespace SaemDesk.Repositories
     {
         public WeeklyLessonHoursRepository(string dbPath) : base(dbPath)
         {
-            EnsureTableExists();
+            EnsureSchemaOnce(EnsureTableExists);
         }
 
         #region Table Setup

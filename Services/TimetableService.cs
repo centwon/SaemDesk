@@ -60,14 +60,20 @@ namespace SaemDesk.Services
 
                 viewModel.Title = $"{teacherName} 교사 시간표 ({year}학년도 {semester}학기)";
 
-                // 3. 각 Course의 Lesson(정기수업) 조회 및 배치
+                // 3. 모든 Course의 Lesson(정기수업)을 한 번에 조회 (N+1 방지)
                 using var lessonRepo = new LessonRepository(_dbPath);
+
+                var courseNos = courses.Select(c => c.No).ToList();
+                var allLessons = await lessonRepo.GetByCoursesAsync(courseNos);
+                var lessonsByCourse = allLessons
+                    .Where(l => l.IsRecurring)
+                    .GroupBy(l => l.Course)
+                    .ToDictionary(g => g.Key, g => g.ToList());
 
                 foreach (var course in courses)
                 {
-                    // 해당 Course의 정기 수업 조회
-                    var lessons = await lessonRepo.GetByCourseAsync(course.No);
-                    var recurringLessons = lessons.Where(l => l.IsRecurring).ToList();
+                    if (!lessonsByCourse.TryGetValue(course.No, out var recurringLessons))
+                        continue;
 
                     foreach (var lesson in recurringLessons)
                     {
