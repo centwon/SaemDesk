@@ -129,6 +129,11 @@ namespace SaemDesk.Models
         /// <summary>학급 표시</summary>
         public string ClassInfo => $"{Grade}학년 {Class}반";
 
+        /// <summary>과목(교사) 표시 — 교사명이 없으면 과목만</summary>
+        public string SubjectWithTeacher => string.IsNullOrWhiteSpace(TeacherName)
+            ? SubjectName
+            : $"{SubjectName}({TeacherName})";
+
         #endregion
 
         #region Methods

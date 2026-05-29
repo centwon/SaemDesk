@@ -77,7 +77,7 @@ public partial class MainWindow : Window
             "ClassBoard"                => new BoardPageVM(),
             "StudentInfoExport"         => new StudentInfoExportPageVM(),
             "UnifiedExport"             => new UnifiedExportPageVM(),
-            "Timetable_ClassManagement" => new TeacherTimetablePageVM(),
+            "Timetable_ClassManagement" => new ClassTimetablePageVM(),
 
             // 수업
             "LessonHome"                => new LessonHomePageVM(),

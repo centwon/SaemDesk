@@ -20,7 +20,17 @@ public partial class TodayPage : UserControl
     public TodayPage()
     {
         InitializeComponent();
-        DataContext = new TodayPageVM();
+        var vm = new TodayPageVM();
+        DataContext = vm;
+
+        // 담임이 아니면 '우리 반' 열을 접어 '내 수업'이 전체 폭을 채우게 함
+        if (!vm.IsHomeroom)
+        {
+            TimetableTable.ColumnDefinitions[1].Width = new GridLength(0);
+            ClassHeaderCell.IsVisible = false;
+            ClassBodyCell.IsVisible = false;
+        }
+
         Loaded += OnLoaded;
     }
 
@@ -34,8 +44,6 @@ public partial class TodayPage : UserControl
             await Task.Delay(50);
 
             // UI 업데이트가 있는 작업들은 의도적으로 분산
-            await Safe("시간표",   () => LecTimeTable.LoadTeacherScheduleAsync(Settings.User.Value, Settings.WorkYear.Value, Settings.WorkSemester.Value));
-            await Task.Delay(16); // 한 프레임 대기
             await Safe("학사일정", () => ScheduleList.LoadSchedulesAsync(DateTime.Today, 28, true));
             await Task.Delay(16);
             await Safe("어젠다",   () => AgendaList.LoadPendingAndFutureAsync());

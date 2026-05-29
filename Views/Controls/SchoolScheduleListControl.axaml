@@ -12,7 +12,7 @@
           Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
           MinHeight="80">
     <Grid RowDefinitions="Auto,*">
-      <Border Grid.Row="0" Padding="16,12" Classes="card-header">
+      <Border Grid.Row="0" Classes="card-header">
         <TextBlock Text="📅 학사일정" FontWeight="Bold" VerticalAlignment="Center" FontSize="14"/>
       </Border>
 

@@ -95,6 +95,11 @@ namespace SaemDesk.ViewModels
         /// </summary>
         public string DisplayText => IsEmpty ? "" : $"{SubjectName}\n{Room}";
 
+        /// <summary>과목(강의실) 표시 — 강의실이 없으면 과목만</summary>
+        public string SubjectWithRoom => string.IsNullOrWhiteSpace(Room)
+            ? SubjectName
+            : $"{SubjectName}({Room})";
+
         /// <summary>
         /// 요일 헤더 (월, 화, 수, 목, 금)
         /// </summary>

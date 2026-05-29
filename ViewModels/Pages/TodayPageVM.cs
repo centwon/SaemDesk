@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.Input;
 using SaemDesk.Collections;
 using SaemDesk.Models;
 using SaemDesk.Repositories;
+using SaemDesk.Services;
 
 namespace SaemDesk.ViewModels.Pages;
 
@@ -29,11 +30,14 @@ public partial class TodayPageVM : ViewModelBase
     public string TeacherInfo      { get; } = BuildTeacherInfo();
     public string WorkYearSemester { get; } = $"{Settings.WorkYear}학년도 {Settings.WorkSemester}학기";
 
+    /// <summary>담임 여부 — 학년·반이 모두 설정되어 있으면 true. "우리 반" 시간표 표시 조건.</summary>
+    public bool IsHomeroom { get; } = Settings.HomeGrade > 0 && Settings.HomeRoom > 0;
+
     // ── 안내 메시지 ───────────────────────────────────────
     public string HintText { get; }
     public bool   HasHint  { get; }
 
-    // ── 오늘 시간표 ───────────────────────────────────────
+    // ── 학급 오늘 시간표 ─────────────────────────────────────
     public OptimizedObservableCollection<ClassTimetable> TodaySlots { get; } = new();
 
     [ObservableProperty]
@@ -41,9 +45,15 @@ public partial class TodayPageVM : ViewModelBase
     private bool _timetableLoaded;
 
     public bool HasTodaySlots => TodaySlots.Count > 0;
-    public string TodaySlotCountText => TodaySlots.Count > 0
-        ? $"{TodaySlots.Count}교시"
-        : "시간표 없음";
+
+    // ── 교사 오늘 시간표 ─────────────────────────────────────
+    public OptimizedObservableCollection<TimetableItemViewModel> TodayTeacherSlots { get; } = new();
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasTodayTeacherSlots))]
+    private bool _teacherTimetableLoaded;
+
+    public bool HasTodayTeacherSlots => TodayTeacherSlots.Count > 0;
 
     // ── 학생 현황 ─────────────────────────────────────────
     [ObservableProperty] private int    _studentCount;
@@ -93,6 +103,7 @@ public partial class TodayPageVM : ViewModelBase
             await Task.WhenAll(
                 LoadStudentCountAsync(),
                 LoadTodayTimetableAsync(),
+                LoadTodayTeacherTimetableAsync(),
                 LoadDiaryStatusAsync(),
                 LoadMealAsync());
         }
@@ -153,11 +164,42 @@ public partial class TodayPageVM : ViewModelBase
 
             TimetableLoaded = true;
             OnPropertyChanged(nameof(HasTodaySlots));
-            OnPropertyChanged(nameof(TodaySlotCountText));
         }
         catch
         {
             TimetableLoaded = true;
+        }
+    }
+
+    private async Task LoadTodayTeacherTimetableAsync()
+    {
+        try
+        {
+            int netDow = (int)DateTime.Today.DayOfWeek;
+            int dow = netDow >= 1 && netDow <= 5 ? netDow : 0;
+
+            if (dow == 0)
+            {
+                TeacherTimetableLoaded = true;
+                return;
+            }
+
+            using var svc = new LessonService();
+            var vm = await svc.GetTeacherTimetableViewModelAsync(
+                Settings.User.Value, Settings.WorkYear.Value, Settings.WorkSemester.Value);
+
+            var todayItems = vm.Items
+                .Where(x => x.DayOfWeek == dow && !x.IsEmpty)
+                .OrderBy(x => x.Period)
+                .ToList();
+
+            TodayTeacherSlots.ReplaceAll(todayItems);
+            TeacherTimetableLoaded = true;
+            OnPropertyChanged(nameof(HasTodayTeacherSlots));
+        }
+        catch
+        {
+            TeacherTimetableLoaded = true;
         }
     }
 

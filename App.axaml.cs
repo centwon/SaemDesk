@@ -200,6 +200,7 @@ public partial class App : Application
         ViewLocator.Register<ClubManagementPageVM>           (() => new ClubManagementPage());
         ViewLocator.Register<ClubActivityPageVM>             (() => new ClubActivityPage());
         ViewLocator.Register<TeacherTimetablePageVM>         (() => new TeacherTimetablePage());
+        ViewLocator.Register<ClassTimetablePageVM>           (() => new ClassTimetablePage());
         ViewLocator.Register<SchoolWorkPageVM>               (() => new SchoolWorkPage());
         ViewLocator.Register<LessonSpecPageVM>                (() => new LessonSpecPage());
     }

@@ -3,18 +3,18 @@
              xmlns:sched="using:SaemDesk.Scheduler"
              x:Class="SaemDesk.Views.Controls.KAgendaControl">
 
-  <Border BorderBrush="{DynamicResource ContentSeparatorBrush}"
+  <Border BorderBrush="{DynamicResource CardHeaderBorderBrush}"
           BorderThickness="1"
-          CornerRadius="6"
-          Background="{DynamicResource ContentBackgroundBrush}">
+          CornerRadius="8"
+          Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
     <Grid RowDefinitions="36,*">
 
       <!-- ── 헤더 (필터/추가) ────────────────────── -->
       <Border Grid.Row="0"
-              Background="{DynamicResource InfoSurfaceBrush}"
+              Background="{DynamicResource CardHeaderBrush}"
               BorderBrush="{DynamicResource ContentSeparatorBrush}"
               BorderThickness="0,0,0,1"
-              CornerRadius="6,6,0,0">
+              CornerRadius="8,8,0,0">
         <Grid Margin="8,4" ColumnDefinitions="Auto,Auto,8,Auto,4,Auto,*,Auto">
           <TextBlock Grid.Column="0" Text="📋"
                      FontSize="14" VerticalAlignment="Center"

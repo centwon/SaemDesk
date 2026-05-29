@@ -3,7 +3,7 @@
         xmlns:vm="using:SaemDesk.ViewModels"
         x:Class="SaemDesk.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Title="샘Desk"
+        Title="{CompiledBinding WindowTitle}"
         Width="1280" Height="780"
         MinWidth="960" MinHeight="600">
 
@@ -13,23 +13,11 @@
     <!-- 상단 네비게이션 바 (NewSchool PaneDisplayMode=Top) -->
     <!-- ══════════════════════════════════════════════════ -->
     <Border Grid.Row="0"
-            MinHeight="36"
+            MinHeight="38"
             Background="{DynamicResource NavBackgroundBrush}"
             BorderBrush="{DynamicResource ContentSeparatorBrush}"
             BorderThickness="0,0,0,1">
-      <DockPanel LastChildFill="True" MinHeight="36">
-
-        <!-- ── 앱 로고/제목 ─────────────────────────── -->
-        <Border DockPanel.Dock="Left"
-                Padding="16,0"
-                MinHeight="36"
-                BorderBrush="{DynamicResource ContentSeparatorBrush}"
-                BorderThickness="0,0,1,0">
-          <TextBlock Text="샘Desk"
-                     FontSize="18" FontWeight="Bold"
-                     VerticalAlignment="Center"
-                     Foreground="{StaticResource BrandPrimaryBrush}"/>
-        </Border>
+      <DockPanel LastChildFill="True" MinHeight="38">
 
         <!-- ── 우측: 버전 표시 ───────────────────────── -->
         <TextBlock DockPanel.Dock="Right"
@@ -46,7 +34,7 @@
           <Menu.Styles>
             <Style Selector="MenuItem">
               <Setter Property="Padding"   Value="12,0"/>
-              <Setter Property="MinHeight" Value="36"/>
+              <Setter Property="MinHeight" Value="38"/>
               <Setter Property="FontSize"  Value="13"/>
             </Style>
             <Style Selector="MenuItem.selected">
@@ -111,7 +99,7 @@
     <!-- 콘텐츠 영역                                         -->
     <!-- ══════════════════════════════════════════════════ -->
     <TransitioningContentControl Grid.Row="1" Padding="4"
-                                 Content="{Binding CurrentPage}"
+                                 Content="{CompiledBinding CurrentPage}"
                                  Background="{DynamicResource ContentBackgroundBrush}"/>
 
   </Grid>

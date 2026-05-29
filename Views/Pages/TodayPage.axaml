@@ -2,47 +2,152 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:SaemDesk.ViewModels.Pages"
              xmlns:ctrl="using:SaemDesk.Views.Controls"
-             xmlns:board="using:SaemDesk.Views.Controls"
+             xmlns:models="using:SaemDesk.Models"
+             xmlns:tvm="using:SaemDesk.ViewModels"
              x:Class="SaemDesk.Views.Pages.TodayPage"
              x:DataType="vm:TodayPageVM"
              Classes="page">
 
-    <Grid>
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="260"/>
-        <ColumnDefinition Width="12"/>
-        <ColumnDefinition Width="*" MinWidth="200"/>
-      </Grid.ColumnDefinitions>
+  <Grid RowDefinitions="Auto,*" RowSpacing="12">
 
-      <!-- 좌측 패널 -->
-      <Grid Grid.Column="0" RowDefinitions="Auto,*,Auto" RowSpacing="10">
+    <!-- ═══ 안내 메시지 (설정 미완료 시) ═══ -->
+    <Border Grid.Row="0"
+            IsVisible="{CompiledBinding HasHint}"
+            Background="{DynamicResource WarningSurfaceBrush}"
+            BorderBrush="{DynamicResource WarningForegroundBrush}"
+            BorderThickness="1" CornerRadius="6" Padding="12,8">
+      <TextBlock Text="{CompiledBinding HintText}"
+                 Foreground="{DynamicResource WarningDarkBrush}"
+                 FontSize="12"/>
+    </Border>
 
-        <Border Grid.Row="0"
-                BorderBrush="{DynamicResource CardHeaderBorderBrush}" BorderThickness="1"
-                CornerRadius="8" ClipToBounds="True"
-                Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
-          <Grid RowDefinitions="34,Auto">
-            <Border Grid.Row="0" Classes="card-header">
-              <TextBlock Text="📚 수업 시간표" FontWeight="Bold" VerticalAlignment="Center" FontSize="14"/>
-            </Border>
-            <Border Grid.Row="1" Padding="0">
-              <Viewbox Stretch="Uniform" MaxHeight="280">
-                <ctrl:TimetableControl Name="LecTimeTable" Width="260" Height="260"/>
-              </Viewbox>
-            </Border>
-          </Grid>
-        </Border>
+    <!-- ═══ 메인 콘텐츠 ═══ -->
+    <Grid Grid.Row="1" ColumnDefinitions="280,12,*">
 
+      <!-- ── 좌측 패널: 시간표(상단) · 학사일정(채움) · 급식(하단 고정) ── -->
+      <Grid Grid.Column="0" RowDefinitions="Auto,*,Auto" RowSpacing="12">
+
+          <!-- 1. 수업 시간표 (내 수업 | 우리 반) -->
+          <Border Grid.Row="0"
+                  BorderBrush="{DynamicResource CardHeaderBorderBrush}"
+                  BorderThickness="1" CornerRadius="8" ClipToBounds="True"
+                  Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+            <!-- 2열 표: [내 수업 | 우리 반] × [헤더 / 본문]
+                 담임이 아니면 코드비하인드에서 우리 반 열(ClassColumn)을 폭 0으로 접음 -->
+            <Grid RowDefinitions="Auto,*" x:Name="TimetableTable">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+
+              <!-- 헤더: 내 수업 -->
+              <Border Grid.Row="0" Grid.Column="0"
+                      Background="{DynamicResource CardHeaderBrush}" MinHeight="36">
+                <StackPanel Orientation="Horizontal" Spacing="6"
+                            VerticalAlignment="Center" Margin="12,0">
+                  <TextBlock Text="📚" FontSize="13"/>
+                  <TextBlock Text="내 수업" FontWeight="Bold" FontSize="13"/>
+                </StackPanel>
+              </Border>
+
+              <!-- 헤더: 우리 반 -->
+              <Border Grid.Row="0" Grid.Column="1" x:Name="ClassHeaderCell"
+                      Background="{DynamicResource CardHeaderBrush}" MinHeight="36"
+                      BorderBrush="{DynamicResource ContentSeparatorBrush}"
+                      BorderThickness="1,0,0,0">
+                <StackPanel Orientation="Horizontal" Spacing="6"
+                            VerticalAlignment="Center" Margin="12,0">
+                  <TextBlock Text="👥" FontSize="13"/>
+                  <TextBlock Text="우리 반" FontWeight="Bold" FontSize="13"/>
+                </StackPanel>
+              </Border>
+
+              <!-- 본문: 내 수업 -->
+              <Grid Grid.Row="1" Grid.Column="0">
+                <TextBlock Text="수업 없음"
+                           IsVisible="{CompiledBinding !HasTodayTeacherSlots}"
+                           HorizontalAlignment="Center" Margin="0,12"
+                           FontSize="11"
+                           Foreground="{DynamicResource SystemBaseMediumColor}"/>
+
+                <ItemsControl ItemsSource="{CompiledBinding TodayTeacherSlots}"
+                              IsVisible="{CompiledBinding HasTodayTeacherSlots}"
+                              Padding="4,4,4,8">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="tvm:TimetableItemViewModel">
+                      <Grid ColumnDefinitions="22,*" Margin="4,2" MinHeight="26">
+                        <Border Grid.Column="0"
+                                Background="{DynamicResource InfoSurfaceBrush}"
+                                CornerRadius="4" Padding="0,2"
+                                VerticalAlignment="Center">
+                          <TextBlock Text="{CompiledBinding Period}"
+                                     FontSize="11" FontWeight="SemiBold"
+                                     HorizontalAlignment="Center"
+                                     Foreground="{DynamicResource InfoForegroundBrush}"/>
+                        </Border>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{CompiledBinding SubjectWithRoom}"
+                                   FontSize="12" VerticalAlignment="Center"
+                                   Margin="6,0,4,0"
+                                   TextTrimming="CharacterEllipsis"/>
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </Grid>
+
+              <!-- 본문: 우리 반 -->
+              <Grid Grid.Row="1" Grid.Column="1" x:Name="ClassBodyCell">
+                <TextBlock Text="시간표 없음"
+                           IsVisible="{CompiledBinding !HasTodaySlots}"
+                           HorizontalAlignment="Center" Margin="0,12"
+                           FontSize="11"
+                           Foreground="{DynamicResource SystemBaseMediumColor}"/>
+
+                <ItemsControl ItemsSource="{CompiledBinding TodaySlots}"
+                              IsVisible="{CompiledBinding HasTodaySlots}"
+                              Padding="4,4,4,8">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="models:ClassTimetable">
+                      <Grid ColumnDefinitions="22,*" Margin="4,2" MinHeight="26">
+                        <Border Grid.Column="0"
+                                Background="{DynamicResource InfoSurfaceBrush}"
+                                CornerRadius="4" Padding="0,2"
+                                VerticalAlignment="Center">
+                          <TextBlock Text="{CompiledBinding Period}"
+                                     FontSize="11" FontWeight="SemiBold"
+                                     HorizontalAlignment="Center"
+                                     Foreground="{DynamicResource InfoForegroundBrush}"/>
+                        </Border>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{CompiledBinding SubjectWithTeacher}"
+                                   FontSize="12" VerticalAlignment="Center"
+                                   Margin="6,0,4,0"
+                                   TextTrimming="CharacterEllipsis"/>
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </Grid>
+            </Grid>
+          </Border>
+
+        <!-- 2. 학사일정 (남는 공간 채움) -->
         <ctrl:SchoolScheduleListControl Name="ScheduleList" Grid.Row="1"/>
+
+        <!-- 3. 급식 (항상 맨 아래) -->
         <ctrl:SchoolMealBox Name="MealBox" Grid.Row="2"/>
       </Grid>
 
-      <!-- 우측 패널 -->
-      <Grid Grid.Column="2" RowDefinitions="270,16,*">
+      <!-- ── 우측 패널 ── -->
+      <Grid Grid.Column="2" RowDefinitions="270,12,*">
         <ctrl:KAgendaControl Name="AgendaList" Grid.Row="0"/>
         <ctrl:MemoBoard Name="MemoBoard" Grid.Row="2"
-                         FixedSubject="메모"
-                         ShowFilter="False"/>
+                        FixedSubject="메모"
+                        ShowFilter="False"/>
       </Grid>
     </Grid>
+  </Grid>
 </UserControl>

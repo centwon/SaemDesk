@@ -10,17 +10,20 @@
     <ctrl:HtmlToPlainConverter    x:Key="HtmlToPlain"/>
   </UserControl.Resources>
 
-  <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+  <Border BorderBrush="{DynamicResource CardHeaderBorderBrush}"
           BorderThickness="1"
-          CornerRadius="6"
+          CornerRadius="8"
           Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
     <Grid RowDefinitions="Auto,*">
 
       <!-- 헤더 -->
       <Border Grid.Row="0"
-              BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+              Background="{DynamicResource CardHeaderBrush}"
+              BorderBrush="{DynamicResource ContentSeparatorBrush}"
               BorderThickness="0,0,0,1"
-              Padding="8,6">
+              CornerRadius="8,8,0,0"
+              MinHeight="36"
+              Padding="12,0">
         <Grid ColumnDefinitions="Auto,Auto,*,Auto">
 
           <!-- 제목 (ShowFilter=False 일 때 표시) -->
@@ -49,6 +52,7 @@
           <Button Grid.Column="3"
                   Content="＋ 추가"
                   Padding="10,3"
+                  VerticalAlignment="Center"
                   Click="OnAddClick"
                   ToolTip.Tip="새 메모 추가"/>
         </Grid>
