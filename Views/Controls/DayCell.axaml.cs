@@ -263,23 +263,13 @@ public partial class DayCell : UserControl
         };
         AttachItemDragHandlers(grid);
 
-        // 완료 토글 버튼 (점 대신 — 클릭 시 즉시 IsDone 토글)
-        var toggle = new ToggleButton
+        // 완료 토글 — Semi 기본 CheckBox 스타일 사용 (CheckBox는 ToggleButton 파생)
+        var toggle = new CheckBox
         {
             IsChecked = task.IsDone,
             Tag       = task,
-            MinWidth  = 14,
-            Width     = 14,
-            Height    = 14,
-            Padding   = new Thickness(0),
-            BorderThickness = new Thickness(1),
             VerticalAlignment = VerticalAlignment.Center,
-            Margin    = new Thickness(2, 0, 6, 0),
-            CornerRadius = new CornerRadius(7),
-            Background = task.IsDone
-                         ? new SolidColorBrush(Color.FromRgb(0x88, 0x88, 0x88))
-                         : Brushes.Transparent,
-            BorderBrush = new SolidColorBrush(Color.FromRgb(0x00, 0x78, 0xD7)),
+            Margin    = new Thickness(2, 0, 4, 0),
         };
         toggle.IsCheckedChanged += OnTaskToggle;
         Grid.SetColumn(toggle, 0);
