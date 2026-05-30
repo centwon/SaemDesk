@@ -1,10 +1,12 @@
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using SaemDesk.Models;
 using SaemDesk.Services;
+using SaemDesk.ViewModels;
 using SaemDesk.ViewModels.Pages;
 using SaemDesk.Views.Dialogs;
 
@@ -34,18 +36,12 @@ public partial class LessonHomePage : UserControl
     private void OnDataContextChanged(object? sender, EventArgs e)
     {
         if (_vm is not null)
-        {
-            _vm.TodayItemClicked -= OpenTodayItemDialogAsync;
-            _vm.AddLogRequested  -= OpenAddLogDialogAsync;
-        }
+            _vm.AddLogRequested -= OpenAddLogDialogAsync;
 
         _vm = DataContext as LessonHomePageVM;
 
         if (_vm is not null)
-        {
-            _vm.TodayItemClicked += OpenTodayItemDialogAsync;
-            _vm.AddLogRequested  += OpenAddLogDialogAsync;
-        }
+            _vm.AddLogRequested += OpenAddLogDialogAsync;
     }
 
     // ────────────────────────────────────────────────────
@@ -59,6 +55,9 @@ public partial class LessonHomePage : UserControl
         // LessonLogList 이벤트 연결
         LessonLogList.LessonSelected += LessonLogList_LessonSelected;
         LessonLogList.AddRequested   += LessonLogList_AddRequested;
+
+        // 시간표 수업 클릭 → 수업기록
+        Timetable.LessonClicked += Timetable_LessonClicked;
 
         if (_vm is null) return;
 
@@ -103,37 +102,57 @@ public partial class LessonHomePage : UserControl
     }
 
     // ────────────────────────────────────────────────────
-    //  오늘의 수업 버튼 클릭 (XAML Click 핸들러)
+    //  시간표 수업 클릭 → 수업기록 (해당 주 요일 날짜, 기존 기록 있으면 편집)
     // ────────────────────────────────────────────────────
 
-    private async void TodayLessonItem_Click(object? sender, RoutedEventArgs e)
+    private async void Timetable_LessonClicked(object? sender, TimetableItemViewModel item)
     {
-        if (sender is not Button btn || btn.Tag is not TodayLessonItem item) return;
-        await (_vm?.OnTodayItemClickedAsync(item) ?? Task.CompletedTask);
-    }
+        DateTime date = DateOfThisWeek(item.DayOfWeek);
 
-    // ────────────────────────────────────────────────────
-    //  VM 이벤트 핸들러 — LessonLogEditDialog 오픈
-    // ────────────────────────────────────────────────────
+        // 빈 셀(예기치 않은 수업): 날짜·교시만 채운 새 기록
+        if (item.IsEmpty)
+        {
+            var blank = LessonLogEditDialog.CreateNew(period: item.Period, date: date);
+            await DialogService.ShowAsync(blank);
+            if (blank.Result is not null) await LoadLessonLogsAsync();
+            return;
+        }
 
-    private async Task OpenTodayItemDialogAsync(TodayLessonItem item)
-    {
-        LessonLogEditDialog dialog = item.ExistingLog is not null
-            ? new LessonLogEditDialog(item.ExistingLog)
-            : LessonLogEditDialog.CreateNew(
-                subject: item.Subject,
-                room:    item.Lesson.Room,
-                grade:   item.Lesson.Grade,
-                cls:     item.Lesson.Class,
-                period:  item.Lesson.Period);
+        LessonLogEditDialog dialog;
+
+        try
+        {
+            using var svc = new LessonLogService();
+            var logs = await svc.GetByDateAsync(date);
+            var existing = logs.FirstOrDefault(l =>
+                l.Period == item.Period && l.Grade == item.Grade && l.Class == item.Class);
+
+            dialog = existing is not null
+                ? new LessonLogEditDialog(existing)
+                : LessonLogEditDialog.CreateNew(
+                    subject: item.SubjectName, room: item.Room,
+                    grade: item.Grade, cls: item.Class, period: item.Period, date: date);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[LessonHomePage] 기존 기록 조회 실패: {ex.Message}");
+            dialog = LessonLogEditDialog.CreateNew(
+                subject: item.SubjectName, room: item.Room,
+                grade: item.Grade, cls: item.Class, period: item.Period, date: date);
+        }
 
         await DialogService.ShowAsync(dialog);
 
         if (dialog.Deleted || dialog.Result is not null)
-        {
-            await (_vm?.RefreshTodayAsync() ?? Task.CompletedTask);
             await LoadLessonLogsAsync();
-        }
+    }
+
+    /// <summary>이번 주의 해당 요일(1=월~5=금) 날짜.</summary>
+    private static DateTime DateOfThisWeek(int dayOfWeek)
+    {
+        var today = DateTime.Today;
+        int todayDow = today.DayOfWeek == DayOfWeek.Sunday ? 7 : (int)today.DayOfWeek;
+        return today.AddDays(dayOfWeek - todayDow).Date;
     }
 
     private async Task OpenAddLogDialogAsync(string defaultSubject)
@@ -142,10 +161,7 @@ public partial class LessonHomePage : UserControl
         await DialogService.ShowAsync(dialog);
 
         if (dialog.Result is not null)
-        {
-            await (_vm?.RefreshTodayAsync() ?? Task.CompletedTask);
             await LoadLessonLogsAsync();
-        }
     }
 
     // ────────────────────────────────────────────────────
@@ -161,10 +177,7 @@ public partial class LessonHomePage : UserControl
         await DialogService.ShowAsync(dialog);
 
         if (dialog.Deleted || dialog.Result is not null)
-        {
             await LoadLessonLogsAsync();
-            await (_vm?.RefreshTodayAsync() ?? Task.CompletedTask);
-        }
     }
 
     private void LessonLogList_AddRequested(object? sender, EventArgs e)

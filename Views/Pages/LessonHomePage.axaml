@@ -1,7 +1,6 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:SaemDesk.ViewModels.Pages"
-             xmlns:local="clr-namespace:SaemDesk.ViewModels.Pages"
              xmlns:ctrl="clr-namespace:SaemDesk.Views.Controls"
              xmlns:board="clr-namespace:SaemDesk.Views.Controls"
              x:Class="SaemDesk.Views.Pages.LessonHomePage"
@@ -74,7 +73,7 @@
             </Border>
 
             <Border Grid.Row="1" Padding="0">
-    <ctrl:TimetableControl x:Name="Timetable" Width="280"/>
+    <ctrl:TimetableControl x:Name="Timetable" Width="280" AllowLessonClick="True"/>
 
             </Border>
           </Grid>
@@ -90,74 +89,10 @@
       <!-- ══════════════════════════════════════════════════ -->
       <!-- 우측: 오늘의 수업 + 기록 + 메모                    -->
       <!-- ══════════════════════════════════════════════════ -->
-      <Grid Grid.Column="1" RowDefinitions="Auto,*,*" RowSpacing="8">
-
-        <!-- 오늘의 수업 카드 -->
-        <Border Grid.Row="0"
-                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
-                BorderThickness="1"
-                CornerRadius="8"
-                Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-                Padding="12">
-          <Grid RowDefinitions="Auto,Auto">
-
-            <Grid Grid.Row="0" Margin="0,0,0,8" ColumnDefinitions="*,Auto">
-              <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
-                <TextBlock Text="📖" FontSize="14"
-                           Foreground="{DynamicResource SystemAccentColor}"/>
-                <TextBlock Text="오늘의 수업"
-                           FontWeight="SemiBold" FontSize="13"
-                           VerticalAlignment="Center"/>
-              </StackPanel>
-              <TextBlock Grid.Column="1"
-                         Text="{Binding TodaySummaryText}"
-                         FontSize="12"
-                         Foreground="{DynamicResource SystemBaseMediumColor}"
-                         VerticalAlignment="Center"/>
-            </Grid>
-
-            <ItemsControl Grid.Row="1"
-                          x:Name="TodayLessonList"
-                          ItemsSource="{Binding TodayLessons}">
-              <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="local:TodayLessonItem">
-                  <Border CornerRadius="6" Padding="12,8" Margin="0,0,0,2">
-                    <Grid ColumnSpacing="8" ColumnDefinitions="50,70,44,*,Auto">
-                      <TextBlock Grid.Column="0" Text="{Binding PeriodText}"
-                                 FontSize="13" VerticalAlignment="Center"/>
-                      <TextBlock Grid.Column="1" Text="{Binding Subject}"
-                                 FontSize="13" VerticalAlignment="Center"/>
-                      <TextBlock Grid.Column="2" Text="{Binding ClassDisplay}"
-                                 FontSize="12" TextAlignment="Center"
-                                 Foreground="{DynamicResource SystemBaseMediumColor}"
-                                 VerticalAlignment="Center"/>
-                      <TextBlock Grid.Column="3" Text="{Binding TopicText}"
-                                 FontSize="12" TextTrimming="CharacterEllipsis" MaxLines="1"
-                                 Foreground="{DynamicResource SystemBaseLowColor}"
-                                 VerticalAlignment="Center"
-                                 IsVisible="{Binding HasTopic}"/>
-                      <Button Grid.Column="4"
-                              Content="{Binding StatusText}"
-                              MinWidth="56" Height="28" Padding="8,2" FontSize="12"
-                              VerticalAlignment="Center"
-                              Tag="{Binding}" Click="TodayLessonItem_Click"/>
-                    </Grid>
-                  </Border>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
-
-            <TextBlock Grid.Row="1"
-                       Text="{Binding NoLessonsText}"
-                       IsVisible="{Binding IsNoLessons}"
-                       HorizontalAlignment="Center"
-                       Margin="0,12" FontSize="13"
-                       Foreground="{DynamicResource SystemBaseMediumColor}"/>
-          </Grid>
-        </Border>
+      <Grid Grid.Column="1" RowDefinitions="*,*" RowSpacing="8">
 
         <!-- 최근 수업 기록 -->
-        <Border Grid.Row="1"
+        <Border Grid.Row="0"
                 BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
                 BorderThickness="1"
                 CornerRadius="8"
@@ -167,7 +102,7 @@
 
         <!-- 수업 메모 -->
         <board:MemoBoard x:Name="LessonMemoBoard"
-                         Grid.Row="2"
+                         Grid.Row="1"
                          ShowFilter="False"
                          FixedCategory="수업"/>
       </Grid>

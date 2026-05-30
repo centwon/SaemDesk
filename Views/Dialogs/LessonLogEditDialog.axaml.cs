@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using SaemDesk.Models;
@@ -14,6 +16,7 @@ namespace SaemDesk.Views.Dialogs;
 public partial class LessonLogEditDialog : Window
 {
     private LessonLog? _existing;
+    private List<Course> _courses = new();
 
     /// <summary>저장된 LessonLog (성공 시 채워짐).</summary>
     public LessonLog? Result { get; private set; }
@@ -36,7 +39,8 @@ public partial class LessonLogEditDialog : Window
         {
             HeaderText.Text            = "수업 기록 추가";
             Title                      = "수업 기록 추가";
-            LogDatePicker.SelectedDate = new DateTimeOffset(DateTime.Today, TimeSpan.Zero);
+            LogDatePicker.SelectedDate = new DateTimeOffset(
+                DateTime.SpecifyKind(DateTime.Today, DateTimeKind.Unspecified), TimeSpan.Zero);
             CBoxPeriod.SelectedIndex   = 0;
             BtnDelete.IsVisible        = false;
         }
@@ -46,6 +50,65 @@ public partial class LessonLogEditDialog : Window
             Title               = "수업 기록 수정";
             BtnDelete.IsVisible = true;
             Opened += (_, _) => LoadFrom(existing);
+        }
+
+        Opened += OnOpenedLoadSuggestions;
+    }
+
+    // ────────────────────────────────────────────────────
+    //  과목·강의실 자동완성 목록 (교사 과목에서)
+    // ────────────────────────────────────────────────────
+
+    private async void OnOpenedLoadSuggestions(object? sender, EventArgs e)
+    {
+        try
+        {
+            using var svc = new CourseService();
+            _courses = await svc.GetMyCoursesAsync();
+
+            AcSubject.ItemsSource = _courses
+                .Select(c => c.Subject)
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .Distinct()
+                .ToList();
+
+            AcSubject.TextChanged += (_, _) => RefreshRoomSuggestions();
+            AcRoom.TextChanged    += (_, _) => TryFillGradeClassFromRoom();
+            RefreshRoomSuggestions();
+
+            // 프리필(시간표 셀 클릭/편집)된 강의실도 1회 분해 — 구독 전에 Text가 세팅되므로
+            TryFillGradeClassFromRoom();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[LessonLogEditDialog] 과목 목록 로드 실패: {ex.Message}");
+        }
+    }
+
+    /// <summary>강의실 제안을 선택된 과목의 RoomList로 갱신(없으면 전체 강의실).</summary>
+    private void RefreshRoomSuggestions()
+    {
+        string subject = (AcSubject.Text ?? string.Empty).Trim();
+        var course = _courses.FirstOrDefault(c => c.Subject == subject);
+
+        AcRoom.ItemsSource = course is not null && course.RoomList.Count > 0
+            ? course.RoomList
+            : _courses.SelectMany(c => c.RoomList).Distinct().ToList();
+    }
+
+    /// <summary>강의실이 "학년-반"(예: 1-1) 형태면 분해해 학년·반 칸에 채움(학급공통 자동생성 대응).
+    /// 물리 강의실 번호(예: 201-1) 오인 방지를 위해 유효 범위 안일 때만 채운다.</summary>
+    private void TryFillGradeClassFromRoom()
+    {
+        var parts = (AcRoom.Text ?? string.Empty).Split('-');
+        if (parts.Length == 2
+            && int.TryParse(parts[0].Trim(), out var grade)
+            && int.TryParse(parts[1].Trim(), out var cls)
+            && grade >= 1 && grade <= (int)NumGrade.Maximum
+            && cls   >= 1 && cls   <= (int)NumClass.Maximum)
+        {
+            NumGrade.Value = grade;
+            NumClass.Value = cls;
         }
     }
 
@@ -57,13 +120,18 @@ public partial class LessonLogEditDialog : Window
         string room    = "",
         int    grade   = 0,
         int    cls     = 0,
-        int    period  = 0)
+        int    period  = 0,
+        DateTime? date = null)
     {
         var dlg = new LessonLogEditDialog(null);
 
-        // 팩토리로 전달받은 초기값 덮어쓰기
-        dlg.TxtSubject.Text = subject;
-        dlg.TxtRoom.Text    = room;
+        // 팩토리로 전달받은 초기값 덮어쓰기 (자동완성 목록은 Opened에서 로드)
+        dlg.AcSubject.Text = subject;
+        dlg.AcRoom.Text    = room;
+
+        if (date is DateTime d)
+            dlg.LogDatePicker.SelectedDate = new DateTimeOffset(
+                DateTime.SpecifyKind(d.Date, DateTimeKind.Unspecified), TimeSpan.Zero);
 
         if (grade > 0) dlg.NumGrade.Value = grade;
         if (cls   > 0) dlg.NumClass.Value = cls;
@@ -102,10 +170,10 @@ public partial class LessonLogEditDialog : Window
             }
         }
 
-        TxtSubject.Text     = l.Subject;
+        AcSubject.Text      = l.Subject;
         NumGrade.Value      = l.Grade;
         NumClass.Value      = l.Class;
-        TxtRoom.Text        = l.Room;
+        AcRoom.Text         = l.Room;
         TxtSectionName.Text = l.SectionName;
         TxtTopic.Text       = l.Topic;
         TxtContent.Text     = l.Content;
@@ -121,7 +189,7 @@ public partial class LessonLogEditDialog : Window
         StatusText.Text = string.Empty;
         try
         {
-            string subject = (TxtSubject.Text ?? "").Trim();
+            string subject = (AcSubject.Text ?? "").Trim();
             if (string.IsNullOrWhiteSpace(subject))
             {
                 StatusText.Text = "과목을 입력해 주세요.";
@@ -156,7 +224,7 @@ public partial class LessonLogEditDialog : Window
             entity.Subject     = subject;
             entity.Grade       = (int)(NumGrade.Value  ?? 0m);
             entity.Class       = (int)(NumClass.Value  ?? 0m);
-            entity.Room        = (TxtRoom.Text        ?? "").Trim();
+            entity.Room        = (AcRoom.Text         ?? "").Trim();
             entity.SectionName = (TxtSectionName.Text ?? "").Trim();
             entity.Topic       = topic;
             entity.Content     = (TxtContent.Text     ?? "").Trim();

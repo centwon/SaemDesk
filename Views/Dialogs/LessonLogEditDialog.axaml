@@ -45,27 +45,29 @@
           </StackPanel>
         </Grid>
 
-        <!-- 과목 / 학년 / 반 / 강의실 -->
-        <Grid ColumnDefinitions="*,12,80,12,80,12,140">
+        <!-- 과목 / 강의실 / 학년 / 반 -->
+        <Grid ColumnDefinitions="*,12,*,12,80,12,80">
           <StackPanel Grid.Column="0" Spacing="4">
             <TextBlock Text="과목 *" FontWeight="SemiBold" FontSize="13"/>
-            <TextBox x:Name="TxtSubject" PlaceholderText="과목명"/>
+            <AutoCompleteBox x:Name="AcSubject" PlaceholderText="과목 선택 또는 입력"
+                             FilterMode="Contains" MinimumPrefixLength="0"/>
           </StackPanel>
           <StackPanel Grid.Column="2" Spacing="4">
+            <TextBlock Text="강의실" FontWeight="SemiBold" FontSize="13"/>
+            <AutoCompleteBox x:Name="AcRoom" PlaceholderText="예) 과학실 / 3-2"
+                             FilterMode="Contains" MinimumPrefixLength="0"/>
+          </StackPanel>
+          <StackPanel Grid.Column="4" Spacing="4">
             <TextBlock Text="학년" FontWeight="SemiBold" FontSize="13"/>
             <NumericUpDown x:Name="NumGrade"
                            Minimum="0" Maximum="6" Increment="1"
                            Value="0" FormatString="0"/>
           </StackPanel>
-          <StackPanel Grid.Column="4" Spacing="4">
+          <StackPanel Grid.Column="6" Spacing="4">
             <TextBlock Text="반" FontWeight="SemiBold" FontSize="13"/>
             <NumericUpDown x:Name="NumClass"
                            Minimum="0" Maximum="50" Increment="1"
                            Value="0" FormatString="0"/>
-          </StackPanel>
-          <StackPanel Grid.Column="6" Spacing="4">
-            <TextBlock Text="강의실" FontWeight="SemiBold" FontSize="13"/>
-            <TextBox x:Name="TxtRoom" PlaceholderText="예) 과학실"/>
           </StackPanel>
         </Grid>
 

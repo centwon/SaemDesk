@@ -159,6 +159,8 @@ public class LessonService : IDisposable
                     : "Unknown";
                 item.Room = lesson.Room;
                 item.TeacherName = teacherId;
+                item.Grade = lesson.Grade;
+                item.Class = lesson.Class;
                 item.IsEmpty = false;
             }
         }
@@ -202,6 +204,8 @@ public class LessonService : IDisposable
                     : "Unknown";
                 item.Room = lesson.Room;
                 item.TeacherName = lesson.Teacher;
+                item.Grade = lesson.Grade;
+                item.Class = lesson.Class;
                 item.IsEmpty = false;
             }
         }

@@ -16,6 +16,8 @@ namespace SaemDesk.ViewModels
         private string _room = string.Empty;
         private int _dayOfWeek; // 1=월, 2=화, 3=수, 4=목, 5=금
         private int _period;    // 1~7교시
+        private int _grade;
+        private int _class;
         private bool _isEmpty = true;
 
         /// <summary>
@@ -79,6 +81,20 @@ namespace SaemDesk.ViewModels
         {
             get => _period;
             set => SetProperty(ref _period, value);
+        }
+
+        /// <summary>학년</summary>
+        public int Grade
+        {
+            get => _grade;
+            set => SetProperty(ref _grade, value);
+        }
+
+        /// <summary>반</summary>
+        public int Class
+        {
+            get => _class;
+            set => SetProperty(ref _class, value);
         }
 
         /// <summary>

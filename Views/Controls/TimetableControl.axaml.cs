@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
 using SaemDesk.Services;
@@ -46,6 +47,12 @@ public partial class TimetableControl : UserControl
     // 셀 구분선 색
     private static readonly IBrush DividerBrush = new SolidColorBrush(Color.Parse("#30000000"));
 
+    // 셀 호버 색 (클릭 가능 표시)
+    private static readonly IBrush HoverCellBrush = new SolidColorBrush(Color.Parse("#334FC3F7"));
+
+    /// <summary>수업 셀 클릭 — 비어있지 않은 셀을 누르면 발생.</summary>
+    public event EventHandler<TimetableItemViewModel>? LessonClicked;
+
     public static readonly StyledProperty<TimetableDisplayMode> DisplayModeProperty =
         AvaloniaProperty.Register<TimetableControl, TimetableDisplayMode>(
             nameof(DisplayMode), TimetableDisplayMode.Class);
@@ -54,6 +61,16 @@ public partial class TimetableControl : UserControl
     {
         get => GetValue(DisplayModeProperty);
         set => SetValue(DisplayModeProperty, value);
+    }
+
+    /// <summary>true면 수업 셀이 클릭 가능(손커서·호버·LessonClicked). 기본 false(표시 전용).</summary>
+    public static readonly StyledProperty<bool> AllowLessonClickProperty =
+        AvaloniaProperty.Register<TimetableControl, bool>(nameof(AllowLessonClick));
+
+    public bool AllowLessonClick
+    {
+        get => GetValue(AllowLessonClickProperty);
+        set => SetValue(AllowLessonClickProperty, value);
     }
 
     public TimetableControl()
@@ -115,7 +132,7 @@ public partial class TimetableControl : UserControl
 
                 var item = vm.GetItem(day, period);
                 var cell = (item == null || item.IsEmpty)
-                    ? CreateEmptyCell(isToday, thickness)
+                    ? CreateEmptyCell(isToday, thickness, item)
                     : CreateCell(item, isToday, thickness);
 
                 Grid.SetRow(cell, period);
@@ -133,23 +150,44 @@ public partial class TimetableControl : UserControl
         foreach (var c in toRemove) TimetableGrid.Children.Remove(c);
     }
 
-    private Border CreateEmptyCell(bool isToday, Thickness borderThickness) => new()
+    private Border CreateEmptyCell(bool isToday, Thickness borderThickness, TimetableItemViewModel? item)
     {
-        Padding         = new Thickness(2),
-        Background      = isToday ? TodayCellBrush : Brushes.Transparent,
-        BorderBrush     = DividerBrush,
-        BorderThickness = borderThickness
-    };
-
-    private Border CreateCell(TimetableItemViewModel item, bool isToday, Thickness borderThickness)
-    {
+        var baseBackground = isToday ? TodayCellBrush : Brushes.Transparent;
         var border = new Border
         {
             Padding         = new Thickness(2),
-            Background      = isToday ? TodayCellBrush : Brushes.Transparent,
+            Background      = baseBackground,
             BorderBrush     = DividerBrush,
             BorderThickness = borderThickness
         };
+
+        // 빈 셀도 클릭 가능 — 예기치 않은 수업 기록용
+        if (item != null) AttachClick(border, item, baseBackground);
+        return border;
+    }
+
+    // 클릭 가능 모드에서만 손커서·호버 강조·클릭 → 수업기록
+    private void AttachClick(Border border, TimetableItemViewModel item, IBrush baseBackground)
+    {
+        if (!AllowLessonClick) return;
+        border.Cursor = new Cursor(StandardCursorType.Hand);
+        border.PointerEntered += (_, _) => border.Background = HoverCellBrush;
+        border.PointerExited  += (_, _) => border.Background = baseBackground;
+        border.PointerPressed += (_, _) => LessonClicked?.Invoke(this, item);
+    }
+
+    private Border CreateCell(TimetableItemViewModel item, bool isToday, Thickness borderThickness)
+    {
+        var baseBackground = isToday ? TodayCellBrush : Brushes.Transparent;
+        var border = new Border
+        {
+            Padding         = new Thickness(2),
+            Background      = baseBackground,
+            BorderBrush     = DividerBrush,
+            BorderThickness = borderThickness
+        };
+
+        AttachClick(border, item, baseBackground);
 
         var stack = new StackPanel
         {
