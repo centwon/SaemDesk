@@ -71,10 +71,13 @@
                       Grid.Row="1" Grid.RowSpan="2" Grid.Column="0"
                       Margin="4,4,4,4"/>
 
-    <!-- 학급일지 입력 (우측 상단) -->
-    <ctrl:ClassDiaryBox Name="DiaryBox"
-                        Grid.Row="1" Grid.Column="1"
-                        Margin="4,4,4,4"/>
+    <!-- 학급일지 입력 (우측 상단) — 알림장 펼침 시 일지 영역 내부에서 스크롤 -->
+    <ScrollViewer Grid.Row="1" Grid.Column="1"
+                  VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  MaxHeight="420">
+      <ctrl:ClassDiaryBox Name="DiaryBox" Margin="4,4,4,4"/>
+    </ScrollViewer>
 
     <!-- 당일 학생 기록 (우측 하단) -->
     <Grid Grid.Row="2" Grid.Column="1" Margin="4,0,4,4">
