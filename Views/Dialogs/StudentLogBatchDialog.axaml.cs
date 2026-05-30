@@ -42,7 +42,8 @@ public partial class StudentLogBatchDialog : Window
         IReadOnlyList<Enrollment> students,
         int year,
         int semester,
-        LogCategory defaultCategory = LogCategory.기타)
+        LogCategory defaultCategory = LogCategory.기타,
+        DateTime? date = null)
     {
         InitializeComponent();
 
@@ -64,7 +65,7 @@ public partial class StudentLogBatchDialog : Window
         StudentList.SelectionChangedNotify += OnStudentSelectionChanged;
 
         // 폼 초기화
-        LogBox.SetContext(year, semester, defaultCategory);
+        LogBox.SetContext(year, semester, defaultCategory, date);
 
         UpdateSaveHint(0);
     }

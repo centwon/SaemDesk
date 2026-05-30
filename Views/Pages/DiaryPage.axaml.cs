@@ -172,7 +172,7 @@ public partial class DiaryPage : UserControl
         // 특정 학생이 선택되지 않은 진입 — 일괄입력 다이얼로그에서 학생을 골라 작성
         // (학생 없이 StudentLog를 만들면 FK 위반이 되므로 ListStudent로 선택을 받는다)
         var dlg = new Views.Dialogs.StudentLogBatchDialog(
-            _currentStudents, _currentYear, Settings.WorkSemester.Value, LogCategory.기타);
+            _currentStudents, _currentYear, Settings.WorkSemester.Value, LogCategory.기타, _currentDate);
         await dlg.ShowDialog(owner);
         if (dlg.IsSuccess) await LoadDailyLogsAsync();
     }

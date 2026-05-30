@@ -82,7 +82,7 @@ public partial class StudentLogBox : UserControl
     /// 신규 작성: 학년도·학기·카테고리를 외부에서 주입하고 폼을 초기화.
     /// 개별 다이얼로그는 FilterBar 값을, 일괄 다이얼로그도 동일하게 넘긴다.
     /// </summary>
-    public void SetContext(int year, int semester, LogCategory defaultCategory = LogCategory.기타)
+    public void SetContext(int year, int semester, LogCategory defaultCategory = LogCategory.기타, DateTime? date = null)
     {
         _year     = year;
         _semester = semester;
@@ -93,7 +93,7 @@ public partial class StudentLogBox : UserControl
         SelectCategory(defaultCategory);
         UpdateSubjectPanelVisibility(defaultCategory);
 
-        DatePickerLog.SelectedDate = DateTime.Today;
+        DatePickerLog.SelectedDate = date ?? DateTime.Today;
         ChkIsImportant.IsChecked   = false;
         TxtSubjectName.Text = TxtLog.Text = TxtTag.Text = string.Empty;
         TxtActivityName.Text = TxtTopic.Text = TxtDescription.Text = string.Empty;
