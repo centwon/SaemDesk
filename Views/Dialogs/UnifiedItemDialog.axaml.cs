@@ -205,6 +205,13 @@ public partial class UnifiedItemDialog : Window
         UpdateRepeatLabels();
     }
 
+    private void TaskDueTimePicker_TimeChanged(object? sender, TimeSpan t)
+    {
+        if (!_initialized) return;
+        _taskEvent.Start = DateTime.SpecifyKind(_taskEvent.Start.Date + t, DateTimeKind.Unspecified);
+        UpdateRepeatLabels();
+    }
+
     private void ChkTaskAllday_Changed(object? sender, RoutedEventArgs e)
     {
         if (!_initialized) return;
@@ -261,6 +268,18 @@ public partial class UnifiedItemDialog : Window
     {
         if (!_initialized || e.NewDate is not DateTimeOffset dto) return;
         _event.End = DateTime.SpecifyKind(dto.Date + _event.End.TimeOfDay, DateTimeKind.Unspecified);
+    }
+
+    private void EventStartTimePicker_TimeChanged(object? sender, TimeSpan t)
+    {
+        if (!_initialized) return;
+        _event.Start = DateTime.SpecifyKind(_event.Start.Date + t, DateTimeKind.Unspecified);
+    }
+
+    private void EventEndTimePicker_TimeChanged(object? sender, TimeSpan t)
+    {
+        if (!_initialized) return;
+        _event.End = DateTime.SpecifyKind(_event.End.Date + t, DateTimeKind.Unspecified);
     }
 
     private void ChkEventAllday_Changed(object? sender, RoutedEventArgs e)

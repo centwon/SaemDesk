@@ -2,30 +2,66 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="SaemDesk.Views.Controls.CompactTimePicker">
 
-  <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+  <UserControl.Styles>
+    <!-- 세그먼트: 테두리 없는 투명 입력칸 -->
+    <Style Selector="TextBox.seg">
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="MinWidth" Value="0"/>
+      <Setter Property="MinHeight" Value="0"/>
+      <Setter Property="Width" Value="26"/>
+      <Setter Property="TextAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="FontSize" Value="13"/>
+    </Style>
+    <!-- ▲▼ 미니 스테퍼 -->
+    <Style Selector="RepeatButton.step">
+      <Setter Property="Focusable" Value="False"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Margin" Value="0"/>
+      <Setter Property="MinHeight" Value="0"/>
+      <Setter Property="MinWidth" Value="0"/>
+      <Setter Property="FontSize" Value="7"/>
+      <Setter Property="HorizontalAlignment" Value="Stretch"/>
+      <Setter Property="VerticalAlignment" Value="Stretch"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+    </Style>
+    <Style Selector="RepeatButton.step:pointerover">
+      <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+    </Style>
+  </UserControl.Styles>
 
-    <!-- 시 -->
-    <NumericUpDown x:Name="HourBox"
-                   Minimum="0" Maximum="23"
-                   Increment="1"
-                   FormatString="00"
-                   Width="56"
-                   HorizontalContentAlignment="Center"
-                   ValueChanged="HourBox_ValueChanged" />
+  <Border x:Name="FieldBorder"
+          BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+          BorderThickness="1" CornerRadius="5"
+          Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+          Padding="8,1,2,1"
+          MinHeight="0" Height="26"
+          HorizontalAlignment="Left" VerticalAlignment="Center">
+    <Grid ColumnDefinitions="Auto,Auto" VerticalAlignment="Center">
 
-    <TextBlock Text=":"
-               FontSize="16" FontWeight="Bold"
-               VerticalAlignment="Center"
-               Margin="2,0" />
+      <!-- 시 : 분 -->
+      <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+        <TextBox x:Name="HourBox" Classes="seg" MaxLength="2"
+                 GotFocus="Segment_GotFocus" LostFocus="Segment_Commit"
+                 KeyDown="Segment_KeyDown" PointerWheelChanged="Segment_Wheel"/>
+        <TextBlock Text=":" FontSize="14" FontWeight="SemiBold"
+                   VerticalAlignment="Center" Margin="1,0"/>
+        <TextBox x:Name="MinuteBox" Classes="seg" MaxLength="2"
+                 GotFocus="Segment_GotFocus" LostFocus="Segment_Commit"
+                 KeyDown="Segment_KeyDown" PointerWheelChanged="Segment_Wheel"/>
+      </StackPanel>
 
-    <!-- 분 -->
-    <NumericUpDown x:Name="MinuteBox"
-                   Minimum="0" Maximum="59"
-                   Increment="5"
-                   FormatString="00"
-                   Width="56"
-                   HorizontalContentAlignment="Center"
-                   ValueChanged="MinuteBox_ValueChanged" />
-
-  </StackPanel>
+      <!-- ▲▼ 스테퍼: 포커스된 칸(시 ↔ 분)에 작용 -->
+      <Grid Grid.Column="1" RowDefinitions="*,*" Width="18" Margin="4,0,0,0">
+        <RepeatButton x:Name="BtnUp"   Grid.Row="0" Classes="step" Content="▲" Click="BtnUp_Click"/>
+        <RepeatButton x:Name="BtnDown" Grid.Row="1" Classes="step" Content="▼" Click="BtnDown_Click"/>
+      </Grid>
+    </Grid>
+  </Border>
 </UserControl>

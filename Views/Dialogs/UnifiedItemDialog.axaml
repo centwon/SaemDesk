@@ -60,7 +60,8 @@
             <DatePicker x:Name="TaskDuePicker" Width="160"
                         YearFormat="yyyy" MonthFormat="MM" DayFormat="dd"
                         SelectedDateChanged="TaskDuePicker_DateChanged"/>
-            <ctrl:CompactTimePicker x:Name="TaskDueTimePicker"/>
+            <ctrl:CompactTimePicker x:Name="TaskDueTimePicker"
+                                    TimeChanged="TaskDueTimePicker_TimeChanged"/>
             <CheckBox x:Name="ChkTaskAllday" Content="종일"
                       IsCheckedChanged="ChkTaskAllday_Changed"
                       VerticalAlignment="Center"/>
@@ -135,7 +136,8 @@
             <DatePicker x:Name="EventStartDatePicker" Width="160"
                         YearFormat="yyyy" MonthFormat="MM" DayFormat="dd"
                         SelectedDateChanged="EventStartDate_Changed"/>
-            <ctrl:CompactTimePicker x:Name="EventStartTimePicker"/>
+            <ctrl:CompactTimePicker x:Name="EventStartTimePicker"
+                                    TimeChanged="EventStartTimePicker_TimeChanged"/>
             <CheckBox x:Name="ChkEventAllday" Content="종일"
                       IsCheckedChanged="ChkEventAllday_Changed"
                       VerticalAlignment="Center"/>
@@ -147,7 +149,8 @@
             <DatePicker x:Name="EventEndDatePicker" Width="160"
                         YearFormat="yyyy" MonthFormat="MM" DayFormat="dd"
                         SelectedDateChanged="EventEndDate_Changed"/>
-            <ctrl:CompactTimePicker x:Name="EventEndTimePicker"/>
+            <ctrl:CompactTimePicker x:Name="EventEndTimePicker"
+                                    TimeChanged="EventEndTimePicker_TimeChanged"/>
           </StackPanel>
 
           <TextBlock Grid.Row="4" Grid.Column="0" Text="장소"

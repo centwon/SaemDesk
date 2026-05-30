@@ -131,11 +131,13 @@
           <TextBlock Grid.Row="0" Grid.Column="0" Text="등교 시각" Classes="label"/>
           <ctrl:CompactTimePicker Grid.Row="0" Grid.Column="1"
                                   Time="{Binding DayStarting, Mode=TwoWay}"
+                                  HorizontalAlignment="Left"
                                   Margin="0,0,0,8"/>
 
           <TextBlock Grid.Row="1" Grid.Column="0" Text="조회 시간" Classes="label"/>
           <ctrl:CompactTimePicker Grid.Row="1" Grid.Column="1"
                                   Time="{Binding AssemblyTime, Mode=TwoWay}"
+                                  HorizontalAlignment="Left"
                                   Margin="0,0,0,8"/>
 
           <TextBlock Grid.Row="2" Grid.Column="0" Text="1교시 (분)" Classes="label"/>
