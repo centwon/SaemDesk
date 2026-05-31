@@ -21,7 +21,7 @@
 - **3개 SQLite DB**: `school.db`(학생·수업·학급), `board.db`(게시판), `schedule.db`(일정/할일)
 - ORM 없음 — ADO.NET 직접(`Microsoft.Data.Sqlite`) + Repository 패턴
 - 사용자 데이터 경로: `Settings.UserDataPath` (DB, `BoardFiles/`, `Prints/`, `Exports/`, 학생 사진 등)
-- 비밀정보: `secrets.json`(DPAPI 암호화 OAuth 토큰, git 제외), 빌드 비밀은 `secrets.props` → `BuildSecrets.g.cs` 상수 주입
+- 비밀정보(API 키): `secrets.props`(git 제외) → 빌드 시 `BuildSecrets.g.cs` 상수로 주입, `SecretsService` 가 읽음. OAuth 토큰은 Settings DB 에 DPAPI 암호화 저장
 
 ### 아키텍처 레이어 (의존성: 아래 → 위)
 ```

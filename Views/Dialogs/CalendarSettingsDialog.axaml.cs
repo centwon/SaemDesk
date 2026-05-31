@@ -94,7 +94,7 @@ public partial class CalendarSettingsDialog : Window
         if (!hasCreds)
         {
             GoogleAuthStatusText.Text = "OAuth 자격증명 미설정";
-            GoogleAuthHintText.Text   = "secrets.json 의 google_oauth.client_id / client_secret 항목을 설정한 뒤 앱을 재시작하세요.";
+            GoogleAuthHintText.Text   = "secrets.props 의 GoogleClientId / GoogleClientSecret 항목을 설정하고 다시 빌드한 뒤 앱을 재시작하세요.";
             GoogleAuthButton.IsEnabled       = false;
             GoogleSignOutButton.IsEnabled    = false;
             GoogleCalendarSaveButton.IsEnabled = false;

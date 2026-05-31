@@ -28,7 +28,7 @@ public sealed class GoogleAuthService : IDisposable
 
     // ──────────────────────────────────────────────────────────────
     // Google Cloud Console에서 발급받은 OAuth 2.0 인증 정보
-    // secrets.json 의 google_oauth 섹션에서 로드 (SecretsService, git 제외)
+    // secrets.props 의 GoogleClientId / GoogleClientSecret 에서 로드 (SecretsService 경유, git 제외)
     // ──────────────────────────────────────────────────────────────
     internal static string ClientId => Services.SecretsService.GoogleClientId;
     internal static string ClientSecret => Services.SecretsService.GoogleClientSecret;

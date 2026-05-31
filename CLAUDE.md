@@ -136,6 +136,7 @@ dotnet publish -r win-x64 -c Release  # Native AOT 퍼블리시
   ```
 
 ## 주의사항
-- `secrets.json` — git 제외, OAuth 토큰 저장 (DPAPI 암호화)
-- `secrets.template.json` — 구조 참고용
+- `secrets.props` — git 제외. 빌드 시 `GoogleClientId`/`GoogleClientSecret`/`NeisApiKey` 를 `BuildSecrets.g.cs` 상수로 주입 (SecretsService 가 읽는 실제 출처). 변경 후 재빌드 필요.
+- `secrets.props.template` — 구조 참고용
+- OAuth 토큰(access/refresh) 은 Settings DB 에 DPAPI 암호화 저장 (GoogleAuthService)
 - QuestPDF / MiniExcel / Avalonia.WebView → AOT 호환성 확인 필요 (Phase 6)
