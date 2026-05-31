@@ -58,13 +58,13 @@
         </Grid>
       </Border>
 
-      <!-- 메모 Masonry 2열 -->
+      <!-- 메모 Masonry (폭에 따라 1~2열 반응형) -->
       <Grid Grid.Row="1">
-        <ScrollViewer Name="ListScroll" VerticalScrollBarVisibility="Auto">
-          <Grid ColumnDefinitions="*,8,*" Margin="8,8,8,8">
-            <StackPanel Name="LeftCol"  Grid.Column="0" Spacing="8"/>
-            <StackPanel Name="RightCol" Grid.Column="2" Spacing="8"/>
-          </Grid>
+        <ScrollViewer Name="ListScroll"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+          <!-- 열은 폭에 따라 코드에서 동적으로 생성 (RebuildColumns) -->
+          <Grid Name="ColumnsGrid" Margin="8,8,8,8"/>
         </ScrollViewer>
 
         <!-- 빈 상태 -->

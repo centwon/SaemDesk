@@ -1,13 +1,13 @@
 using System;
-using System.Diagnostics;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
-using SaemDesk.Board.Repositories;
-using BoardDb = SaemDesk.Board.BoardDatabase;
+using SaemDesk.Board.Views.Pages;
 
 namespace SaemDesk.Views.Dialogs;
 
-/// <summary>게시글 상세 보기(읽기 전용). Jodit 에디터를 ReadOnly 모드로 사용.</summary>
+/// <summary>
+/// 게시글 상세 보기 다이얼로그. 기존 PostDetailPage / PostEditPage 를 한 창 안에서
+/// 교체해 상세↔수정을 처리한다 (BoardPage 와 동일 패턴 — 다이얼로그를 새로 띄우지 않음).
+/// </summary>
 public partial class PostDetailDialog : Window
 {
     private readonly int _postNo;
@@ -19,38 +19,33 @@ public partial class PostDetailDialog : Window
         InitializeComponent();
         _postNo = postNo;
 
-        Opened += async (_, _) => await LoadAsync();
+        DetailPage.BackRequested += (_, _) => Close();
+        DetailPage.EditRequested += OnEditRequested;
+        EditPage.Saved           += OnEditSaved;
+        EditPage.Cancelled       += (_, _) => ShowOnly(DetailPage);
+
+        Opened += async (_, _) =>
+        {
+            ShowOnly(DetailPage);
+            await DetailPage.LoadAsync(_postNo);
+        };
     }
 
-    private async System.Threading.Tasks.Task LoadAsync()
+    private async void OnEditRequested(object? sender, PostEditPageParameter e)
     {
-        if (_postNo <= 0) return;
-        try
-        {
-            using var repo = new PostRepository(BoardDb.DbPath);
-            var post = await repo.GetByIdAsync(_postNo);
-            if (post is null)
-            {
-                TitleText.Text  = "(삭제된 게시글)";
-                MetaText.Text   = string.Empty;
-                CategoryText.Text = "?";
-                return;
-            }
-
-            // 조회수 증가
-            await repo.IncrementReadCountAsync(_postNo);
-
-            CategoryText.Text = string.IsNullOrWhiteSpace(post.Category) ? "기본" : post.Category;
-            TitleText.Text    = post.Title;
-            MetaText.Text     = $"{post.User} · {post.DateTimeDisplay} · 조회 {post.ReadCount + 1}";
-            Viewer.Text       = post.Content;
-        }
-        catch (Exception ex)
-        {
-            TitleText.Text = $"불러오기 실패: {ex.Message}";
-            Debug.WriteLine($"[PostDetailDialog] {ex}");
-        }
+        ShowOnly(EditPage);
+        await EditPage.InitAsync(e);
     }
 
-    private void OnClose(object? sender, RoutedEventArgs e) => Close();
+    private async void OnEditSaved(object? sender, EventArgs e)
+    {
+        ShowOnly(DetailPage);
+        await DetailPage.LoadAsync(_postNo);
+    }
+
+    private void ShowOnly(Control target)
+    {
+        DetailPage.IsVisible = target == DetailPage;
+        EditPage.IsVisible   = target == EditPage;
+    }
 }

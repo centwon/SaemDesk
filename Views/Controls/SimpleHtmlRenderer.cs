@@ -55,7 +55,7 @@ public static class SimpleHtmlRenderer
             panel.Children.Add(new TextBlock
             {
                 Text         = plain,
-                FontSize     = 11,
+                FontSize     = 12,
                 TextWrapping = TextWrapping.Wrap,
                 MaxLines     = 4,
                 TextTrimming = TextTrimming.CharacterEllipsis,
@@ -106,7 +106,7 @@ public static class SimpleHtmlRenderer
             var link = new TextBlock
             {
                 Text            = $"🔗 {text}",
-                FontSize        = 11,
+                FontSize        = 12,
                 Foreground      = LinkBrush,
                 TextDecorations = TextDecorations.Underline,
                 Cursor          = new Cursor(StandardCursorType.Hand),

@@ -2,55 +2,120 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:SaemDesk.ViewModels.Pages"
              xmlns:models="using:SaemDesk.Board.Models"
+             xmlns:smodels="using:SaemDesk.Models"
              xmlns:ctrl="using:SaemDesk.Views.Controls"
              x:Class="SaemDesk.Views.Pages.SchoolWorkPage"
              x:DataType="vm:SchoolWorkPageVM"
              Classes="page">
 
-  <Grid RowDefinitions="Auto,*" ColumnDefinitions="380,*">
+  <Grid RowDefinitions="Auto,Auto,*">
 
-    <!-- 헤더 -->
-    <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal"
-                Spacing="14" Margin="0,0,0,12">
-      <TextBlock Text="📋 업무"
-                 FontSize="22" FontWeight="SemiBold"
-                 VerticalAlignment="Center"/>
-      <TextBlock Text="{Binding TodayText}"
-                 FontSize="13"
-                 Foreground="{DynamicResource SystemBaseMediumColor}"
-                 VerticalAlignment="Center"/>
-      <Button Content="새로고침"
-              Command="{Binding ReloadCommand}"/>
+    <!-- ── 헤더 ───────────────────────────────────────────── -->
+    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="14" Margin="0,0,0,12">
+      <TextBlock Text="📋 업무 관리" Classes="page-title" VerticalAlignment="Center"/>
+      <TextBlock Text="{Binding TodayText}" Classes="page-subtitle" VerticalAlignment="Center"/>
+      <Button Content="새로고침" Command="{Binding ReloadCommand}"/>
       <ProgressBar Width="100" IsIndeterminate="True"
-                   IsVisible="{Binding IsBusy}"
-                   VerticalAlignment="Center"/>
-      <TextBlock Text="{Binding StatusText}"
-                 VerticalAlignment="Center"
-                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+                   IsVisible="{Binding IsBusy}" VerticalAlignment="Center"/>
+      <TextBlock Text="{Binding StatusText}" Classes="caption" VerticalAlignment="Center"/>
+      <TextBlock Text="{Binding ErrorText}" VerticalAlignment="Center"
+                 Foreground="{DynamicResource SystemErrorTextColor}"
+                 IsVisible="{Binding ErrorText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
     </StackPanel>
 
-    <!-- 좌: 업무 어젠다 + 메모 -->
-    <Grid Grid.Row="1" Grid.Column="0" Margin="0,0,10,0" RowDefinitions="Auto,*">
-      <ctrl:KAgendaControl Name="AgendaControl"
-                           Grid.Row="0"
-                           FixedCalendarName="업무"
-                           Height="260"
-                           Margin="0,0,0,8"/>
-      <ctrl:MemoBoard Grid.Row="1" Name="WorkMemoBoard"/>
-    </Grid>
+    <!-- ── 요약 칩 ────────────────────────────────────────── -->
+    <UniformGrid Grid.Row="1" Columns="4" Margin="0,0,0,12">
+      <Border Classes="card" Padding="14,10" Margin="0,0,6,0">
+        <StackPanel Spacing="2">
+          <TextBlock Text="{Binding TodayTaskCount}" FontSize="24" FontWeight="Bold"/>
+          <TextBlock Text="오늘 할 일" Classes="caption"/>
+        </StackPanel>
+      </Border>
+      <Border Classes="card" Padding="14,10" Margin="3,0,3,0">
+        <StackPanel Spacing="2">
+          <TextBlock Text="{Binding DueSoonCount}" FontSize="24" FontWeight="Bold"
+                     Foreground="#E8590C"/>
+          <TextBlock Text="마감 임박 (3일)" Classes="caption"/>
+        </StackPanel>
+      </Border>
+      <Border Classes="card" Padding="14,10" Margin="3,0,3,0">
+        <StackPanel Spacing="2">
+          <TextBlock Text="{Binding PendingCount}" FontSize="24" FontWeight="Bold"
+                     Foreground="#1565C0"/>
+          <TextBlock Text="미완료" Classes="caption"/>
+        </StackPanel>
+      </Border>
+      <Border Classes="card" Padding="14,10" Margin="6,0,0,0">
+        <StackPanel Spacing="2">
+          <TextBlock Text="{Binding UpcomingScheduleCount}" FontSize="24" FontWeight="Bold"/>
+          <TextBlock Text="다가오는 학사일정" Classes="caption"/>
+        </StackPanel>
+      </Border>
+    </UniformGrid>
 
-    <!-- 우: 업무 게시판 -->
-    <Border Grid.Row="1" Grid.Column="1"
-            BorderThickness="1"
-            BorderBrush="{DynamicResource ContentSeparatorBrush}"
-            CornerRadius="6">
-      <Grid RowDefinitions="Auto,*">
-        <Border Grid.Row="0"
-                Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-                Padding="10,6">
-          <TextBlock Text="📋 업무 게시판" FontWeight="SemiBold"/>
+    <!-- ── 본문 3분할 ─────────────────────────────────────── -->
+    <Grid Grid.Row="2" ColumnDefinitions="1.1*,1*,1*">
+
+      <!-- ① 업무 어젠다 (할 일 + 일정) -->
+      <ctrl:KAgendaControl Name="AgendaControl"
+                           Grid.Column="0"
+                           FixedCalendarName="업무"
+                           Margin="0,0,5,0"/>
+
+      <!-- ② 업무 메모 + ④ 다가오는 학사일정 -->
+      <Grid Grid.Column="1" Margin="5,0,5,0" RowDefinitions="*,Auto">
+        <ctrl:MemoBoard Grid.Row="0"
+                        FixedCategory="업무"
+                        ShowFilter="False"
+                        Margin="0,0,0,10"/>
+
+        <Border Grid.Row="1" Classes="card" Padding="0" MaxHeight="240">
+          <Grid RowDefinitions="Auto,*">
+            <Border Grid.Row="0" Classes="card-header">
+              <TextBlock Text="🏫 다가오는 학사일정" FontWeight="SemiBold"
+                         VerticalAlignment="Center"/>
+            </Border>
+            <TextBlock Grid.Row="1" Text="다가오는 학사일정이 없습니다."
+                       Classes="caption" Margin="12,10"
+                       IsVisible="{Binding !HasSchedules}"/>
+            <ListBox Grid.Row="1" ItemsSource="{Binding UpcomingSchedules}"
+                     Background="Transparent" BorderThickness="0"
+                     IsVisible="{Binding HasSchedules}">
+              <ListBox.Styles>
+                <Style Selector="ListBoxItem">
+                  <Setter Property="Padding" Value="0"/>
+                  <Setter Property="MinHeight" Value="0"/>
+                </Style>
+              </ListBox.Styles>
+              <ListBox.ItemTemplate>
+                <DataTemplate DataType="smodels:SchoolSchedule">
+                  <Grid ColumnDefinitions="64,*" Margin="12,5">
+                    <TextBlock Grid.Column="0" Text="{Binding AA_YMD, StringFormat='M/d (ddd)'}"
+                               FontSize="11"
+                               Foreground="{DynamicResource SystemBaseMediumColor}"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1" Text="{Binding EVENT_NM}"
+                               FontSize="12" TextTrimming="CharacterEllipsis"
+                               VerticalAlignment="Center"/>
+                  </Grid>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </Grid>
         </Border>
-        <ListBox Grid.Row="1" ItemsSource="{Binding WorkPosts}" SelectionMode="Single">
+      </Grid>
+
+      <!-- ③ 업무 게시판 -->
+      <Border Grid.Column="2" Classes="card" Padding="0" Margin="5,0,0,0">
+        <Grid RowDefinitions="Auto,*">
+          <Border Grid.Row="0" Classes="card-header">
+            <TextBlock Text="📋 업무 게시판" FontWeight="SemiBold"
+                       VerticalAlignment="Center"/>
+          </Border>
+          <ListBox Grid.Row="1" Name="WorkPostsList"
+                   ItemsSource="{Binding WorkPosts}" SelectionMode="Single"
+                   DoubleTapped="OnPostDoubleTapped"
+                   Background="Transparent" BorderThickness="0">
             <ListBox.Styles>
               <Style Selector="ListBoxItem">
                 <Setter Property="Padding" Value="0"/>
@@ -80,8 +145,9 @@
                 </Border>
               </DataTemplate>
             </ListBox.ItemTemplate>
-        </ListBox>
-      </Grid>
-    </Border>
+          </ListBox>
+        </Grid>
+      </Border>
+    </Grid>
   </Grid>
 </UserControl>
