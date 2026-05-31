@@ -22,7 +22,6 @@ NewSchool(WinUI3)에서 **Avalonia 12**로 마이그레이션한 프로젝트입
 ## 문서
 - [docs/PROJECT_REFERENCE.md](docs/PROJECT_REFERENCE.md) — **전체 파일 명세 · 메뉴 페이지 기능 (구조 참조용)**
 - [CLAUDE.md](CLAUDE.md) — 개발 규칙 / 코딩 가이드
-- [MIGRATION_PLAN.md](MIGRATION_PLAN.md) — 마이그레이션 단계 (Phase 0~7)
 - [CHANGELOG.md](CHANGELOG.md) — 변경 이력
 
 ## 빌드

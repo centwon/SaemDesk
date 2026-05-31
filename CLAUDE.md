@@ -93,9 +93,6 @@ Model → ViewModel → 컨트롤(독립→ViewModel의존→WebView) → 페이
 
 > **다이얼로그를 페이지보다 나중에** 하는 이유: 다이얼로그는 컨트롤·페이지에 의존하는 경우가 많아 먼저 작업하면 반쪽짜리가 된다.
 
-## 현재 마이그레이션 단계
-`MIGRATION_PLAN.md` 참고. Phase 0~7로 구성.
-
 ## 빌드
 ```bash
 dotnet build                          # 디버그 빌드
