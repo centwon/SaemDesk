@@ -1,5 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:dlg="using:SaemDesk.Views.Dialogs"
         x:Class="SaemDesk.Views.Dialogs.LessonLogEditDialog"
         Title="수업 기록"
         Width="560" Height="660"
@@ -101,6 +102,34 @@
                    AcceptsReturn="True"
                    TextWrapping="Wrap"
                    Height="80"/>
+        </StackPanel>
+
+        <!-- 첨부파일 -->
+        <StackPanel Spacing="4">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Grid.Column="0" Text="첨부파일" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+            <Button Grid.Column="1" Content="📎 파일 첨부" Click="OnAddAttachment" Padding="8,4"/>
+          </Grid>
+          <ListBox x:Name="AttachList" MaxHeight="120"
+                   DoubleTapped="OnOpenAttachment"
+                   Background="Transparent" BorderThickness="1"
+                   BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="dlg:LessonLogAttachItem">
+                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" Margin="2">
+                  <TextBlock Grid.Column="0" Text="{Binding DisplayName}" VerticalAlignment="Center"
+                             TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                  <TextBlock Grid.Column="1" Text="{Binding SizeDisplay}" VerticalAlignment="Center"
+                             FontSize="11" Foreground="{DynamicResource SystemBaseMediumColor}"/>
+                  <Button Grid.Column="2" Content="✕" Tag="{Binding}" Click="OnRemoveAttachment"
+                          Padding="6,2" Background="Transparent" BorderThickness="0"
+                          ToolTip.Tip="삭제"/>
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+          <TextBlock Text="더블클릭으로 열기" FontSize="11"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
         </StackPanel>
       </StackPanel>
     </ScrollViewer>

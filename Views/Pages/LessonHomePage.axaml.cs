@@ -55,6 +55,7 @@ public partial class LessonHomePage : UserControl
         // LessonLogList 이벤트 연결
         LessonLogList.LessonSelected += LessonLogList_LessonSelected;
         LessonLogList.AddRequested   += LessonLogList_AddRequested;
+        LessonLogList.ExportRequested += LessonLogList_ExportRequested;
 
         // 시간표 수업 클릭 → 수업기록
         Timetable.LessonClicked += Timetable_LessonClicked;
@@ -70,7 +71,7 @@ public partial class LessonHomePage : UserControl
             await Task.WhenAll(
                 LoadTimetableAsync(),
                 LoadLessonTasksAsync(),
-                LoadLessonLogsAsync()
+                LessonLogList.InitFiltersAsync()
             );
         }
         catch (Exception ex)
@@ -97,7 +98,7 @@ public partial class LessonHomePage : UserControl
 
     private async Task LoadLessonLogsAsync()
     {
-        try { await LessonLogList.LoadAsync(); }
+        try { await LessonLogList.RefreshAsync(); }
         catch (Exception ex) { Debug.WriteLine($"[LessonHomePage] 수업 기록 로드 실패: {ex.Message}"); }
     }
 
@@ -182,4 +183,10 @@ public partial class LessonHomePage : UserControl
 
     private void LessonLogList_AddRequested(object? sender, EventArgs e)
         => _ = (_vm?.OnAddLogRequestedAsync() ?? Task.CompletedTask);
+
+    private async void LessonLogList_ExportRequested(object? sender, EventArgs e)
+    {
+        var dialog = new LessonExportDialog();
+        await DialogService.ShowAsync(dialog);
+    }
 }

@@ -78,20 +78,29 @@ public class LessonLogRepository : IDisposable
     }
 
     /// <summary>
-    /// 컬럼 추가 시도 (이미 존재하면 무시)
+    /// 컬럼 추가 (이미 존재하면 건너뜀 — 예외를 던지지 않도록 사전 확인)
     /// </summary>
     private void TryAddColumn(string columnName, string columnDef)
     {
-        try
+        if (ColumnExists(columnName)) return;
+
+        using var cmd = new SqliteCommand(
+            $"ALTER TABLE LessonLog ADD COLUMN {columnName} {columnDef}", _connection);
+        cmd.ExecuteNonQuery();
+    }
+
+    /// <summary>LessonLog 테이블에 해당 컬럼이 이미 있는지 확인.</summary>
+    private bool ColumnExists(string columnName)
+    {
+        using var cmd = new SqliteCommand("PRAGMA table_info(LessonLog)", _connection);
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
         {
-            using var cmd = new SqliteCommand(
-                $"ALTER TABLE LessonLog ADD COLUMN {columnName} {columnDef}", _connection);
-            cmd.ExecuteNonQuery();
+            // table_info: cid(0), name(1), type(2), notnull(3), dflt_value(4), pk(5)
+            if (string.Equals(reader.GetString(1), columnName, StringComparison.OrdinalIgnoreCase))
+                return true;
         }
-        catch (SqliteException)
-        {
-            // 이미 존재하는 경우 무시
-        }
+        return false;
     }
 
     #endregion

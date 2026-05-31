@@ -1,10 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Platform.Storage;
 using SaemDesk.Models;
+using SaemDesk.Repositories;
 using SaemDesk.Services;
 
 namespace SaemDesk.Views.Dialogs;
@@ -17,6 +22,9 @@ public partial class LessonLogEditDialog : Window
 {
     private LessonLog? _existing;
     private List<Course> _courses = new();
+
+    private readonly ObservableCollection<LessonLogAttachItem> _attachments = new();
+    private readonly List<LessonLogAttachItem> _deleted = new();
 
     /// <summary>저장된 LessonLog (성공 시 채워짐).</summary>
     public LessonLog? Result { get; private set; }
@@ -33,6 +41,7 @@ public partial class LessonLogEditDialog : Window
     public LessonLogEditDialog(LessonLog? existing)
     {
         InitializeComponent();
+        AttachList.ItemsSource = _attachments;
         _existing = existing;
 
         if (existing is null)
@@ -83,6 +92,8 @@ public partial class LessonLogEditDialog : Window
         {
             Debug.WriteLine($"[LessonLogEditDialog] 과목 목록 로드 실패: {ex.Message}");
         }
+
+        if (_existing is not null) await LoadAttachmentsAsync(_existing.No);
     }
 
     /// <summary>강의실 제안을 선택된 과목의 RoomList로 갱신(없으면 전체 강의실).</summary>
@@ -216,7 +227,7 @@ public partial class LessonLogEditDialog : Window
             {
                 Year      = Settings.WorkYear.Value,
                 Semester  = Math.Max(1, Settings.WorkSemester.Value),
-                TeacherID = Settings.UserName.Value,
+                TeacherID = Settings.User.Value,
                 CreatedAt = DateTime.Now,
             };
             entity.Date        = dto.Date;
@@ -234,6 +245,8 @@ public partial class LessonLogEditDialog : Window
             using var svc = new LessonLogService();
             if (_existing is null) entity.No = await svc.InsertAsync(entity);
             else                    await svc.UpdateAsync(entity);
+
+            await SaveAttachmentsAsync(entity.No);
 
             Result = entity;
             Close();
@@ -258,6 +271,17 @@ public partial class LessonLogEditDialog : Window
         {
             using var svc = new LessonLogService();
             await svc.DeleteAsync(_existing.No);
+
+            // 첨부 메타·파일 정리 (고아 방지)
+            try
+            {
+                using var fileRepo = new LessonLogFileRepository(SchoolDatabase.DbPath);
+                await fileRepo.DeleteByLessonLogAsync(_existing.No);
+                var dir = LessonLogFileRepository.GetDir(_existing.No);
+                if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+            }
+            catch (Exception ex) { Debug.WriteLine($"[LessonLogEditDialog] 첨부 정리 실패: {ex.Message}"); }
+
             Deleted = true;
             Close();
         }
@@ -268,4 +292,136 @@ public partial class LessonLogEditDialog : Window
     }
 
     private void OnCancel(object? sender, RoutedEventArgs e) => Close();
+
+    // ────────────────────────────────────────────────────
+    //  첨부파일
+    // ────────────────────────────────────────────────────
+
+    private async Task LoadAttachmentsAsync(int lessonNo)
+    {
+        try
+        {
+            using var repo = new LessonLogFileRepository(SchoolDatabase.DbPath);
+            var files = await repo.GetByLessonLogAsync(lessonNo);
+            foreach (var f in files)
+                _attachments.Add(new LessonLogAttachItem { No = f.No, Name = f.FileName, Size = f.FileSize });
+        }
+        catch (Exception ex) { Debug.WriteLine($"[LessonLogEditDialog] 첨부 로드 실패: {ex.Message}"); }
+    }
+
+    private async void OnAddAttachment(object? sender, RoutedEventArgs e)
+    {
+        var top = TopLevel.GetTopLevel(this);
+        if (top is null) return;
+
+        var files = await top.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "첨부할 파일 선택",
+            AllowMultiple = true,
+        });
+
+        foreach (var f in files)
+        {
+            var path = f.TryGetLocalPath();
+            if (string.IsNullOrEmpty(path) || !File.Exists(path)) continue;
+            var fi = new FileInfo(path);
+            _attachments.Add(new LessonLogAttachItem { No = 0, Name = fi.Name, Size = fi.Length, SrcPath = path });
+        }
+    }
+
+    private void OnRemoveAttachment(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Button b && b.Tag is LessonLogAttachItem item)
+        {
+            if (item.No > 0) _deleted.Add(item);
+            _attachments.Remove(item);
+        }
+    }
+
+    private void OnOpenAttachment(object? sender, Avalonia.Input.TappedEventArgs e)
+    {
+        if (AttachList.SelectedItem is not LessonLogAttachItem item) return;
+        string? path = item.No > 0 && _existing is not null
+            ? LessonLogFileRepository.GetFilePath(_existing.No, item.Name)
+            : item.SrcPath;
+        try
+        {
+            if (!string.IsNullOrEmpty(path) && File.Exists(path))
+                Process.Start(new ProcessStartInfo { FileName = path, UseShellExecute = true });
+        }
+        catch (Exception ex) { Debug.WriteLine($"[LessonLogEditDialog] 첨부 열기 실패: {ex.Message}"); }
+    }
+
+    private async Task SaveAttachmentsAsync(int lessonNo)
+    {
+        bool hasNew = _attachments.Any(a => a.No == 0 && !string.IsNullOrEmpty(a.SrcPath));
+        if (_deleted.Count == 0 && !hasNew) return;
+
+        using var repo = new LessonLogFileRepository(SchoolDatabase.DbPath);
+
+        // 삭제
+        foreach (var d in _deleted)
+        {
+            try
+            {
+                await repo.DeleteAsync(d.No);
+                var p = LessonLogFileRepository.GetFilePath(lessonNo, d.Name);
+                if (File.Exists(p)) File.Delete(p);
+            }
+            catch (Exception ex) { Debug.WriteLine($"[LessonLogEditDialog] 첨부 삭제 실패: {ex.Message}"); }
+        }
+
+        // 신규 복사 + 등록
+        foreach (var item in _attachments.Where(a => a.No == 0 && !string.IsNullOrEmpty(a.SrcPath)).ToList())
+        {
+            try
+            {
+                LessonLogFileRepository.EnsureDir(lessonNo);
+                var ext    = Path.GetExtension(item.SrcPath);
+                var name   = Path.GetFileNameWithoutExtension(item.SrcPath);
+                var stored = $"{DateTime.Now:yyyyMMdd_HHmmss_fff}_{name}{ext}";
+                var dst    = LessonLogFileRepository.GetFilePath(lessonNo, stored);
+                File.Copy(item.SrcPath!, dst, true);
+                await repo.CreateAsync(new LessonLogFile
+                {
+                    LessonLog = lessonNo,
+                    FileName  = stored,
+                    FileSize  = new FileInfo(dst).Length,
+                    CreatedAt = DateTime.Now,
+                });
+            }
+            catch (Exception ex) { Debug.WriteLine($"[LessonLogEditDialog] 첨부 저장 실패: {ex.Message}"); }
+        }
+    }
+}
+
+/// <summary>첨부 목록 항목 — 기존(No&gt;0) 또는 신규(No==0, SrcPath 보유).</summary>
+public sealed class LessonLogAttachItem
+{
+    public int     No      { get; set; }
+    public string  Name    { get; set; } = string.Empty;
+    public long    Size    { get; set; }
+    public string? SrcPath { get; set; }
+
+    public string SizeDisplay => Size switch
+    {
+        < 1024        => $"{Size} B",
+        < 1024 * 1024 => $"{Size / 1024.0:F1} KB",
+        _             => $"{Size / (1024.0 * 1024):F1} MB",
+    };
+
+    /// <summary>저장 파일명에서 "yyyyMMdd_HHmmss_fff_" 접두를 떼어 원본 이름으로 표시.</summary>
+    public string DisplayName
+    {
+        get
+        {
+            var parts = Name.Split('_');
+            if (parts.Length >= 4
+                && parts[0].Length == 8 && long.TryParse(parts[0], out _)
+                && parts[1].Length == 6 && long.TryParse(parts[1], out _)
+                && parts[2].Length == 3 && long.TryParse(parts[2], out _))
+                return string.Join("_", parts.Skip(3));
+            return Name;
+        }
+    }
 }

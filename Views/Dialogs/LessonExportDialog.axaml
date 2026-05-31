@@ -1,0 +1,89 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SaemDesk.Views.Dialogs.LessonExportDialog"
+        Title="수업기록 내보내기"
+        Width="480" Height="560"
+        MinWidth="440" MinHeight="520"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        ShowInTaskbar="False">
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="20">
+
+    <!-- 헤더 -->
+    <StackPanel Grid.Row="0" Margin="0,0,0,16" Spacing="2">
+      <TextBlock Text="수업기록 내보내기" FontSize="18" FontWeight="SemiBold"/>
+      <TextBlock x:Name="SubTitleText" FontSize="13"
+                 Foreground="{DynamicResource SystemBaseMediumColor}"/>
+    </StackPanel>
+
+    <!-- 폼 -->
+    <StackPanel Grid.Row="1" Spacing="14">
+
+      <!-- 묶음 단위 -->
+      <StackPanel Spacing="6">
+        <TextBlock Text="묶음 단위" FontSize="13" FontWeight="SemiBold"/>
+        <StackPanel Orientation="Horizontal" Spacing="16">
+          <RadioButton x:Name="RbProgress" GroupName="mode" Content="진도표 (학급+과목)"
+                       IsChecked="True" IsCheckedChanged="OnModeChanged"/>
+          <RadioButton x:Name="RbJournal" GroupName="mode" Content="기간일지"
+                       IsCheckedChanged="OnModeChanged"/>
+        </StackPanel>
+      </StackPanel>
+
+      <!-- 진도표 필터: 과목 / 강의실 -->
+      <StackPanel x:Name="ProgressPanel" Spacing="6">
+        <TextBlock Text="과목 / 강의실" FontSize="13" FontWeight="SemiBold"/>
+        <Grid ColumnDefinitions="*,8,*">
+          <ComboBox x:Name="CboSubject" Grid.Column="0" HorizontalAlignment="Stretch"
+                    SelectionChanged="OnSubjectChanged"/>
+          <ComboBox x:Name="CboRoom" Grid.Column="2" HorizontalAlignment="Stretch"/>
+        </Grid>
+      </StackPanel>
+
+      <!-- 기간일지 필터 -->
+      <StackPanel x:Name="JournalPanel" Spacing="6" IsVisible="False">
+        <TextBlock Text="기간" FontSize="13" FontWeight="SemiBold"/>
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <DatePicker x:Name="DpFrom" YearFormat="yyyy" MonthFormat="MM" DayFormat="dd"/>
+          <TextBlock Text="~" VerticalAlignment="Center"/>
+          <DatePicker x:Name="DpTo" YearFormat="yyyy" MonthFormat="MM" DayFormat="dd"/>
+        </StackPanel>
+      </StackPanel>
+
+      <!-- 형식 -->
+      <StackPanel Spacing="6">
+        <TextBlock Text="형식" FontSize="13" FontWeight="SemiBold"/>
+        <ComboBox x:Name="FormatCombo" HorizontalAlignment="Stretch">
+          <ComboBoxItem Tag="Excel" IsSelected="True">Excel (.xlsx)</ComboBoxItem>
+          <ComboBoxItem Tag="Pdf">PDF (.pdf)</ComboBoxItem>
+          <ComboBoxItem Tag="Html">HTML (.html)</ComboBoxItem>
+        </ComboBox>
+      </StackPanel>
+
+      <!-- 메시지 -->
+      <Border Padding="12" CornerRadius="6"
+              Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+        <StackPanel Spacing="6">
+          <TextBlock x:Name="StatusText" FontSize="12" TextWrapping="Wrap"
+                     Text="옵션을 고른 뒤 '미리보기' 또는 '내보내기'를 누르세요."/>
+          <TextBlock x:Name="ResultPathText" FontSize="11" IsVisible="False"
+                     TextWrapping="Wrap"
+                     Foreground="{DynamicResource SystemBaseMediumColor}"/>
+        </StackPanel>
+      </Border>
+
+      <ProgressBar x:Name="BusyBar" IsIndeterminate="True" IsVisible="False"/>
+    </StackPanel>
+
+    <!-- 버튼 바 -->
+    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right"
+                Spacing="8" Margin="0,16,0,0">
+      <Button x:Name="OpenFolderButton" Content="폴더 열기" IsEnabled="False" Click="OnOpenFolder"/>
+      <Button Content="미리보기" Click="OnPreview"/>
+      <Button Content="닫기" Click="OnClose"/>
+      <Button x:Name="ExportButton" Content="내보내기" Classes="accent" Click="OnExport"/>
+    </StackPanel>
+
+  </Grid>
+</Window>

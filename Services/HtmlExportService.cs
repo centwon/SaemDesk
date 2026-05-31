@@ -430,4 +430,102 @@ public class HtmlExportService
     }
 
     #endregion
+
+    #region 수업기록 (진도표 / 기간일지)
+
+    /// <summary>진도표 HTML 문자열 (과목+강의실, 차시 순). room=null이면 전체.</summary>
+    public string BuildLessonProgressHtml(int year, string subject, string? room, List<LessonLog> logs)
+    {
+        string roomLabel = string.IsNullOrEmpty(room) ? "전체" : room;
+        var sb = new StringBuilder(BuildHtmlHeader($"수업진도 - {subject} {roomLabel}"));
+        sb.AppendLine($"<h1>{year}학년도 수업 진도표</h1>");
+        sb.AppendLine($"<div class=\"meta\">{E(subject)} · 강의실 {E(roomLabel)} · 총 {logs.Count}차시</div>");
+
+        if (logs.Count == 0)
+        {
+            sb.AppendLine("<p>기록이 없습니다.</p>");
+        }
+        else
+        {
+            sb.AppendLine("<table><thead><tr>");
+            sb.AppendLine("<th style=\"width:44px\">차시</th><th style=\"width:84px\">날짜</th><th style=\"width:44px\">교시</th><th style=\"width:140px\">단원</th><th style=\"width:160px\">주제</th><th>내용</th>");
+            sb.AppendLine("</tr></thead><tbody>");
+            int i = 1;
+            foreach (var l in logs)
+            {
+                string period = l.Period > 0 ? l.Period.ToString() : string.Empty;
+                sb.Append("<tr>");
+                sb.Append($"<td class=\"center\">{i}</td>");
+                sb.Append($"<td class=\"center\">{l.Date:yyyy-MM-dd}</td>");
+                sb.Append($"<td class=\"center\">{period}</td>");
+                sb.Append($"<td>{E(l.SectionName)}</td>");
+                sb.Append($"<td>{E(l.Topic)}</td>");
+                sb.Append($"<td>{E(l.Content)}</td>");
+                sb.AppendLine("</tr>");
+                i++;
+            }
+            sb.AppendLine("</tbody></table>");
+        }
+
+        sb.Append(BuildHtmlFooter());
+        return sb.ToString();
+    }
+
+    /// <summary>진도표 HTML 파일 저장.</summary>
+    public string ExportLessonProgressToHtml(int year, string subject, string? room, List<LessonLog> logs)
+    {
+        string roomLabel = string.IsNullOrEmpty(room) ? "전체" : room;
+        var fileName = $"수업진도_{subject}_{roomLabel}_{DateTime.Now:yyyyMMdd_HHmmss}.html";
+        var filePath = Path.Combine(GetOutputDir(), fileName);
+        File.WriteAllText(filePath, BuildLessonProgressHtml(year, subject, room, logs), Encoding.UTF8);
+        return filePath;
+    }
+
+    /// <summary>기간일지 HTML 문자열 (날짜 범위, 날짜·교시 순).</summary>
+    public string BuildLessonJournalHtml(int year, DateTime from, DateTime to, List<LessonLog> logs)
+    {
+        var sb = new StringBuilder(BuildHtmlHeader($"수업일지 - {from:yyyy-MM-dd}~{to:yyyy-MM-dd}", landscape: true));
+        sb.AppendLine($"<h1>{year}학년도 수업 일지</h1>");
+        sb.AppendLine($"<div class=\"meta\">{from:yyyy-MM-dd} ~ {to:yyyy-MM-dd} · 총 {logs.Count}건</div>");
+
+        if (logs.Count == 0)
+        {
+            sb.AppendLine("<p>기록이 없습니다.</p>");
+        }
+        else
+        {
+            sb.AppendLine("<table><thead><tr>");
+            sb.AppendLine("<th style=\"width:84px\">날짜</th><th style=\"width:44px\">교시</th><th style=\"width:64px\">과목</th><th style=\"width:56px\">학급</th><th style=\"width:140px\">단원</th><th style=\"width:160px\">주제</th><th>내용</th>");
+            sb.AppendLine("</tr></thead><tbody>");
+            foreach (var l in logs)
+            {
+                string period = l.Period > 0 ? l.Period.ToString() : string.Empty;
+                string cls = l.Grade > 0 && l.Class > 0 ? $"{l.Grade}-{l.Class}" : string.Empty;
+                sb.Append("<tr>");
+                sb.Append($"<td class=\"center\">{l.Date:yyyy-MM-dd}</td>");
+                sb.Append($"<td class=\"center\">{period}</td>");
+                sb.Append($"<td class=\"center\">{E(l.Subject)}</td>");
+                sb.Append($"<td class=\"center\">{cls}</td>");
+                sb.Append($"<td>{E(l.SectionName)}</td>");
+                sb.Append($"<td>{E(l.Topic)}</td>");
+                sb.Append($"<td>{E(l.Content)}</td>");
+                sb.AppendLine("</tr>");
+            }
+            sb.AppendLine("</tbody></table>");
+        }
+
+        sb.Append(BuildHtmlFooter());
+        return sb.ToString();
+    }
+
+    /// <summary>기간일지 HTML 파일 저장.</summary>
+    public string ExportLessonJournalToHtml(int year, DateTime from, DateTime to, List<LessonLog> logs)
+    {
+        var fileName = $"수업일지_{from:yyyyMMdd}-{to:yyyyMMdd}_{DateTime.Now:yyyyMMdd_HHmmss}.html";
+        var filePath = Path.Combine(GetOutputDir(), fileName);
+        File.WriteAllText(filePath, BuildLessonJournalHtml(year, from, to, logs), Encoding.UTF8);
+        return filePath;
+    }
+
+    #endregion
 }
