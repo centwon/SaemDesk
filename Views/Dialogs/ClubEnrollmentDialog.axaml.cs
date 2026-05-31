@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Media;
 using SaemDesk.Models;
 using SaemDesk.Repositories;
 using SaemDesk.Services;
@@ -218,13 +217,10 @@ public partial class ClubEnrollmentDialog : Window
 
     private void ShowInfo(string msg, bool success)
     {
-        InfoBar.IsVisible      = true;
-        InfoBar.Background     = success
-            ? SolidColorBrush.Parse("#E8F5E9")
-            : SolidColorBrush.Parse("#FFF3E0");
-        InfoBarText.Text       = msg;
-        InfoBarText.Foreground = success
-            ? SolidColorBrush.Parse("#2E7D32")
-            : SolidColorBrush.Parse("#E65100");
+        StatusBar.Message  = msg;
+        StatusBar.Severity = success
+            ? SaemDesk.Views.Controls.InfoBarSeverity.Success
+            : SaemDesk.Views.Controls.InfoBarSeverity.Warning;
+        StatusBar.IsOpen   = true;
     }
 }

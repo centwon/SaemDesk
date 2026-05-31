@@ -10,10 +10,8 @@
 
   <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="16">
 
-    <Border x:Name="InfoBar" Grid.Row="0" IsVisible="False"
-            CornerRadius="4" Padding="10,6" Margin="0,0,0,8">
-      <TextBlock x:Name="InfoBarText" FontSize="12" TextWrapping="Wrap"/>
-    </Border>
+    <ctrl:InfoBar x:Name="StatusBar" Grid.Row="0" IsOpen="False"
+                  IsClosable="False" Margin="0,0,0,8"/>
 
     <Border Grid.Row="1"
             Background="{DynamicResource SystemControlBackgroundListLowBrush}"

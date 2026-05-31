@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Media;
 using SaemDesk.Models;
 using SaemDesk.Repositories;
 using SaemDesk.Services;
@@ -368,15 +367,14 @@ public partial class CourseEnrollmentDialog : Window
 
     private void ShowInfo(string msg, InfoLevel level)
     {
-        InfoBar.IsVisible  = true;
-        InfoBarText.Text   = msg;
-
-        (InfoBar.Background, InfoBarText.Foreground) = level switch
+        StatusBar.Message  = msg;
+        StatusBar.Severity = level switch
         {
-            InfoLevel.Success => (SolidColorBrush.Parse("#E8F5E9"), SolidColorBrush.Parse("#2E7D32")),
-            InfoLevel.Warning => (SolidColorBrush.Parse("#FFF3E0"), SolidColorBrush.Parse("#E65100")),
-            _                 => (SolidColorBrush.Parse("#FFEBEE"), SolidColorBrush.Parse("#C62828")),
+            InfoLevel.Success => SaemDesk.Views.Controls.InfoBarSeverity.Success,
+            InfoLevel.Warning => SaemDesk.Views.Controls.InfoBarSeverity.Warning,
+            _                 => SaemDesk.Views.Controls.InfoBarSeverity.Error,
         };
+        StatusBar.IsOpen = true;
     }
 
     // ── 헬퍼 ────────────────────────────────────────────

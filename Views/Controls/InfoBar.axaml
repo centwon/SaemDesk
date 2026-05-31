@@ -24,8 +24,7 @@
                    FontWeight="SemiBold"
                    FontSize="13"
                    TextWrapping="Wrap"
-                   IsVisible="{Binding HasTitle,
-                     RelativeSource={RelativeSource AncestorType=local:InfoBar}}" />
+                   IsVisible="False" />
         <TextBlock x:Name="MessageText"
                    FontSize="12"
                    TextWrapping="Wrap"

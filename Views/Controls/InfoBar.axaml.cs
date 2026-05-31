@@ -89,7 +89,11 @@ public partial class InfoBar : UserControl
 
     private void ApplyText()
     {
-        if (TitleText is not null)   TitleText.Text   = Title;
+        if (TitleText is not null)
+        {
+            TitleText.Text      = Title;
+            TitleText.IsVisible = !string.IsNullOrEmpty(Title);
+        }
         if (MessageText is not null) MessageText.Text = Message;
     }
 
