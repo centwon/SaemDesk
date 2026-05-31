@@ -25,6 +25,9 @@ Exports/
 # secrets 빌드 산출물 (obj/ 에 생성되지만 방어적으로)
 BuildSecrets.g.cs
 
+# 개인 작업 메모 (공개 제외)
+BACKLOG.md
+
 # User-specific files
 *.rsuser
 *.suo
