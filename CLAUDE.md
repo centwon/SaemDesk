@@ -8,6 +8,8 @@ NewSchool (WinUI3) → SaemDesk (Avalonia 12) 마이그레이션 프로젝트.
 - **버전**: 1.0.0
 - **플랫폼**: Windows 우선, 차후 크로스플랫폼 예정
 
+> 📖 **전체 파일 명세 · 메뉴 페이지 기능**: [docs/PROJECT_REFERENCE.md](docs/PROJECT_REFERENCE.md) — 세션 시작 시 구조 파악용 참조.
+
 ## 폴더 구조
 ```
 SaemDesk/
