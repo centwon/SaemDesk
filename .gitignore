@@ -10,6 +10,21 @@
 secrets.json
 secrets.props
 
+# SaemDesk 런타임 데이터 (개인정보 포함 — 절대 커밋 금지)
+# DB(학생/게시판/일정) + 첨부/사진/출력물. 실제 경로는 Settings.UserDataPath.
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+school.db
+board.db
+schedule.db
+BoardFiles/
+Prints/
+Exports/
+# secrets 빌드 산출물 (obj/ 에 생성되지만 방어적으로)
+BuildSecrets.g.cs
+
 # User-specific files
 *.rsuser
 *.suo
