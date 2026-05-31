@@ -13,6 +13,7 @@ namespace SaemDesk.Views.Pages;
 public partial class BoardPage : UserControl
 {
     private BoardPageParameter? _param;
+    private bool _editCameFromDetail;
 
     public BoardPage()
     {
@@ -69,12 +70,14 @@ public partial class BoardPage : UserControl
 
     private async void OnNewPostRequested(object? sender, Board.Views.Pages.PostEditPageParameter e)
     {
+        _editCameFromDetail = false;
         ShowOnly(EditPage);
         await EditPage.InitAsync(e);
     }
 
     private async void OnEditPostRequested(object? sender, Board.Views.Pages.PostEditPageParameter e)
     {
+        _editCameFromDetail = true;
         ShowOnly(EditPage);
         await EditPage.InitAsync(e);
     }
@@ -94,9 +97,8 @@ public partial class BoardPage : UserControl
     private void OnEditCancelled(object? sender, EventArgs e)
     {
         // Detail에서 왔으면 Detail로, 아니면 List로
-        bool fromDetail = !DetailPage.IsVisible == false;
-        if (fromDetail) ShowOnly(DetailPage);
-        else            ShowOnly(ListPage);
+        if (_editCameFromDetail) ShowOnly(DetailPage);
+        else                     ShowOnly(ListPage);
     }
 
     // ── 헬퍼 ─────────────────────────────────────────────

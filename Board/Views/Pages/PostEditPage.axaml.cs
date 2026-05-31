@@ -8,6 +8,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using SaemDesk.Board.Models;
 using SaemDesk.Board.Services;
+using SaemDesk.Services;
 using SaemDesk.Views.Dialogs;
 
 namespace SaemDesk.Board.Views.Pages;
@@ -25,17 +26,12 @@ public partial class PostEditPage : UserControl
     private List<string>         _allSubjects   = new();
     private string               _originalCategory = "";
 
-    // 기본 카테고리 목록
-    private static readonly List<string> DefaultCategories =
-        new() { "업무", "수업", "학급", "동아리", "개인", "기타" };
-
-    // 카테고리별 기본 주제
-    private static readonly Dictionary<string, List<string>> DefaultTopics = new()
-    {
-        ["학급"] = new() { "통계", "학급 자료", "학생 자료", "학급 안내" },
-        ["수업"] = new() { "통계", "수업 자료", "과제" },
-        ["동아리"] = new() { "통계", "동아리 자료", "활동 안내" },
-    };
+    // 콤보박스 마지막에 넣는 "직접 추가" 항목 + 재진입 가드
+    private const string AddNewLabel = "＋ 직접 추가…";
+    private bool _suppressCategoryChanged;
+    private bool _suppressSubjectChanged;
+    private int  _lastCategoryIndex = -1;
+    private int  _lastSubjectIndex  = -1;
 
     // ── 이벤트 ────────────────────────────────────────────
     public event EventHandler?                       Saved;
@@ -120,13 +116,19 @@ public partial class PostEditPage : UserControl
             using var svc = BoardService.Create();
             var cats = await svc.GetCategoriesAsync();
             _allCategories = cats.Where(c => !string.IsNullOrEmpty(c)).ToList();
-            foreach (var d in DefaultCategories)
+            foreach (var d in BoardDefaults.Categories)
                 if (!_allCategories.Contains(d)) _allCategories.Add(d);
         }
         catch (Exception ex) { Debug.WriteLine($"[PostEditPage] 카테고리: {ex.Message}"); }
 
-        CBoxCategory.ItemsSource = _allCategories;
+        _suppressCategoryChanged = true;
+        CBoxCategory.ItemsSource = BuildWithAddItem(_allCategories);
+        _suppressCategoryChanged = false;
     }
+
+    // 실제 항목 + 맨 끝 "직접 추가" 항목으로 콤보 ItemsSource 구성
+    private static List<string> BuildWithAddItem(List<string> items)
+        => new(items) { AddNewLabel };
 
     private async Task LoadSubjectsAsync(string category)
     {
@@ -135,13 +137,16 @@ public partial class PostEditPage : UserControl
             using var svc = BoardService.Create();
             var subs = await svc.GetSubjectsAsync(category);
             _allSubjects = subs.Where(s => !string.IsNullOrEmpty(s)).ToList();
-            if (DefaultTopics.TryGetValue(category, out var defaults))
+            if (BoardDefaults.Topics.TryGetValue(category, out var defaults))
                 foreach (var t in defaults)
                     if (!_allSubjects.Contains(t)) _allSubjects.Insert(0, t);
         }
         catch (Exception ex) { Debug.WriteLine($"[PostEditPage] 주제: {ex.Message}"); }
 
-        CBoxSubject.ItemsSource = _allSubjects;
+        _suppressSubjectChanged = true;
+        CBoxSubject.ItemsSource = BuildWithAddItem(_allSubjects);
+        _suppressSubjectChanged = false;
+        _lastSubjectIndex = -1;
     }
 
     private void SelectCategory(string category)
@@ -149,6 +154,7 @@ public partial class PostEditPage : UserControl
         int idx = _allCategories.IndexOf(category);
         CBoxCategory.SelectedIndex = idx >= 0 ? idx : -1;
         if (idx < 0) CBoxCategory.Text = category;
+        _lastCategoryIndex = CBoxCategory.SelectedIndex;
     }
 
     private void SelectSubject(string subject)
@@ -156,18 +162,81 @@ public partial class PostEditPage : UserControl
         int idx = _allSubjects.IndexOf(subject);
         CBoxSubject.SelectedIndex = idx >= 0 ? idx : -1;
         if (idx < 0) CBoxSubject.Text = subject;
+        _lastSubjectIndex = CBoxSubject.SelectedIndex;
     }
 
     // ── 이벤트 핸들러 ─────────────────────────────────────
 
     private async void OnCategoryChanged(object? sender, SelectionChangedEventArgs e)
     {
-        if (CBoxCategory.SelectedItem is string cat)
+        if (_suppressCategoryChanged) return;
+        if (CBoxCategory.SelectedItem is not string sel) return;
+
+        // "직접 추가" 선택 → 새 카테고리 입력받아 목록에 추가하고 선택
+        if (sel == AddNewLabel)
         {
-            if (_post is not null) _post.Category = cat;
-            FileListBox.Category = cat;
-            await LoadSubjectsAsync(cat);
+            string? name = await DialogService.ShowInputAsync(
+                "카테고리 추가", "새 카테고리 이름을 입력하세요.");
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                // 취소 → 이전 선택 복원
+                _suppressCategoryChanged = true;
+                CBoxCategory.SelectedIndex = _lastCategoryIndex;
+                _suppressCategoryChanged = false;
+                return;
+            }
+
+            if (!_allCategories.Contains(name)) _allCategories.Add(name);
+
+            _suppressCategoryChanged = true;
+            CBoxCategory.ItemsSource   = BuildWithAddItem(_allCategories);
+            CBoxCategory.SelectedIndex = _allCategories.IndexOf(name);
+            _suppressCategoryChanged = false;
+            _lastCategoryIndex = CBoxCategory.SelectedIndex;
+
+            if (_post is not null) _post.Category = name;
+            FileListBox.Category = name;
+            await LoadSubjectsAsync(name);
+            return;
         }
+
+        _lastCategoryIndex = CBoxCategory.SelectedIndex;
+        if (_post is not null) _post.Category = sel;
+        FileListBox.Category = sel;
+        await LoadSubjectsAsync(sel);
+    }
+
+    private async void OnSubjectChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (_suppressSubjectChanged) return;
+        if (CBoxSubject.SelectedItem is not string sel) return;
+
+        // "직접 추가" 선택 → 새 주제 입력받아 목록에 추가하고 선택
+        if (sel == AddNewLabel)
+        {
+            string? name = await DialogService.ShowInputAsync(
+                "주제 추가", "새 주제 이름을 입력하세요.");
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                _suppressSubjectChanged = true;
+                CBoxSubject.SelectedIndex = _lastSubjectIndex;
+                _suppressSubjectChanged = false;
+                return;
+            }
+
+            if (!_allSubjects.Contains(name)) _allSubjects.Add(name);
+
+            _suppressSubjectChanged = true;
+            CBoxSubject.ItemsSource   = BuildWithAddItem(_allSubjects);
+            CBoxSubject.SelectedIndex = _allSubjects.IndexOf(name);
+            _suppressSubjectChanged = false;
+            _lastSubjectIndex = CBoxSubject.SelectedIndex;
+            return;
+        }
+
+        _lastSubjectIndex = CBoxSubject.SelectedIndex;
     }
 
     private void BtnCancel_Click(object? sender, RoutedEventArgs e)
@@ -175,7 +244,7 @@ public partial class PostEditPage : UserControl
 
     private async void BtnSave_Click(object? sender, RoutedEventArgs e)
     {
-        if (!Validate()) return;
+        if (string.IsNullOrWhiteSpace(TxtTitle.Text)) { Debug.WriteLine("제목 없음"); return; }
 
         BtnSave.IsEnabled = false;
         try
@@ -186,6 +255,7 @@ public partial class PostEditPage : UserControl
             _post.Content  = await ContentEditor.GetHtmlAsync();
             if (string.IsNullOrEmpty(_post.Content))
                 _post.Content = ContentEditor.Text; // WebView 미초기화 시 폴백
+            if (string.IsNullOrWhiteSpace(_post.Content)) { Debug.WriteLine("내용 없음"); return; }
             _post.DateTime = DateTime.Now;
 
             // 카테고리
@@ -261,13 +331,6 @@ public partial class PostEditPage : UserControl
             };
         }
         catch (Exception ex) { Debug.WriteLine($"[PostEditPage] 파일 저장: {ex.Message}"); return null; }
-    }
-
-    private bool Validate()
-    {
-        if (string.IsNullOrWhiteSpace(TxtTitle.Text))        { Debug.WriteLine("제목 없음"); return false; }
-        if (string.IsNullOrWhiteSpace(ContentEditor.Text))   { Debug.WriteLine("내용 없음"); return false; }
-        return true;
     }
 
     // ── 명렬표 삽입 (NewSchool InsertRosterButton_Click 동등) ─────────────

@@ -6,39 +6,38 @@
 
   <Grid RowDefinitions="Auto,*,Auto">
 
-    <!-- ── 툴바 ─────────────────────────────────────────── -->
-    <Grid Grid.Row="0" Margin="16,10,16,0" ColumnDefinitions="Auto,*,Auto">
-      <!-- 좌: 페이지 제목 -->
+    <!-- ── 툴바 (제목 · 카테고리 · 주제 · 명렬표 삽입 한 줄) ── -->
+    <Grid Grid.Row="0" Margin="16,10,16,0"
+          ColumnDefinitions="Auto,Auto,Auto,*,Auto">
+      <!-- 페이지 제목 -->
       <TextBlock Grid.Column="0" x:Name="PageTitle" Text="새 글 쓰기"
                  FontSize="18" FontWeight="SemiBold"
-                 VerticalAlignment="Center"/>
-      <!-- 우: 보조 버튼 그룹 -->
-      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6">
-        <Button x:Name="BtnInsertRoster" Content="표 삽입" Padding="10,5"
-                ToolTip.Tip="학급/수업/동아리 명렵표 HTML 표 삽입"
-                Click="BtnInsertRoster_Click"/>
+                 VerticalAlignment="Bottom" Margin="0,0,16,0"/>
+      <!-- 카테고리 -->
+      <StackPanel Grid.Column="1" Spacing="2" Margin="0,0,10,0">
+        <TextBlock Text="카테고리" FontSize="10"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"/>
+        <ComboBox x:Name="CBoxCategory" MinWidth="140"
+                  SelectionChanged="OnCategoryChanged"/>
       </StackPanel>
+      <!-- 주제 -->
+      <StackPanel Grid.Column="2" Spacing="2">
+        <TextBlock Text="주제" FontSize="10"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"/>
+        <ComboBox x:Name="CBoxSubject" MinWidth="160"
+                  SelectionChanged="OnSubjectChanged"/>
+      </StackPanel>
+      <!-- 명렬표 삽입 -->
+      <Button Grid.Column="4" x:Name="BtnInsertRoster" Content="명렬표 삽입"
+              Padding="10,5" VerticalAlignment="Bottom"
+              ToolTip.Tip="학급/수업/동아리 명렬표 HTML 표 삽입"
+              Click="BtnInsertRoster_Click"/>
     </Grid>
 
     <!-- ── 폼 ───────────────────────────────────────────── -->
     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
                   Margin="16,8,16,0">
       <StackPanel Spacing="10">
-
-        <!-- 카테고리 + 주제 -->
-        <StackPanel Orientation="Horizontal" Spacing="10">
-          <StackPanel Spacing="2">
-            <TextBlock Text="카테고리" FontSize="10"
-                       Foreground="{DynamicResource SystemBaseMediumColor}"/>
-            <ComboBox x:Name="CBoxCategory" MinWidth="140"
-                      SelectionChanged="OnCategoryChanged"/>
-          </StackPanel>
-          <StackPanel Spacing="2">
-            <TextBlock Text="주제" FontSize="10"
-                       Foreground="{DynamicResource SystemBaseMediumColor}"/>
-            <ComboBox x:Name="CBoxSubject" MinWidth="160"/>
-          </StackPanel>
-        </StackPanel>
 
         <!-- 제목 -->
         <StackPanel Spacing="2">

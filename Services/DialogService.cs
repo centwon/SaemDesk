@@ -94,6 +94,56 @@ public static class DialogService
         return result;
     }
 
+    /// <summary>한 줄 텍스트 입력 다이얼로그. 확인 시 입력값(트림), 취소·빈 값 시 null.</summary>
+    public static async Task<string?> ShowInputAsync(string title, string prompt, string defaultText = "")
+    {
+        var owner = MainWindow;
+        if (owner is null) return null;
+
+        var input = new TextBox { Text = defaultText, MinWidth = 320 };
+
+        var panel = new StackPanel { Spacing = 12, Margin = new Thickness(16) };
+        panel.Children.Add(new TextBlock { Text = prompt, TextWrapping = Avalonia.Media.TextWrapping.Wrap });
+        panel.Children.Add(input);
+
+        var okBtn = new Button { Content = "확인" };
+        okBtn.Classes.Add("accent");
+        var cancelBtn = new Button { Content = "취소" };
+        var btnRow = new StackPanel
+        {
+            Orientation = Avalonia.Layout.Orientation.Horizontal,
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+            Spacing = 8
+        };
+        btnRow.Children.Add(cancelBtn);
+        btnRow.Children.Add(okBtn);
+        panel.Children.Add(btnRow);
+
+        string? result = null;
+        var win = new Window
+        {
+            Title = title,
+            Content = panel,
+            SizeToContent = SizeToContent.WidthAndHeight,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            CanResize = false,
+            ShowInTaskbar = false,
+        };
+
+        void Confirm() { result = input.Text?.Trim() ?? string.Empty; win.Close(); }
+        okBtn.Click     += (_, _) => Confirm();
+        cancelBtn.Click += (_, _) => win.Close();
+        input.KeyDown   += (_, ev) =>
+        {
+            if (ev.Key == Avalonia.Input.Key.Enter)       Confirm();
+            else if (ev.Key == Avalonia.Input.Key.Escape) win.Close();
+        };
+        win.Opened += (_, _) => { input.Focus(); input.SelectAll(); };
+
+        await win.ShowDialog(owner);
+        return string.IsNullOrEmpty(result) ? null : result;
+    }
+
     /// <summary>NEIS 학교 검색 다이얼로그를 열고 선택된 학교를 반환한다. 취소 시 null.</summary>
     public static async Task<School?> ShowSchoolSearchAsync()
     {
@@ -133,16 +183,6 @@ public static class DialogService
         var owner  = MainWindow;
         if (owner is null) return;
         await dialog.ShowDialog(owner);
-    }
-
-    /// <summary>게시글 작성/수정 다이얼로그. 저장 여부를 반환한다.</summary>
-    public static async Task<bool> ShowPostEditAsync(SaemDesk.Board.Models.Post? existing = null)
-    {
-        var dialog = new PostEditDialog(existing);
-        var owner  = MainWindow;
-        if (owner is null) return false;
-        await dialog.ShowDialog(owner);
-        return dialog.Saved;
     }
 
     /// <summary>게시글 상세 보기 다이얼로그(닫기 전용).</summary>

@@ -4,26 +4,29 @@
              x:Class="SaemDesk.Board.Views.Pages.PostListPage"
              x:DataType="vm:PostListViewModel">
 
-  <Grid RowDefinitions="Auto,Auto,*,Auto,Auto">
+  <Grid RowDefinitions="Auto,*,Auto,Auto">
 
-    <!-- ── 제목 ─────────────────────────────────────────── -->
-    <StackPanel Grid.Row="0" x:Name="TitlePanel" Margin="16,14,16,0">
-      <TextBlock x:Name="TitleText" FontSize="20" FontWeight="SemiBold"/>
-    </StackPanel>
+    <!-- ── 헤더: 제목 · 필터(좌) + 액션(우) 한 줄 ────────── -->
+    <Grid Grid.Row="0" Margin="16,12,16,0" ColumnDefinitions="Auto,Auto,Auto,*,Auto">
 
-    <!-- ── 툴바: 필터(좌) + 액션(우) ────────────────────── -->
-    <Grid Grid.Row="1" Margin="16,10,16,0" ColumnDefinitions="Auto,Auto,*,Auto">
+      <StackPanel Grid.Column="0" x:Name="TitlePanel"
+                  VerticalAlignment="Center" Margin="0,0,16,0">
+        <TextBlock x:Name="TitleText" FontSize="20" FontWeight="SemiBold"/>
+      </StackPanel>
 
-      <ComboBox x:Name="CBoxCategory" Grid.Column="0" MinWidth="130"
+      <ComboBox x:Name="CBoxCategory" Grid.Column="1" MinWidth="130"
                 PlaceholderText="전체 카테고리"
+                VerticalAlignment="Center"
                 SelectionChanged="OnCategoryChanged"/>
 
-      <ComboBox x:Name="CBoxSubject" Grid.Column="1" MinWidth="110"
+      <ComboBox x:Name="CBoxSubject" Grid.Column="2" MinWidth="110"
                 PlaceholderText="주제"
                 Margin="6,0,0,0" IsVisible="False"
+                VerticalAlignment="Center"
                 SelectionChanged="OnSubjectChanged"/>
 
-      <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4">
+      <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="4"
+                  VerticalAlignment="Center">
         <Button Content="새 글" Padding="12,6" Classes="accent" Click="BtnNewPost_Click"/>
         <Button Content="새로고침" Padding="10,6" Click="BtnRefresh_Click"/>
         <Button x:Name="BtnViewMode" Content="⊞" Padding="10,6"
@@ -33,7 +36,7 @@
     </Grid>
 
     <!-- ── 본문 ─────────────────────────────────────────── -->
-    <Grid Grid.Row="2" Margin="16,8,16,0">
+    <Grid Grid.Row="1" Margin="16,8,16,0">
 
       <ProgressBar IsVisible="{Binding IsLoading}"
                    IsIndeterminate="True"
@@ -236,7 +239,7 @@
     </Grid>
 
     <!-- ── 페이징 ─────────────────────────────────────────── -->
-    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center"
+    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center"
                 Spacing="8" Margin="0,8,0,4">
       <Button Content="◀" Padding="10,5" IsEnabled="{Binding HasPreviousPage}" Click="BtnPrev_Click"/>
       <TextBlock Text="{Binding PageInfo}" VerticalAlignment="Center" FontSize="12"
@@ -245,7 +248,7 @@
     </StackPanel>
 
     <!-- ── 검색 (최하단 — NewSchool 동일 위치) ──────────── -->
-    <Border Grid.Row="4"
+    <Border Grid.Row="3"
             BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
             BorderThickness="0,1,0,0"
             Padding="16,8,16,10">

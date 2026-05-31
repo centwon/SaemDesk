@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using SaemDesk.Models;
 using SaemDesk.ViewModels;
 using SaemDesk.ViewModels.Pages;
 
@@ -74,7 +75,13 @@ public partial class MainWindow : Window
             "StudentLog"                => new StudentLogPageVM(),
             "StudentSpec"               => new StudentSpecPageVM(),
             "Seats"                     => new SeatsPageVM(),
-            "ClassBoard"                => new BoardPageVM(),
+            "ClassBoard"                => new BoardPageVM(new BoardPageParameter
+            {
+                Title               = "학급 게시판",
+                FixedCategory       = CategoryNames.Homeroom,
+                AllowCategoryChange = false,
+                ShowSubjectFilter   = true,
+            }),
             "StudentInfoExport"         => new StudentInfoExportPageVM(),
             "UnifiedExport"             => new UnifiedExportPageVM(),
             "Timetable_ClassManagement" => new ClassTimetablePageVM(),
@@ -85,12 +92,24 @@ public partial class MainWindow : Window
             "LessonSpec"                => new LessonSpecPageVM(),
             "Timetable_Teacher"         => new TeacherTimetablePageVM(),
             "ClubActivity"              => new ClubActivityPageVM(),
-            "LessonBoard"               => new BoardPageVM(),
+            "LessonBoard"               => new BoardPageVM(new BoardPageParameter
+            {
+                Title               = "수업 게시판",
+                FixedCategory       = CategoryNames.Lesson,
+                AllowCategoryChange = false,
+                ShowSubjectFilter   = true,
+            }),
             "CourseManagement"          => new CourseManagementPageVM(),
 
             // 업무
             "SchoolWork"                => new SchoolWorkPageVM(),
-            "WorkBoard"                 => new BoardPageVM(),
+            "WorkBoard"                 => new BoardPageVM(new BoardPageParameter
+            {
+                Title               = "업무 게시판",
+                FixedCategory       = CategoryNames.Work,
+                AllowCategoryChange = false,
+                ShowSubjectFilter   = true,
+            }),
 
             // 아카이브
             "Archive" => new BoardPageVM(new BoardPageParameter

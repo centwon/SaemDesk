@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -8,7 +7,6 @@ using Avalonia.Interactivity;
 using SaemDesk.Board.Models;
 using SaemDesk.Board.Services;
 using SaemDesk.Board.ViewModels;
-using SaemDesk.Models;
 
 namespace SaemDesk.Board.Views.Pages;
 
@@ -42,19 +40,9 @@ public partial class PostListPage : UserControl
     public event EventHandler<int>?                    PostSelected;   // PostNo
     public event EventHandler<PostEditPageParameter>?  NewPostRequested;
 
-    // ── 기본 카테고리 / 주제 제안 ────────────────────────
-    // CategoryNames.All(수업/학급/업무/개인) + 게시판 전용 추가 항목
-    private static readonly List<string> DefaultCategories =
-        [.. CategoryNames.All, "동아리", "기타"];
+    // 기본 카테고리 / 카테고리별 기본 주제는 BoardDefaults 공용 출처 사용
 
     // CheckBox -> ToggleButton 전환으로 x:Name 제거 (XAML이 바인딩 직접 처리)
-
-    private static readonly Dictionary<string, List<string>> DefaultTopics = new()
-    {
-        ["학급"] = new() { "통계", "학급 자료", "학생 자료", "학급 안내" },
-        ["수업"] = new() { "통계", "수업 자료", "과제" },
-        ["동아리"] = new() { "통계", "동아리 자료", "활동 안내" },
-    };
 
     public PostListPage()
     {
@@ -72,14 +60,19 @@ public partial class PostListPage : UserControl
 
     private async void OnLoaded(object? sender, RoutedEventArgs e)
     {
-        await InitAsync();
+        // 이미 BoardPage 가 파라미터로 초기화했다면 그 파라미터를 재사용한다.
+        // (null 로 재초기화하면 고정 카테고리 보드의 설정이 풀린다.)
+        await InitAsync(_param);
     }
 
     public async Task InitAsync(PostListPageParameter? param = null)
     {
         _param = param;
         ApplyParameter();
-        await InitCategoriesAsync();
+        // 카테고리 고정(AllowCategoryChange=false) 게시판은 콤보를 숨기므로 채우지 않는다.
+        // InitCategoriesAsync 가 "전체"를 선택하면 OnCategoryChanged 가 고정 카테고리를 덮어쓴다.
+        if (_param?.AllowCategoryChange ?? true)
+            await InitCategoriesAsync();
         await ViewModel.LoadPostsAsync();
     }
 
@@ -124,7 +117,7 @@ public partial class PostListPage : UserControl
             using var svc = BoardService.Create();
             var cats = await svc.GetCategoriesAsync();
             foreach (var c in cats) CBoxCategory.Items.Add(c);
-            foreach (var d in DefaultCategories)
+            foreach (var d in BoardDefaults.Categories)
                 if (!CBoxCategory.Items.Contains(d)) CBoxCategory.Items.Add(d);
         }
         catch (Exception ex) { Debug.WriteLine($"[PostListPage] 카테고리: {ex.Message}"); }
@@ -140,7 +133,7 @@ public partial class PostListPage : UserControl
         try
         {
             var cat = _param?.Category ?? "";
-            if (DefaultTopics.TryGetValue(cat, out var defaults))
+            if (BoardDefaults.Topics.TryGetValue(cat, out var defaults))
                 foreach (var t in defaults) CBoxSubject.Items.Add(t);
 
             using var svc = BoardService.Create();

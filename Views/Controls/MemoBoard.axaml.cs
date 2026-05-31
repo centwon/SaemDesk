@@ -20,7 +20,7 @@ namespace SaemDesk.Views.Controls;
 /// 포스트잇 스타일 메모보드.
 /// - Masonry 2열 레이아웃 (코드비하인드에서 LeftCol / RightCol 에 카드 배분).
 /// - 제목: 카드 내 TextBox 직접 편집 → blur 시 DB 저장.
-/// - 본문: HTML→Plain 미리보기 텍스트. 상세 편집 버튼 → PostEditDialog(Jodit).
+/// - 본문: HTML→Plain 미리보기 텍스트. 상세 편집 버튼 → PostEditPage(Jodit).
 /// - ShowFilter=False 이면 카테고리 칩 영역 숨김.
 /// - FixedCategory 지정 시 해당 카테고리만 로드, 추가 시 카테고리 고정.
 /// </summary>

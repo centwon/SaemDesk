@@ -22,8 +22,8 @@
 
           <ComboBox Grid.Column="1"
                     x:Name="CBoxFilter"
-                    Height="26" FontSize="11" MinWidth="86"
-                    Padding="6,2"
+                    Height="24" MinHeight="24" FontSize="11" MinWidth="86"
+                    Padding="6,0"
                     VerticalAlignment="Center"
                     SelectionChanged="OnCalendarFilterChanged"/>
 
@@ -31,8 +31,8 @@
                         x:Name="TbTask"
                         Content="✓ 할 일"
                         IsChecked="True"
-                        Height="24" FontSize="11"
-                        Padding="6,2"
+                        Height="24" MinHeight="24" FontSize="11"
+                        Padding="6,0"
                         VerticalAlignment="Center"
                         IsCheckedChanged="OnTypeFilterChanged"/>
 
@@ -40,19 +40,18 @@
                         x:Name="TbEvent"
                         Content="📅 일정"
                         IsChecked="True"
-                        Height="24" FontSize="11"
-                        Padding="6,2"
+                        Height="24" MinHeight="24" FontSize="11"
+                        Padding="6,0"
                         VerticalAlignment="Center"
                         IsCheckedChanged="OnTypeFilterChanged"/>
 
           <Button Grid.Column="7"
                   x:Name="BtnAdd"
-                  Content="＋"
+                  Content="＋ 추가"
                   Click="OnAddClicked"
-                  Width="26" Height="26"
-                  Padding="0"
-                  Background="Transparent"
-                  BorderThickness="0"
+                  Height="24" MinHeight="24" FontSize="12"
+                  Padding="10,0"
+                  VerticalAlignment="Center"
                   ToolTip.Tip="새 항목 추가"/>
         </Grid>
       </Border>
