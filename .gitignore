@@ -28,6 +28,10 @@ BuildSecrets.g.cs
 # 개인 작업 메모 (공개 제외)
 BACKLOG.md
 
+# HtmlEditor — 별도 프로젝트로 분리 관리 (이 repo에서 제외)
+SaemDesk.HtmlEditor/
+SaemDesk.HtmlEditor.TestApp/
+
 # User-specific files
 *.rsuser
 *.suo

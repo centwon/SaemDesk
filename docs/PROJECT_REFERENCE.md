@@ -296,9 +296,7 @@ Model → Repository → Service → ViewModel → View(Control → Page → Dia
 | [Assets/Jodit/](../Assets/Jodit/) | Jodit 에디터 HTML/JS/CSS + DOMPurify |
 | [Assets/Styles/](../Assets/Styles/) | Colors.axaml · CommonStyles.axaml |
 
-### 3.12 SaemDesk.HtmlEditor/ (별도 프로젝트)
-Avalonia 네이티브 HTML 에디터 — Jodit/WebView 의존 없는 자체 구현 실험. 세부는 [PROJECT.md](../SaemDesk.HtmlEditor/PROJECT.md).
-[HtmlEditorControl](../SaemDesk.HtmlEditor/HtmlEditorControl.axaml.cs) · [EditorToolbar](../SaemDesk.HtmlEditor/Controls/EditorToolbar.axaml.cs) · [EditArea](../SaemDesk.HtmlEditor/Editing/EditArea.cs) · [HtmlParser](../SaemDesk.HtmlEditor/Parsing/HtmlParser.cs) · [HtmlSerializer](../SaemDesk.HtmlEditor/Parsing/HtmlSerializer.cs) · [HtmlRenderer](../SaemDesk.HtmlEditor/Rendering/HtmlRenderer.cs) · TestApp 포함.
+> **참고**: HTML 에디터 자체 구현(`SaemDesk.HtmlEditor`)은 별도 프로젝트로 분리되어 이 repo에서 제외되었다. 본 앱은 게시글·알림장 편집에 Jodit 에디터([JoditEditor](../Views/Controls/JoditEditor.axaml.cs))를 사용한다.
 
 ---
 
