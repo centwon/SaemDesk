@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 
 namespace SaemDesk.Collections
 {
@@ -11,7 +12,10 @@ namespace SaemDesk.Collections
     /// </summary>
     public class OptimizedObservableCollection<T> : ObservableCollection<T>
     {
-        private bool _suppressNotification = false;
+        // 이벤트 인자는 매번 동일하므로 재사용하여 할당 제거
+        private static readonly PropertyChangedEventArgs CountChangedArgs = new(nameof(Count));
+        private static readonly PropertyChangedEventArgs IndexerChangedArgs = new("Item[]");
+        private static readonly NotifyCollectionChangedEventArgs ResetArgs = new(NotifyCollectionChangedAction.Reset);
 
         /// <summary>
         /// 기본 생성자
@@ -29,27 +33,18 @@ namespace SaemDesk.Collections
 
         /// <summary>
         /// 대량 추가 (이벤트 일괄 처리)
-        /// 성능: 개별 Add 대비 80% 향상
+        /// 백킹 리스트에 직접 추가 후 알림을 1회만 발생 — 항목별 Count/Item[] 알림 폭주 제거.
         /// </summary>
         public void AddRange(IEnumerable<T> items)
         {
             if (items == null)
                 throw new ArgumentNullException(nameof(items));
 
-            _suppressNotification = true;
-            try
+            foreach (var item in items)
             {
-                foreach (var item in items)
-                {
-                    Add(item);
-                }
+                Items.Add(item);
             }
-            finally
-            {
-                _suppressNotification = false;
-                OnCollectionChanged(new NotifyCollectionChangedEventArgs(
-                    NotifyCollectionChangedAction.Reset));
-            }
+            RaiseReset();
         }
 
         /// <summary>
@@ -60,20 +55,11 @@ namespace SaemDesk.Collections
             if (items == null)
                 throw new ArgumentNullException(nameof(items));
 
-            _suppressNotification = true;
-            try
+            foreach (var item in items)
             {
-                foreach (var item in items)
-                {
-                    Remove(item);
-                }
+                Items.Remove(item);
             }
-            finally
-            {
-                _suppressNotification = false;
-                OnCollectionChanged(new NotifyCollectionChangedEventArgs(
-                    NotifyCollectionChangedAction.Reset));
-            }
+            RaiseReset();
         }
 
         /// <summary>
@@ -84,29 +70,22 @@ namespace SaemDesk.Collections
             if (items == null)
                 throw new ArgumentNullException(nameof(items));
 
-            _suppressNotification = true;
-            try
+            Items.Clear();
+            foreach (var item in items)
             {
-                Clear();
-                foreach (var item in items)
-                {
-                    Add(item);
-                }
+                Items.Add(item);
             }
-            finally
-            {
-                _suppressNotification = false;
-                OnCollectionChanged(new NotifyCollectionChangedEventArgs(
-                    NotifyCollectionChangedAction.Reset));
-            }
+            RaiseReset();
         }
 
-        protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+        /// <summary>
+        /// 백킹 리스트를 직접 수정한 뒤 호출 — Count/Item[]/Reset 을 1회씩만 통지.
+        /// </summary>
+        private void RaiseReset()
         {
-            if (!_suppressNotification)
-            {
-                base.OnCollectionChanged(e);
-            }
+            OnPropertyChanged(CountChangedArgs);
+            OnPropertyChanged(IndexerChangedArgs);
+            OnCollectionChanged(ResetArgs);
         }
     }
 }

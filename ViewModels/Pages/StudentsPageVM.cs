@@ -132,24 +132,41 @@ public partial class StudentsPageVM : ViewModelBase
         try
         {
             using var repo = new EnrollmentRepository(SchoolDatabase.DbPath);
-            foreach (var vm in selected)
+            var saved = new System.Collections.Generic.List<StudentManagementViewModel>();
+
+            // 선택 항목 전체를 단일 트랜잭션으로 — 항목별 자동 커밋(WAL fsync) 제거
+            repo.BeginTransaction();
+            try
             {
-                try
+                foreach (var vm in selected)
                 {
-                    var e = await repo.GetByIdAsync(vm.EnrollmentNo);
-                    if (e is null) { fail++; continue; }
+                    try
+                    {
+                        var e = await repo.GetByIdAsync(vm.EnrollmentNo);
+                        if (e is null) { fail++; continue; }
 
-                    e.Year  = vm.Year;
-                    e.Grade = vm.Grade;
-                    e.Class = vm.Class;
-                    e.Number = vm.Number;
-                    e.Name   = vm.Name;
-                    e.UpdatedAt = DateTime.Now;
+                        e.Year  = vm.Year;
+                        e.Grade = vm.Grade;
+                        e.Class = vm.Class;
+                        e.Number = vm.Number;
+                        e.Name   = vm.Name;
+                        e.UpdatedAt = DateTime.Now;
 
-                    if (await repo.UpdateAsync(e)) { ok++; vm.IsModified = false; }
-                    else fail++;
+                        if (await repo.UpdateAsync(e)) { ok++; saved.Add(vm); }
+                        else fail++;
+                    }
+                    catch { fail++; }
                 }
-                catch { fail++; }
+
+                repo.Commit();
+                // 커밋 성공 후에만 플래그 해제 — 롤백 시 수정 상태 유지
+                foreach (var vm in saved) vm.IsModified = false;
+            }
+            catch
+            {
+                repo.Rollback();
+                fail += ok;
+                ok = 0;
             }
 
             StatusText = fail > 0 ? $"{ok}건 저장, {fail}건 실패" : $"{ok}건 저장 완료";
@@ -173,19 +190,37 @@ public partial class StudentsPageVM : ViewModelBase
         try
         {
             using var repo = new EnrollmentRepository(SchoolDatabase.DbPath);
-            foreach (var vm in selected)
+            var deleted = new System.Collections.Generic.List<StudentManagementViewModel>();
+
+            // 선택 항목 전체를 단일 트랜잭션으로 — 항목별 자동 커밋(WAL fsync) 제거
+            repo.BeginTransaction();
+            try
             {
-                try
+                foreach (var vm in selected)
                 {
-                    await repo.DeleteAsync(vm.EnrollmentNo);
-                    Students.Remove(vm);
-                    ok++;
+                    try
+                    {
+                        await repo.DeleteAsync(vm.EnrollmentNo);
+                        deleted.Add(vm);
+                        ok++;
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[StudentsPageVM] Delete {vm.Name}: {ex.Message}");
+                    }
                 }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"[StudentsPageVM] Delete {vm.Name}: {ex.Message}");
-                }
+                repo.Commit();
             }
+            catch (Exception ex)
+            {
+                repo.Rollback();
+                ok = 0;
+                deleted.Clear();
+                System.Diagnostics.Debug.WriteLine($"[StudentsPageVM] Delete commit: {ex.Message}");
+            }
+
+            // 커밋 성공 항목만 UI에서 일괄 제거
+            Students.RemoveRange(deleted);
 
             StatusText = $"{ok}명 삭제 완료 / 총 {Students.Count}명";
             NotifySelectionChanged();

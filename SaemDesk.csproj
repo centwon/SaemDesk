@@ -13,6 +13,8 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <!-- Native AOT -->
     <PublishAot>true</PublishAot>
+    <!-- 크기보다 런타임 속도 우선 (AOT 코드 생성) -->
+    <OptimizationPreference>Speed</OptimizationPreference>
     <TrimmerRootDescriptor>TrimmerRoots.xml</TrimmerRootDescriptor>
     <InvariantGlobalization>false</InvariantGlobalization>
     <!-- 코드로만 생성하는 다이얼로그의 무매개변수 생성자 경고 억제 -->
