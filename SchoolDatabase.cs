@@ -128,7 +128,11 @@ namespace SaemDesk
                 string backupFileName = $"School_{DateTime.Now:yyyyMMdd_HHmmss}.db";
                 string backupPath = Path.Combine(backupDir, backupFileName);
 
-                await Task.Run(() => File.Copy(DbPath, backupPath, true));
+                await Task.Run(() =>
+                {
+                    Helpers.DbFileHelper.Checkpoint(DbPath); // WAL 병합 후 단일 파일 복사
+                    File.Copy(DbPath, backupPath, true);
+                });
 
                 Debug.WriteLine($"[SchoolDatabase] DB 백업 완료: {backupPath}");
                 return true;
@@ -153,7 +157,11 @@ namespace SaemDesk
                     return false;
                 }
 
-                await Task.Run(() => File.Copy(backupPath, DbPath, true));
+                await Task.Run(() =>
+                {
+                    File.Copy(backupPath, DbPath, true);
+                    Helpers.DbFileHelper.DeleteSidecars(DbPath); // 고아 -wal/-shm 제거
+                });
 
                 Debug.WriteLine($"[SchoolDatabase] DB 복원 완료: {backupPath}");
                 Settings.School_Inited.Set(false); // 재초기화 필요

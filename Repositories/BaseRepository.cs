@@ -22,6 +22,8 @@ namespace SaemDesk.Repositories
         // 프로세스 내 중복 초기화 방지 — WAL(파일 영속) 및 스키마 DDL은 1회만 수행
         private static readonly HashSet<string> _walInitialized = new(StringComparer.OrdinalIgnoreCase);
         private static readonly HashSet<string> _schemaInitialized = new(StringComparer.Ordinal);
+        // 손상 안내를 DB 파일당 1회만 출력 (리포지토리마다 반복 스팸 방지)
+        private static readonly HashSet<string> _corruptionWarned = new(StringComparer.OrdinalIgnoreCase);
         private static readonly object _initLock = new();
 
         public SqliteTransaction? GetTransaction() => Transaction;
@@ -55,11 +57,35 @@ namespace SaemDesk.Repositories
 
                 LogDebug($"{GetType().Name} 연결 열림 (WAL 모드)");
             }
+            catch (SqliteException sx) when (sx.SqliteErrorCode == 11 /* CORRUPT */ || sx.SqliteErrorCode == 26 /* NOTADB */)
+            {
+                WarnCorruptionOnce(dbPath);
+                LogError($"{GetType().Name} 연결 실패 (DB 손상/불완전)", sx);
+                throw;
+            }
             catch (Exception ex)
             {
                 LogError($"{GetType().Name} 연결 실패", ex);
                 throw;
             }
+        }
+
+        /// <summary>
+        /// 손상/불완전 DB 감지 시 원인과 조치를 담은 안내를 DB 파일당 1회만 기록.
+        /// 'database disk image is malformed'는 대개 DB 파일 세트를 일부만 복사했거나
+        /// (.db 만 옮기고 -wal/-shm 또는 Settings.db 누락) 옛 -wal 이 남아 발생한다.
+        /// </summary>
+        private void WarnCorruptionOnce(string dbPath)
+        {
+            lock (_initLock)
+            {
+                if (!_corruptionWarned.Add(dbPath)) return;
+            }
+            LogWarning(
+                $"DB 를 열 수 없습니다: {dbPath}\n" +
+                "  원인: 파일 손상이거나 DB 파일 세트가 불완전합니다 " +
+                "(예: .db 만 복사하고 -wal/-shm 또는 Settings.db 를 함께 옮기지 않음).\n" +
+                "  조치: 데이터 폴더의 모든 .db 와 -wal/-shm 을 함께 복사하거나, 설정에서 백업본으로 복원하세요.");
         }
 
         /// <summary>

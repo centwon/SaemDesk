@@ -510,6 +510,7 @@ public static class Settings
             foreach (var dbFile in Directory.GetFiles(UserDataPath, "*.db"))
             {
                 var fileName = Path.GetFileName(dbFile);
+                Helpers.DbFileHelper.Checkpoint(dbFile); // WAL 병합 후 단일 파일 복사
                 File.Copy(dbFile, Path.Combine(backupDir, fileName), true);
             }
 
@@ -556,7 +557,9 @@ public static class Settings
                 {
                     // UserDataPath에 복원
                     Directory.CreateDirectory(UserDataPath);
-                    File.Copy(dbFile, Path.Combine(UserDataPath, fileName), true);
+                    var destPath = Path.Combine(UserDataPath, fileName);
+                    File.Copy(dbFile, destPath, true);
+                    Helpers.DbFileHelper.DeleteSidecars(destPath); // 고아 -wal/-shm 제거
                 }
             }
 
@@ -795,6 +798,7 @@ internal static class SettingsDb
                 if (string.IsNullOrEmpty(dir))
                     throw new InvalidOperationException("DbPath의 디렉터리 경로를 확인할 수 없습니다.");
                 string backupPath = Path.Combine(dir, backupFileName);
+                Helpers.DbFileHelper.Checkpoint(DbPath); // WAL 병합 후 단일 파일 복사
                 File.Copy(DbPath, backupPath, true);
                 return backupPath;
             }
@@ -814,6 +818,7 @@ internal static class SettingsDb
                 if (File.Exists(backupPath))
                 {
                     File.Copy(backupPath, DbPath, true);
+                    Helpers.DbFileHelper.DeleteSidecars(DbPath); // 고아 -wal/-shm 제거
                     _isInitialized = false;
                     Initialize();
                     return true;
