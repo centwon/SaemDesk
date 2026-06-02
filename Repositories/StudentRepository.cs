@@ -125,7 +125,8 @@ namespace SaemDesk.Repositories
         {
             const string query = @"
         SELECT * FROM Student
-        WHERE Name LIKE @Keyword OR ID LIKE @Keyword OR Phone LIKE @Keyword
+        WHERE (Name LIKE @Keyword OR StudentID LIKE @Keyword OR Phone LIKE @Keyword)
+          AND IsDeleted = 0
         ORDER BY Name";
 
             try
@@ -447,8 +448,8 @@ namespace SaemDesk.Repositories
                 Email = reader.IsDBNull(emailIdx) ? string.Empty : reader.GetString(emailIdx),
                 Address = reader.IsDBNull(addressIdx) ? string.Empty : reader.GetString(addressIdx),
                 Memo = reader.IsDBNull(memoIdx) ? string.Empty : reader.GetString(memoIdx),
-                CreatedAt = DateTime.Parse(reader.GetString(createdAtIdx)),
-                UpdatedAt = DateTime.Parse(reader.GetString(updatedAtIdx)),
+                CreatedAt = DateTime.TryParse(reader.GetString(createdAtIdx), out var ca) ? ca : DateTime.MinValue,
+                UpdatedAt = DateTime.TryParse(reader.GetString(updatedAtIdx), out var ua) ? ua : DateTime.MinValue,
                 IsDeleted = reader.GetInt32(isDeletedIdx) == 1
             };
         }
