@@ -1,7 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:boardCtrl="using:SaemDesk.Board.Views.Controls"
-             xmlns:ctrl="using:SaemDesk.Views.Controls"
+             xmlns:are="using:AvaloniaRichEditor.Controls"
              x:Class="SaemDesk.Board.Views.Pages.PostEditPage">
 
   <Grid RowDefinitions="Auto,*,Auto">
@@ -46,11 +46,11 @@
           <TextBox x:Name="TxtTitle" PlaceholderText="제목을 입력하세요"/>
         </StackPanel>
 
-        <!-- 내용 (JoditEditor) -->
+        <!-- 내용 (RichEditorView = 에디터 + 서식 툴바 + 스크롤) -->
         <StackPanel Spacing="2">
           <TextBlock Text="내용" FontSize="10"
                      Foreground="{DynamicResource SystemBaseMediumColor}"/>
-          <ctrl:JoditEditor x:Name="ContentEditor" MinHeight="300"/>
+          <are:RichEditorView x:Name="ContentEditor" MinHeight="300"/>
         </StackPanel>
 
         <!-- 첨부파일 -->

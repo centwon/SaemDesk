@@ -1,4 +1,3 @@
-using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using SaemDesk.ViewModels.Pages;
 
@@ -18,27 +17,8 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private static string BuildWindowTitle()
     {
-        int h = DateTime.Now.Hour;
-        string name = Settings.UserName;
-        string phrase = h < 12 ? "좋은 아침이에요" : h < 18 ? "좋은 오후예요" : "좋은 저녁이에요";
-        string greeting = string.IsNullOrWhiteSpace(name) ? phrase : $"{name} 선생님, {phrase}";
-
-        string date = $"{DateTime.Today:M월 d일} {DateTime.Today.DayOfWeek switch
-        {
-            DayOfWeek.Monday    => "월요일",
-            DayOfWeek.Tuesday   => "화요일",
-            DayOfWeek.Wednesday => "수요일",
-            DayOfWeek.Thursday  => "목요일",
-            DayOfWeek.Friday    => "금요일",
-            DayOfWeek.Saturday  => "토요일",
-            _                   => "일요일",
-        }}";
-
-        int grade = Settings.HomeGrade;
-        int room  = Settings.HomeRoom;
-        string teacher = grade > 0 && room > 0 ? $" · {grade}학년 {room}반 담임" : "";
-
-        return $"{greeting} · {date}{teacher}";
+        string school = Settings.SchoolName;
+        return string.IsNullOrWhiteSpace(school) ? "SaemDesk" : $"{school} · SaemDesk";
     }
 
     // ────────────────────────────────────────────────────

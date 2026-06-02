@@ -2,7 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:SaemDesk.Board.ViewModels"
              xmlns:models="using:SaemDesk.Board.Models"
-             xmlns:ctrl="using:SaemDesk.Views.Controls"
+             xmlns:are="using:AvaloniaRichEditor.Controls"
              xmlns:boardCtrl="using:SaemDesk.Board.Views.Controls"
              x:Class="SaemDesk.Board.Views.Pages.PostDetailPage"
              x:DataType="vm:PostDetailViewModel">
@@ -88,7 +88,7 @@
                 BorderThickness="1,0,1,1" CornerRadius="0,0,8,8"
                 Padding="20,0,20,16">
           <StackPanel Spacing="10">
-            <ctrl:JoditEditor x:Name="ContentViewer" MinHeight="200"/>
+            <are:RichEditor x:Name="ContentViewer" MinHeight="200" EditorMode="ReadOnly"/>
             <boardCtrl:PostFileListBox x:Name="FileListBox" IsVisible="False"/>
           </StackPanel>
         </Border>

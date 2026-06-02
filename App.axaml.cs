@@ -54,6 +54,7 @@ public partial class App : Application
     {
         // 1. 앱 설정 로드
         Settings.Initialize();
+        ApplyTheme(Settings.Theme.Value);
         Debug.WriteLine($"[App] UserDataPath = {Settings.UserDataPath}");
         Debug.WriteLine($"[App] BoardDatabase.DbPath = {BoardDatabase.DbPath}");
 
@@ -62,6 +63,9 @@ public partial class App : Application
             SchoolDatabase.InitAsync(),
             BoardDatabase.InitAsync(),
             SaemDesk.Scheduler.Scheduler.InitAsync());
+
+        // 게시글 리치 콘텐츠: 구버전 HTML → ardx BLOB 1회성 변환 (UI 스레드·자동 백업·플래그 게이트)
+        await BoardDatabase.MigrateContentToArdxAsync();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
@@ -100,6 +104,18 @@ public partial class App : Application
 
         TryStartGoogleAutoSync();
         base.OnFrameworkInitializationCompleted();
+    }
+
+    /// <summary>설정 값("System"/"Light"/"Dark")에 따라 앱 테마를 적용한다. 시작 시·변경 시 호출.</summary>
+    public static void ApplyTheme(string theme)
+    {
+        if (Application.Current is null) return;
+        Application.Current.RequestedThemeVariant = theme switch
+        {
+            "Dark"  => Avalonia.Styling.ThemeVariant.Dark,
+            "Light" => Avalonia.Styling.ThemeVariant.Light,
+            _        => Avalonia.Styling.ThemeVariant.Default,
+        };
     }
 
     private static void ShowMainWindow(IClassicDesktopStyleApplicationLifetime desktop)

@@ -10,7 +10,7 @@ namespace SaemDesk.ViewModels.Pages;
 
 /// <summary>
 /// 통합 내보내기 페이지 ViewModel.
-/// PreviewCommand: UnifiedExportService.PreviewClassAsync → HTML → JoditEditor(ReadOnly) 표시.
+/// PreviewCommand: UnifiedExportService.PreviewClassAsync → HTML → RichEditor(ReadOnly) 표시.
 /// ExportCommand:  파일 저장 후 자동 열기.
 /// ClipboardCommand: TSV 클립보드 복사 (누가기록/학생부만).
 /// </summary>

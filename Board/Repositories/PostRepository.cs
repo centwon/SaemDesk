@@ -17,9 +17,9 @@ public class PostRepository : BaseRepository
     public async Task<int> CreateAsync(Post post)
     {
         const string sql = @"
-            INSERT INTO Post (User,DateTime,Category,Subject,Title,Content,
+            INSERT INTO Post (User,DateTime,Category,Subject,Title,Content,ContentArdx,
                               RefNo,ReplyOrder,Depth,ReadCount,HasFile,HasComment,IsCompleted)
-            VALUES (@User,@DateTime,@Category,@Subject,@Title,@Content,
+            VALUES (@User,@DateTime,@Category,@Subject,@Title,@Content,@ContentArdx,
                    @RefNo,@ReplyOrder,@Depth,@ReadCount,@HasFile,@HasComment,@IsCompleted);
             SELECT last_insert_rowid();";
         using var cmd = CreateCommand(sql);
@@ -119,7 +119,7 @@ public class PostRepository : BaseRepository
     public async Task<bool> UpdateAsync(Post post)
     {
         const string sql = @"UPDATE Post SET User=@User,DateTime=@DateTime,Category=@Category,
-            Subject=@Subject,Title=@Title,Content=@Content,RefNo=@RefNo,ReplyOrder=@ReplyOrder,
+            Subject=@Subject,Title=@Title,Content=@Content,ContentArdx=@ContentArdx,RefNo=@RefNo,ReplyOrder=@ReplyOrder,
             Depth=@Depth,ReadCount=@ReadCount,HasFile=@HasFile,HasComment=@HasComment,
             IsCompleted=@IsCompleted WHERE No=@No";
         using var cmd = CreateCommand(sql);
@@ -196,6 +196,7 @@ public class PostRepository : BaseRepository
         cmd.Parameters.AddWithValue("@Subject",  p.Subject);
         cmd.Parameters.AddWithValue("@Title",    p.Title);
         cmd.Parameters.AddWithValue("@Content",  p.Content);
+        cmd.Parameters.Add("@ContentArdx", SqliteType.Blob).Value = (object?)p.ContentArdx ?? DBNull.Value;
         cmd.Parameters.Add("@RefNo",       SqliteType.Integer).Value = p.RefNo;
         cmd.Parameters.Add("@ReplyOrder",  SqliteType.Integer).Value = p.ReplyOrder;
         cmd.Parameters.Add("@Depth",       SqliteType.Integer).Value = p.Depth;
@@ -226,6 +227,9 @@ public class PostRepository : BaseRepository
         };
         if (c.TryGetOrdinal("IsCompleted", out int co) && !r.IsDBNull(co))
             p.IsCompleted = r.GetInt32(co) == 1;
+        // ContentArdx 는 SELECT * 경로(단일 글 조회 등)에서만 채워진다. 목록 쿼리는 컬럼 미선택.
+        if (c.TryGetOrdinal("ContentArdx", out int ao) && !r.IsDBNull(ao))
+            p.ContentArdx = r.GetFieldValue<byte[]>(ao);
         return p;
     }
 }

@@ -11,7 +11,7 @@ namespace SaemDesk.Views.Controls;
 
 /// <summary>
 /// 학급일지 입력 컨트롤 — Avalonia 12 이식.
-/// 출결(결석/지각/조퇴) + 메모 + 알림장(JoditEditor) + 시간표.
+/// 출결(결석/지각/조퇴) + 메모 + 알림장(RichEditor) + 시간표.
 /// </summary>
 public partial class ClassDiaryBox : UserControl
 {
@@ -25,7 +25,6 @@ public partial class ClassDiaryBox : UserControl
         ViewModel = new ClassDiaryViewModel();
         DataContext = ViewModel;
 
-        NoticeBox.TextChanged += NoticeBox_TextChanged;
         Unloaded += OnUnloaded;
     }
 
@@ -36,7 +35,7 @@ public partial class ClassDiaryBox : UserControl
 
         await ViewModel.LoadDiaryAsync(grade, classNumber, date);
 
-        NoticeBox.Text = ViewModel.Notice ?? string.Empty;
+        NoticeBox.LoadHtml(ViewModel.Notice ?? string.Empty);
         UpdateNoticePreview();
 
         await LoadTimetableAsync(grade, classNumber, Settings.WorkYear);
@@ -62,7 +61,7 @@ public partial class ClassDiaryBox : UserControl
         // Grade/Class가 유효하지 않으면 (초기 빈 상태) 저장 안 함
         if (ViewModel.Grade <= 0 || ViewModel.Class <= 0) return;
 
-        ViewModel.Notice = NoticeBox.Text;
+        ViewModel.Notice = NoticeBox.ToHtml();
         await ViewModel.SaveDiaryAsync();
 
         _isChanged = false;
@@ -93,38 +92,21 @@ public partial class ClassDiaryBox : UserControl
         if (sender is TextBox tb) MarkTextBoxAsChanged(tb);
     }
 
-    private void NoticeBox_TextChanged(object? sender, string e)
-    {
-        _isChanged = true;
-        UpdateNoticePreview();
-    }
-
     private void UpdateNoticePreview()
     {
-        string content = NoticeBox.Text ?? string.Empty;
-        string plainText = StripHtmlTags(content);
+        string plainText = Regex.Replace(NoticeBox.GetPlainText(), @"\s+", " ").Trim();
 
         TxtNoticePreview.Text = string.IsNullOrWhiteSpace(plainText)
             ? "(내용 없음)"
             : (plainText.Length > 50 ? plainText.Substring(0, 50) + "..." : plainText);
     }
 
-    private static string StripHtmlTags(string html)
-    {
-        if (string.IsNullOrEmpty(html)) return string.Empty;
-        string text = Regex.Replace(html, @"<[^>]+>", " ");
-        text = System.Net.WebUtility.HtmlDecode(text);
-        text = Regex.Replace(text, @"\s+", " ");
-        return text.Trim();
-    }
-
-    /// <summary>알림장 전체 편집 버튼 — JoditEditorWin 으로 헤더 포함 전체화면 편집 (NewSchool 원본 동등).</summary>
+    /// <summary>알림장 전체 편집 버튼 — RichEditorWindow 으로 헤더 포함 전체화면 편집.</summary>
     private async void BtnNoticeEdit_Click(object? sender, RoutedEventArgs e)
     {
-        var editorWin = new JoditEditorWin(
+        var editorWin = new RichEditorWindow(
             "알림장 편집",
-            BuildNoticeHeaderHtml() + "<br>" + NoticeBox.Text,
-            JoditEditor.EditorMode.Full);
+            BuildNoticeHeaderHtml() + "<br>" + NoticeBox.ToHtml());
 
         editorWin.SetSize(1000, 800);
 
@@ -135,8 +117,8 @@ public partial class ClassDiaryBox : UserControl
 
         if (result)
         {
-            string content = RemoveNoticeHeaderHtml(editorWin.Text);
-            NoticeBox.Text = content;
+            string content = RemoveNoticeHeaderHtml(editorWin.Html);
+            NoticeBox.LoadHtml(content);
             _isChanged = true;
             UpdateNoticePreview();
         }

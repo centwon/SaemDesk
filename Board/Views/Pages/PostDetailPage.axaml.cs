@@ -14,7 +14,7 @@ namespace SaemDesk.Board.Views.Pages;
 
 /// <summary>
 /// 게시글 상세 페이지 — NewSchool PostDetailPage 이식 (Frame → 이벤트).
-/// JoditEditor(ReadOnly) + 첨부파일 + 댓글.
+/// RichEditor(ReadOnly) + 첨부파일 + 댓글.
 /// </summary>
 public partial class PostDetailPage : UserControl
 {
@@ -46,9 +46,16 @@ public partial class PostDetailPage : UserControl
 
         if (ViewModel.Post is not null)
         {
-            // JoditEditor에 내용 설정 (Text 프로퍼티로 설정)
-            ContentViewer.Mode = SaemDesk.Views.Controls.JoditEditor.EditorMode.ReadOnly;
-            ContentViewer.Text = ViewModel.Post.Content;
+            // RichEditor(ReadOnly, axaml 지정)에 ardx 정본 로드, 없으면 구 HTML 폴백
+            if (ViewModel.Post.ContentArdx is { Length: > 0 } ardx)
+            {
+                using var ms = new MemoryStream(ardx);
+                await ContentViewer.LoadPackageAsync(ms);
+            }
+            else
+            {
+                ContentViewer.LoadHtml(ViewModel.Post.Content);
+            }
 
             // 첨부파일 목록 로드
             using var svc   = BoardService.Create();
@@ -94,7 +101,16 @@ public partial class PostDetailPage : UserControl
 
     private async void BtnPrint_Click(object? sender, RoutedEventArgs e)
     {
-        try { await ContentViewer.PrintAsync(); }
+        try
+        {
+            // RichEditor 내용을 HTML로 내보내 브라우저 인쇄 다이얼로그로 출력
+            string body = ContentViewer.ToHtml();
+            string html = $"<!DOCTYPE html><html><head><meta charset=\"utf-8\"></head>"
+                        + $"<body onload=\"window.print()\">{body}</body></html>";
+            string path = Path.Combine(Path.GetTempPath(), $"post_{_postNo}_{Guid.NewGuid():N}.html");
+            await File.WriteAllTextAsync(path, html);
+            Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+        }
         catch (Exception ex) { Debug.WriteLine($"[PostDetailPage] 인쇄: {ex.Message}"); }
     }
 

@@ -8,6 +8,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using SaemDesk.Board.Models;
 using SaemDesk.Board.Services;
+using SaemDesk.Helpers;
 using SaemDesk.Services;
 using SaemDesk.Views.Dialogs;
 
@@ -15,7 +16,7 @@ namespace SaemDesk.Board.Views.Pages;
 
 /// <summary>
 /// 게시글 작성/수정 페이지 — NewSchool PostEditPage 이식 (Frame → 이벤트).
-/// JoditEditor + 카테고리/주제 ComboBox + 첨부파일.
+/// RichEditorView + 카테고리/주제 ComboBox + 첨부파일.
 /// </summary>
 public partial class PostEditPage : UserControl
 {
@@ -61,7 +62,15 @@ public partial class PostEditPage : UserControl
             {
                 _originalCategory = _post.Category;
                 TxtTitle.Text = _post.Title;
-                ContentEditor.Text = _post.Content;
+                if (_post.ContentArdx is { Length: > 0 } ardx)
+                {
+                    using var ms = new MemoryStream(ardx);
+                    await ContentEditor.Editor.LoadPackageAsync(ms);
+                }
+                else
+                {
+                    ContentEditor.Editor.LoadHtml(_post.Content); // 폴백: 미변환 구 HTML/plaintext
+                }
 
                 SelectCategory(_post.Category);
                 await LoadSubjectsAsync(_post.Category);
@@ -77,7 +86,7 @@ public partial class PostEditPage : UserControl
             _isEdit = false;
             PageTitle.Text = "새 글 쓰기";
             TxtTitle.Text      = string.Empty;
-            ContentEditor.Text = string.Empty;
+            ContentEditor.Editor.Clear();
             CBoxSubject.SelectedIndex = -1;
             FileListBox.LoadFiles(new List<PostFile>(), param?.DefaultCategory ?? string.Empty);
             _post = new Post
@@ -252,10 +261,17 @@ public partial class PostEditPage : UserControl
             if (_post is null) return;
 
             _post.Title    = TxtTitle.Text ?? "";
-            _post.Content  = await ContentEditor.GetHtmlAsync();
-            if (string.IsNullOrEmpty(_post.Content))
-                _post.Content = ContentEditor.Text; // WebView 미초기화 시 폴백
-            if (string.IsNullOrWhiteSpace(_post.Content)) { Debug.WriteLine("내용 없음"); return; }
+
+            // 리치 콘텐츠 정본은 ardx BLOB, 검색용은 plaintext.
+            using (var ms = new MemoryStream())
+            {
+                await ContentEditor.Editor.SavePackageAsync(ms);
+                _post.ContentArdx = ms.ToArray();
+            }
+            _post.Content = ContentEditor.Editor.Document is { } doc ? RichContent.PlainText(doc) : string.Empty;
+
+            if (string.IsNullOrWhiteSpace(_post.Content) && ContentEditor.Editor.GetImageCount() == 0)
+            { await DialogService.ShowInfoAsync("내용이 비어 있어 저장하지 않았습니다."); return; }
             _post.DateTime = DateTime.Now;
 
             // 카테고리
@@ -273,7 +289,7 @@ public partial class PostEditPage : UserControl
                 await MoveFilesAsync(_originalCategory, _post.Category, _post.No, svc);
 
             int postNo = await svc.SavePostAsync(_post);
-            if (postNo <= 0) return;
+            if (postNo <= 0) { await DialogService.ShowInfoAsync("DB 저장에 실패했습니다 (postNo<=0)."); return; }
 
             // 삭제할 파일 처리
             foreach (var del in FileListBox.FilesToDelete)
@@ -289,7 +305,11 @@ public partial class PostEditPage : UserControl
 
             Saved?.Invoke(this, EventArgs.Empty);
         }
-        catch (Exception ex) { Debug.WriteLine($"[PostEditPage] 저장: {ex.Message}"); }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[PostEditPage] 저장 예외: {ex}");
+            await DialogService.ShowInfoAsync($"저장 중 오류: {ex.GetType().Name}\n{ex.Message}");
+        }
         finally { BtnSave.IsEnabled = true; }
     }
 
@@ -355,8 +375,8 @@ public partial class PostEditPage : UserControl
 
         if (!dlg.IsSuccess || string.IsNullOrEmpty(dlg.GeneratedHtml)) return;
 
-        // JoditEditor에 HTML 삽입
-        await ContentEditor.InsertHtmlAsync(dlg.GeneratedHtml);
+        // RichEditor에 HTML 표 삽입
+        ContentEditor.Editor.InsertHtml(dlg.GeneratedHtml);
 
         // 제목이 비어 있으면 표 제목으로 자동 채움
         if (string.IsNullOrWhiteSpace(TxtTitle.Text) && !string.IsNullOrEmpty(dlg.TableTitle))

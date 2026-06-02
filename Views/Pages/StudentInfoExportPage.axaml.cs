@@ -16,7 +16,7 @@ namespace SaemDesk.Views.Pages;
 /// <summary>
 /// 학생 정보 출력 페이지 — Avalonia 12 이식.
 /// 원본: NewSchool.Pages.StudentInfoExportPage (WinUI3).
-/// 학급 필터 + 출력항목 선택 + 미리보기(JoditEditor ReadOnly) + CSV/Excel/프린터 출력.
+/// 학급 필터 + 출력항목 선택 + 미리보기(RichEditor ReadOnly) + CSV/Excel/프린터 출력.
 /// </summary>
 public partial class StudentInfoExportPage : UserControl, IDisposable
 {
@@ -196,7 +196,7 @@ public partial class StudentInfoExportPage : UserControl, IDisposable
     private void MakePreview()
     {
         if (_data is null) return;
-        PreviewWebView.NavigateToString(GenerateHtml());
+        PreviewEditor.LoadHtml(GenerateHtml());
     }
 
     private string GenerateHtml()
@@ -282,7 +282,16 @@ th{{background:#f0f0f0;font-weight:bold;}}
 
     private async Task PrintAsync()
     {
-        try { await PreviewWebView.InvokeScript("window.print()"); }
+        try
+        {
+            string html = GenerateHtml();
+            if (string.IsNullOrEmpty(html)) return;
+            // 생성 HTML을 임시 파일로 내보내 브라우저 인쇄(@page/스타일 적용)로 출력
+            string path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"studentinfo_{Guid.NewGuid():N}.html");
+            await System.IO.File.WriteAllTextAsync(path,
+                $"<!DOCTYPE html><html><head><meta charset=\"utf-8\"></head><body onload=\"window.print()\">{html}</body></html>");
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
+        }
         catch (Exception ex) { await ShowInfoAsync($"인쇄 실패: {ex.Message}"); }
     }
 

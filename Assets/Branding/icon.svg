@@ -1,0 +1,49 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="book" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#D4EAFF"/>
+      <stop offset="1" stop-color="#A6D4FF"/>
+    </linearGradient>
+    <linearGradient id="desk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#CFA068"/>
+      <stop offset="1" stop-color="#A6713C"/>
+    </linearGradient>
+    <linearGradient id="pencil" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFD06A"/>
+      <stop offset="1" stop-color="#FFB525"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 책상 다리 -->
+  <rect x="148" y="390" width="22" height="74" rx="8" fill="url(#desk)"/>
+  <rect x="342" y="390" width="22" height="74" rx="8" fill="url(#desk)"/>
+  <!-- 책상 상판 -->
+  <rect x="112" y="370" width="288" height="20" rx="10" fill="url(#desk)"/>
+
+  <!-- 펼친 책 (슬림) -->
+  <path d="M256 288 C228 276 188 273 150 280 C141 282 136 289 138 297 L147 358 C149 365 156 370 164 368 C197 360 228 362 256 372 Z" fill="url(#book)"/>
+  <path d="M256 288 C284 276 324 273 362 280 C371 282 376 289 374 297 L365 358 C363 365 356 370 348 368 C315 360 284 362 256 372 Z" fill="url(#book)"/>
+  <!-- 가운데 접힘 -->
+  <path d="M256 292 L256 371" stroke="#3E7FD0" stroke-width="5" stroke-linecap="round"/>
+  <!-- 페이지 라인 -->
+  <path d="M158 300 C190 292 220 292 244 300" stroke="#5AA0EA" stroke-width="6" stroke-linecap="round" opacity="0.9"/>
+  <path d="M152 324 C186 316 216 316 244 323" stroke="#5AA0EA" stroke-width="6" stroke-linecap="round" opacity="0.9"/>
+  <path d="M268 300 C292 292 322 292 354 300" stroke="#5AA0EA" stroke-width="6" stroke-linecap="round" opacity="0.9"/>
+  <path d="M268 323 C296 316 326 316 360 324" stroke="#5AA0EA" stroke-width="6" stroke-linecap="round" opacity="0.9"/>
+
+  <!-- 연필 (작게, 책 위에 놓인 크기) -->
+  <g transform="translate(258 262) rotate(128)">
+    <!-- 지우개 -->
+    <rect x="-60" y="-8" width="13" height="16" rx="8" fill="#F4A8BC"/>
+    <!-- 금속 밴드 -->
+    <rect x="-47" y="-8" width="8" height="16" fill="#C9CED6"/>
+    <!-- 몸체 -->
+    <rect x="-39" y="-8" width="66" height="16" rx="2" fill="url(#pencil)"/>
+    <!-- 몸체 음영 -->
+    <rect x="-39" y="3" width="66" height="5" rx="2" fill="#E89A12"/>
+    <!-- 나무 끝 -->
+    <polygon points="27,-8 27,8 42,3 42,-3" fill="#F1D6A6"/>
+    <!-- 흑연 심 -->
+    <polygon points="42,-3 42,3 53,0" fill="#2A2A2A"/>
+  </g>
+</svg>

@@ -155,7 +155,7 @@
             <TextBlock Text="📌 게시판" FontWeight="SemiBold"/>
             <TextBlock TextWrapping="Wrap"
                        Foreground="{DynamicResource SystemBaseMediumColor}"
-                       Text="공지, 메모, 할일을 카테고리별로 정리합니다. 본문은 Jodit HTML 에디터로 작성하며 이미지, 표, 링크를 지원합니다."/>
+                       Text="공지, 메모, 할일을 카테고리별로 정리합니다. 본문은 리치 텍스트 에디터로 작성하며 이미지, 표, 링크를 지원합니다."/>
           </StackPanel>
 
           <StackPanel Spacing="2">

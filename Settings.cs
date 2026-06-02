@@ -212,6 +212,8 @@ public static class Settings
     //Board 설정
     public static SettingProperty<string> Board_DB { get; private set; } = null!;
     public static SettingProperty<bool> Board_Inited { get; private set; } = null!;
+    /// <summary>게시글 Content(HTML)→ardx BLOB 1회성 마이그레이션 완료 여부.</summary>
+    public static SettingProperty<bool> Board_ArdxMigrated { get; private set; } = null!;
     /// <summary>
     /// 캐시 활성화 여부
     /// </summary>
@@ -329,7 +331,7 @@ public static class Settings
         ProvinceName = new SettingProperty<string>("ProvinceName", "", s => s, s => s);
         NeisApiKey = new SettingProperty<string>("NeisApiKey", SaemDesk.Services.SecretsService.NeisApiKey, s => s, s => s);
         WorkSemester = new SettingProperty<int>("WorkSemester", 0, int.Parse, i => i.ToString());
-        TopMost = new SettingProperty<bool>("TopMost", true, bool.Parse, b => b.ToString().ToLower());
+        TopMost = new SettingProperty<bool>("TopMost", false, bool.Parse, b => b.ToString().ToLower());
         UserName = new SettingProperty<string>("UserName", "", s => s, s => s);
         IsNeisEventDownloaded = new SettingProperty<bool>("IsNeisEventDownloaded", false, bool.Parse, b => b.ToString().ToLower());
 
@@ -345,6 +347,7 @@ public static class Settings
         School_Inited = new SettingProperty<bool>("SchoolDB_Inited", false, bool.Parse, b => b.ToString().ToLower());
         Board_DB = new SettingProperty<string>("Board_DB", "board.db", s => s, s => s);
         Board_Inited = new SettingProperty<bool>("Board_Init", false, bool.Parse, b => b.ToString().ToLower());
+        Board_ArdxMigrated = new SettingProperty<bool>("Board_ArdxMigrated", false, bool.Parse, b => b.ToString().ToLower());
 
                 /// <summary>
                 /// 캐시 활성화 여부
@@ -468,6 +471,7 @@ public static class Settings
 
         Board_DB.Reload();
         Board_Inited.Reload();
+        Board_ArdxMigrated.Reload();
         EnableCache.Reload();
         DefaultPageSize.Reload();
         AutoBackupIntervalDays.Reload();

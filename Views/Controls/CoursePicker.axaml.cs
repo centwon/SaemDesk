@@ -21,8 +21,8 @@ namespace SaemDesk.Views.Controls;
 ///     강의실이 1개 이상이면 자동 표시, 0개이면 CBoxRoom 숨김.
 ///   - ShowRoom=false 이면 강의실 콤보 항상 숨김.
 ///   - 과목/강의실이 확정되면 수강생 조회 후 CourseChangedEventArgs 로 이벤트 발생.
-///     IsClassType  → EnrollmentRepository: 학급 전체 학생
-///     그 외        → CourseEnrollmentRepository: 수강 등록 학생
+///     유형과 무관하게 CourseEnrollmentRepository(수강자 명단)에서 조회하고
+///     선택된 강의실(Room)로 필터. 강의실 미선택(전체)이면 과목 전체 수강자.
 /// </summary>
 public partial class CoursePicker : UserControl
 {
@@ -84,7 +84,6 @@ public partial class CoursePicker : UserControl
                 CBoxCourse.SelectionChanged -= OnCourseChanged;
 
                 CBoxCourse.ItemsSource = courses;
-                CBoxCourse.DisplayMemberBinding = new Avalonia.Data.Binding("DisplayName");
 
                 // 이전 선택 과목 유지 시도
                 var prev = SelectedCourse;
@@ -191,29 +190,22 @@ public partial class CoursePicker : UserControl
     {
         try
         {
-            if (course.IsClassType)
-            {
-                using var repo = new EnrollmentRepository(SchoolDatabase.DbPath);
-                return await repo.GetByGradeAsync(
-                    Settings.SchoolCode.Value, _loadedYear, _loadedSemester, course.Grade);
-            }
-            else
-            {
-                using var ceRepo = new CourseEnrollmentRepository(SchoolDatabase.DbPath);
-                var courseEnrollments = await ceRepo.GetByCourseAsync(course.No);
-                if (courseEnrollments.Count == 0) return new List<Enrollment>();
+            // 수강자 명단은 유형과 무관하게 CourseEnrollment 가 단일 원천.
+            // (학급공통 과목도 일괄배치로 Room="{Grade}-{Class}" 행이 생성됨)
+            using var ceRepo = new CourseEnrollmentRepository(SchoolDatabase.DbPath);
+            var courseEnrollments = await ceRepo.GetByCourseAsync(course.No);
+            if (courseEnrollments.Count == 0) return new List<Enrollment>();
 
-                // 강의실 필터: null(전체)이면 필터 없음, 특정 강의실이면 해당 강의실만
-                var room = SelectedRoom;
-                if (room != null)
-                    courseEnrollments = courseEnrollments.Where(ce => ce.Room == room).ToList();
+            // 강의실 필터: null(전체)이면 필터 없음, 특정 강의실이면 해당 강의실만
+            var room = SelectedRoom;
+            if (room != null)
+                courseEnrollments = courseEnrollments.Where(ce => ce.Room == room).ToList();
 
-                var studentIds = courseEnrollments.Select(ce => ce.StudentID).ToHashSet();
-                using var eRepo = new EnrollmentRepository(SchoolDatabase.DbPath);
-                var all = await eRepo.GetBySchoolAndYearAsync(
-                    Settings.SchoolCode.Value, _loadedYear);
-                return all.Where(e => studentIds.Contains(e.StudentID)).ToList();
-            }
+            var studentIds = courseEnrollments.Select(ce => ce.StudentID).ToHashSet();
+            using var eRepo = new EnrollmentRepository(SchoolDatabase.DbPath);
+            var all = await eRepo.GetBySchoolAndYearAsync(
+                Settings.SchoolCode.Value, _loadedYear);
+            return all.Where(e => studentIds.Contains(e.StudentID)).ToList();
         }
         catch (Exception ex)
         {

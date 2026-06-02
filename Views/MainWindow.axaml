@@ -3,6 +3,7 @@
         xmlns:vm="using:SaemDesk.ViewModels"
         x:Class="SaemDesk.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/icon.ico"
         Title="{CompiledBinding WindowTitle}"
         Width="1280" Height="780"
         MinWidth="960" MinHeight="600">
@@ -83,10 +84,9 @@
 
           <!-- 설정 -->
           <MenuItem Header="⚙ 설정">
-            <MenuItem Header="🏫 학교 설정"     Click="OnMenuClick" Tag="Settings_School"/>
             <MenuItem Header="🗓 학사일정 관리" Click="OnMenuClick" Tag="Settings_SchoolSchedule"/>
             <MenuItem Header="👤 학생 관리"     Click="OnMenuClick" Tag="Settings_Student"/>
-            <MenuItem Header="⚙ 앱 설정"       Click="OnMenuClick" Tag="Settings_App"/>
+            <MenuItem Header="⚙ 환경 설정"     Click="OnMenuClick" Tag="Settings_App"/>
             <MenuItem Header="❓ 도움말"        Click="OnMenuClick" Tag="Help"/>
             <MenuItem Header="🔄 업데이트 확인" Click="OnMenuClick" Tag="CheckUpdate"/>
           </MenuItem>

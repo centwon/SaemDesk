@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -58,7 +59,27 @@ public partial class SettingsPageVM : ViewModelBase
 
     // ── 앱 옵션 ──────────────────────────────────────────
     [ObservableProperty] private bool _startWithWindows;
-    [ObservableProperty] private bool _autoBackup;
+    [ObservableProperty] private bool _topMost;
+
+    /// <summary>테마 ("System" / "Light" / "Dark"). ComboBox 는 ThemeIndex 로 바인딩.</summary>
+    [ObservableProperty] private string _theme = "Light";
+
+    /// <summary>ComboBox SelectedIndex (0=시스템, 1=라이트, 2=다크). -1(미선택)은 무시.</summary>
+    public int ThemeIndex
+    {
+        get => Theme switch { "Light" => 1, "Dark" => 2, _ => 0 };
+        set
+        {
+            if (value < 0) return;            // ComboBox 초기화 시 -1 무시
+            Theme = value switch { 1 => "Light", 2 => "Dark", _ => "System" };
+        }
+    }
+
+    // ── 데이터 관리 (백업) ────────────────────────────────
+    [ObservableProperty] private bool    _autoBackup;
+    [ObservableProperty] private decimal _autoBackupIntervalDays;   // NumericUpDown → decimal
+    [ObservableProperty] private decimal _backupRetentionCount;     // NumericUpDown → decimal
+    [ObservableProperty] private string  _lastBackupDisplay = "없음";
 
     // ── 상태 메시지 ───────────────────────────────────────
     [ObservableProperty] private string _statusMessage  = string.Empty;
@@ -127,8 +148,23 @@ public partial class SettingsPageVM : ViewModelBase
         BreakTimeMinutes = (decimal)Settings.BreakTime.Value.TotalMinutes;
         LunchTimeMinutes = (decimal)Settings.LunchTime.Value.TotalMinutes;
 
-        AutoBackup       = Settings.AutoBackup;
         StartWithWindows = Settings.StartWithWindows;
+        TopMost          = Settings.TopMost;
+        Theme            = string.IsNullOrEmpty(Settings.Theme.Value) ? "System" : Settings.Theme.Value;
+
+        AutoBackup             = Settings.AutoBackup;
+        AutoBackupIntervalDays = Settings.AutoBackupIntervalDays.Value;
+        BackupRetentionCount   = Settings.BackupRetentionCount.Value;
+        RefreshLastBackup();
+    }
+
+    /// <summary>마지막 백업 시각을 표시용 문자열로 갱신.</summary>
+    private void RefreshLastBackup()
+    {
+        var raw = Settings.LastBackupTime.Value;
+        LastBackupDisplay = DateTime.TryParse(raw, out var dt)
+            ? dt.ToString("yyyy-MM-dd HH:mm")
+            : "없음";
     }
 
     // ────────────────────────────────────────────────────
@@ -152,7 +188,24 @@ public partial class SettingsPageVM : ViewModelBase
     partial void OnBreakTimeMinutesChanged(decimal value) { if (!_isLoading) Settings.BreakTime.Set(TimeSpan.FromMinutes((double)value)); }
     partial void OnLunchTimeMinutesChanged(decimal value) { if (!_isLoading) Settings.LunchTime.Set(TimeSpan.FromMinutes((double)value)); }
 
-    partial void OnAutoBackupChanged(bool value)        { if (!_isLoading) Settings.AutoBackup.Set(value); }
+    partial void OnAutoBackupChanged(bool value)             { if (!_isLoading) Settings.AutoBackup.Set(value); }
+    partial void OnAutoBackupIntervalDaysChanged(decimal value) { if (!_isLoading) Settings.AutoBackupIntervalDays.Set((int)value); }
+    partial void OnBackupRetentionCountChanged(decimal value)   { if (!_isLoading) Settings.BackupRetentionCount.Set((int)value); }
+
+    partial void OnThemeChanged(string value)
+    {
+        if (_isLoading) return;
+        Settings.Theme.Set(value);
+        App.ApplyTheme(value);
+        OnPropertyChanged(nameof(ThemeIndex));
+    }
+
+    partial void OnTopMostChanged(bool value)
+    {
+        if (_isLoading) return;
+        Settings.TopMost.Set(value);
+        if (DialogService.MainWindow is { } w) w.Topmost = value;
+    }
 
     partial void OnStartWithWindowsChanged(bool value)
     {
@@ -210,5 +263,79 @@ public partial class SettingsPageVM : ViewModelBase
         LoadSettings();
         _isLoading = false;
         ShowStatus("설정을 다시 불러왔습니다.");
+    }
+
+    // ────────────────────────────────────────────────────
+    //  데이터 관리 (백업 / 복원 / 초기화 / 폴더 열기)
+    // ────────────────────────────────────────────────────
+
+    /// <summary>지금 전체 데이터 백업 (Settings.db + 모든 DB)</summary>
+    [RelayCommand]
+    private void BackupNow()
+    {
+        var dir = Settings.Backup();
+        if (dir is null) { ShowStatus("백업에 실패했습니다."); return; }
+        RefreshLastBackup();
+        ShowStatus($"백업 완료: {dir}");
+    }
+
+    /// <summary>백업 폴더를 선택해 전체 데이터 복원 (덮어쓰기 → 재시작 필요)</summary>
+    [RelayCommand]
+    private async Task RestoreBackupAsync()
+    {
+        var folder = await App.FilePicker.OpenFolderAsync();
+        if (string.IsNullOrEmpty(folder)) return;
+
+        var ok = await DialogService.ShowConfirmAsync(
+            "복원 확인",
+            "선택한 백업으로 모든 데이터를 덮어씁니다. 계속할까요?\n복원 후 앱을 다시 시작해야 변경 사항이 모두 적용됩니다.");
+        if (!ok) return;
+
+        if (Settings.Restore(folder))
+        {
+            _isLoading = true;
+            LoadSettings();
+            _isLoading = false;
+            await DialogService.ShowInfoAsync("복원이 완료되었습니다. 앱을 다시 시작하세요.");
+        }
+        else
+        {
+            ShowStatus("복원에 실패했습니다. 올바른 백업 폴더인지 확인하세요.");
+        }
+    }
+
+    /// <summary>모든 설정을 기본값으로 초기화 (데이터는 보존)</summary>
+    [RelayCommand]
+    private async Task ResetToDefaultsAsync()
+    {
+        var ok = await DialogService.ShowConfirmAsync(
+            "초기화 확인",
+            "모든 설정을 기본값으로 되돌립니다. 학생·일정 등 데이터는 삭제되지 않습니다. 계속할까요?");
+        if (!ok) return;
+
+        Settings.ResetToDefaults();
+        _isLoading = true;
+        LoadSettings();
+        _isLoading = false;
+        App.ApplyTheme(Theme);
+        ShowStatus("설정을 기본값으로 초기화했습니다.");
+    }
+
+    /// <summary>데이터 폴더를 탐색기로 열기</summary>
+    [RelayCommand]
+    private void OpenDataFolder()
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName        = Settings.UserDataPath,
+                UseShellExecute = true,
+            });
+        }
+        catch (Exception ex)
+        {
+            ShowStatus($"폴더 열기 실패: {ex.Message}");
+        }
     }
 }

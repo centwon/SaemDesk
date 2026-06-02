@@ -31,6 +31,8 @@ public partial class MainWindow : Window
 
         if (Settings.WindowIsMaximized.Value)
             WindowState = WindowState.Maximized;
+
+        Topmost = Settings.TopMost.Value;
     }
 
     protected override void OnSizeChanged(SizeChangedEventArgs e)
@@ -120,7 +122,6 @@ public partial class MainWindow : Window
             }),
 
             // 설정
-            "Settings_School"           => new SettingsPageVM(),
             "Settings_SchoolSchedule"   => new SchoolScheduleManagementPageVM(),
             "Settings_Student"          => new StudentsPageVM(),
             "Settings_App"              => new SettingsPageVM(),

@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:SaemDesk.ViewModels.Pages"
              xmlns:ctrl="using:SaemDesk.Views.Controls"
+             xmlns:are="using:AvaloniaRichEditor.Controls"
              x:Class="SaemDesk.Views.Pages.UnifiedExportPage"
              x:DataType="vm:UnifiedExportPageVM"
              Classes="page">
@@ -124,12 +125,10 @@
     <!-- Row 3: 미리보기 영역 — 나머지 전체 공간 -->
     <Grid Grid.Row="3">
 
-      <!-- JoditEditor: 항상 비주얼 트리에 유지 (숨기면 WebView 초기화 충돌 발생) -->
+      <!-- 미리보기 — RichEditor ReadOnly (PreviewHtml 변경 시 code-behind 에서 LoadHtml) -->
       <Border BorderBrush="{DynamicResource ContentSeparatorBrush}"
               BorderThickness="1" CornerRadius="8">
-        <ctrl:JoditEditor x:Name="PreviewEditor"
-                          Mode="ReadOnly"
-                          Text="{Binding PreviewHtml}"/>
+        <are:RichEditor x:Name="PreviewEditor" EditorMode="ReadOnly"/>
       </Border>
 
       <!-- 빈 상태 안내: 미리보기 없을 때만 위에 엹음 -->

@@ -23,6 +23,18 @@ public partial class TodayPageVM : ViewModelBase
     public string TodayDayOfWeek { get; } = GetKoreanDayOfWeek(DateTime.Today.DayOfWeek);
     public string TodayGreeting  { get; } = BuildGreeting();
 
+    // ── 현재 교시 (View 타이머가 1분마다 RefreshCurrentPeriod 호출) ──
+    [ObservableProperty] private string _currentPeriodText = Functions.GetPeriodNow().Name;
+
+    public void RefreshCurrentPeriod() => CurrentPeriodText = Functions.GetPeriodNow().Name;
+
+    // ── 오늘 학사일정 (행사 있는 날만 헤더에 표시) ──
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasTodayEvent))]
+    private string _todayEventText = string.Empty;
+
+    public bool HasTodayEvent => !string.IsNullOrEmpty(TodayEventText);
+
     // ── 학교 / 담임 정보 ──────────────────────────────────
     public string SchoolName       { get; } = string.IsNullOrWhiteSpace(Settings.SchoolName)
                                               ? "학교명을 설정해 주세요"
@@ -105,6 +117,7 @@ public partial class TodayPageVM : ViewModelBase
                 LoadTodayTimetableAsync(),
                 LoadTodayTeacherTimetableAsync(),
                 LoadDiaryStatusAsync(),
+                LoadTodayScheduleAsync(),
                 LoadMealAsync());
         }
         catch (Exception ex)
@@ -221,6 +234,34 @@ public partial class TodayPageVM : ViewModelBase
         catch
         {
             DiaryStatusText = "–";
+        }
+    }
+
+    private async Task LoadTodayScheduleAsync()
+    {
+        try
+        {
+            using var svc = new SchoolScheduleService(SchoolDatabase.DbPath);
+            // GetByDateRangeAsync 의 상한은 배타적(AA_YMD < EndDate) → 오늘 하루는 [Today, Today+1)
+            var (_, _, list) = await svc.GetSchedulesByDataRangeAsync(
+                Settings.SchoolCode.Value, DateTime.Today, DateTime.Today.AddDays(1));
+
+            var names = list
+                .Where(s => !string.IsNullOrWhiteSpace(s.EVENT_NM))
+                .Select(s => s.EVENT_NM.Trim())
+                .Distinct()
+                .ToList();
+
+            TodayEventText = names.Count switch
+            {
+                0 => string.Empty,
+                1 => names[0],
+                _ => $"{names[0]} 외 {names.Count - 1}",
+            };
+        }
+        catch
+        {
+            TodayEventText = string.Empty;
         }
     }
 

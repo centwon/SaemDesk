@@ -10,7 +10,8 @@
       <Setter Property="FontSize" Value="12" />
     </Style>
   </UserControl.Styles>
-  <Border BorderBrush="{DynamicResource CardHeaderBorderBrush}"
+  <Border Classes="elevated"
+          BorderBrush="{DynamicResource CardHeaderBorderBrush}"
           BorderThickness="1" CornerRadius="8"
           Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
           MinHeight="180">

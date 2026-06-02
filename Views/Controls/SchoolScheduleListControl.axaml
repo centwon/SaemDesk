@@ -7,7 +7,8 @@
     <ctrl:BoolToVacationColorConverter x:Key="VacationColor"/>
   </UserControl.Resources>
 
-  <Border BorderBrush="{DynamicResource CardHeaderBorderBrush}"
+  <Border Classes="elevated"
+          BorderBrush="{DynamicResource CardHeaderBorderBrush}"
           BorderThickness="1" CornerRadius="8"
           Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
           MinHeight="80">

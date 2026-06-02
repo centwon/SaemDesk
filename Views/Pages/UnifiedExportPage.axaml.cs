@@ -21,7 +21,15 @@ public partial class UnifiedExportPage : UserControl
     private void SubscribeVM()
     {
         if (DataContext is UnifiedExportPageVM vm)
+        {
             vm.ClipboardTextReady += OnClipboardTextReady;
+            // RichEditor 는 바인딩 가능한 HTML 프로퍼티가 없으므로 PreviewHtml 변경 시 LoadHtml
+            vm.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(UnifiedExportPageVM.PreviewHtml))
+                    PreviewEditor.LoadHtml(vm.PreviewHtml);
+            };
+        }
     }
 
     private async void OnClipboardTextReady(object? sender, string text)

@@ -13,8 +13,8 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <!-- Native AOT -->
     <PublishAot>true</PublishAot>
-    <!-- 크기보다 런타임 속도 우선 (AOT 코드 생성) -->
-    <OptimizationPreference>Speed</OptimizationPreference>
+    <!-- 배포 크기 우선 (AOT 코드 생성) — Speed 대비 약 16% 작음 -->
+    <OptimizationPreference>Size</OptimizationPreference>
     <TrimmerRootDescriptor>TrimmerRoots.xml</TrimmerRootDescriptor>
     <InvariantGlobalization>false</InvariantGlobalization>
     <!-- 코드로만 생성하는 다이얼로그의 무매개변수 생성자 경고 억제 -->
@@ -29,14 +29,13 @@
     <Description>학교 업무 통합 데스크탑 — 학생·수업·학급일지·게시판·스케줄러·NEIS·Google Calendar.</Description>
     <Copyright>© 2026 Centwons</Copyright>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
-    <DefaultItemExcludes>$(DefaultItemExcludes);SaemDesk.HtmlEditor\**;SaemDesk.HtmlEditor.TestApp\**</DefaultItemExcludes>
   </PropertyGroup>
 <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
   <PublishAot>false</PublishAot>
 </PropertyGroup>
   <ItemGroup>
     <!-- Assets 폴더를 포함하되, axaml 파일은 자동 포함되므로 여기서 제외 -->
-    <AvaloniaResource Include="Assets\**" Exclude="Assets\**\*.axaml" />  
+    <AvaloniaResource Include="Assets\**" Exclude="Assets\**\*.axaml;Assets\**\node_modules\**" />  
   </ItemGroup>
 
   <ItemGroup>
@@ -69,7 +68,6 @@ internal static class BuildSecrets
     <PackageReference Include="Avalonia.Desktop" Version="12.0.4" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.4" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.4" />
-    <PackageReference Include="Avalonia.Controls.WebView" Version="12.0.1" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.1">
       <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
@@ -83,8 +81,12 @@ internal static class BuildSecrets
     <!-- Export -->
     <PackageReference Include="QuestPDF" Version="2026.5.0" />
     <PackageReference Include="MiniExcel" Version="1.44.1" />
-    <PackageReference Include="ClosedXML" Version="0.105.0" />
     <!-- Windows: DPAPI token encryption -->
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 리치 텍스트 에디터 (Jodit 대체) -->
+    <PackageReference Include="AvaloniaRichEditor" Version="0.3.0-alpha" />
   </ItemGroup>
 </Project>

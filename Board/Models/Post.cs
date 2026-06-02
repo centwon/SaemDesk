@@ -30,7 +30,10 @@ public class Post : INotifyPropertyChanged
     public string Category    { get => _category;    set => SetField(ref _category,    value); }
     public string Subject     { get => _subject;     set => SetField(ref _subject,     value); }
     public string Title       { get => _title;       set => SetField(ref _title,       value); }
+    /// <summary>검색·미리보기용 plaintext (구버전: HTML). 실제 리치 콘텐츠는 <see cref="ContentArdx"/>.</summary>
     public string Content     { get => _content;     set => SetField(ref _content,     value); }
+    /// <summary>리치 콘텐츠 정본 — AvaloniaRichEditor ardx 패키지(BLOB). 단일 글 조회 시에만 로드.</summary>
+    public byte[]? ContentArdx { get; set; }
     public int    RefNo       { get => _refNo;       set => SetField(ref _refNo,       value); }
     public int    ReplyOrder  { get => _replyOrder;  set => SetField(ref _replyOrder,  value); }
     public int    Depth       { get => _depth;       set => SetField(ref _depth,       value); }

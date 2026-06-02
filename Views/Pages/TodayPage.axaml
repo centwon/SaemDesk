@@ -8,10 +8,43 @@
              x:DataType="vm:TodayPageVM"
              Classes="page">
 
-  <Grid RowDefinitions="Auto,*" RowSpacing="12">
+  <Grid RowDefinitions="Auto,Auto,*" RowSpacing="12">
+
+    <!-- ═══ 헤더: 오늘 날짜 · 학사일정(행사일만) · 현재 교시 ═══ -->
+    <Border Grid.Row="0" Classes="elevated"
+            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+            BorderBrush="{DynamicResource CardHeaderBorderBrush}"
+            BorderThickness="1" CornerRadius="8"
+            Padding="14,10">
+      <Grid ColumnDefinitions="Auto,Auto,Auto,Auto" HorizontalAlignment="Left">
+        <TextBlock Grid.Column="0" Text="{CompiledBinding TodayDateText}"
+                   FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
+        <TextBlock Grid.Column="1" Text="{CompiledBinding TodayDayOfWeek}"
+                   FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"
+                   Margin="10,0,0,0"
+                   Foreground="{DynamicResource SystemAccentColor}"/>
+
+        <!-- 오늘 학사일정 (행사 있는 날만, 넘치면 말줄임) -->
+        <TextBlock Grid.Column="2"
+                   Text="{CompiledBinding TodayEventText, StringFormat='· {0}'}"
+                   IsVisible="{CompiledBinding HasTodayEvent}"
+                   FontSize="13" VerticalAlignment="Center" Margin="10,0,0,0"
+                   MaxWidth="320" TextTrimming="CharacterEllipsis"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"/>
+
+        <!-- 현재 교시 배지 (콘텐츠 바로 옆) -->
+        <Border Grid.Column="3"
+                Background="{DynamicResource InfoSurfaceBrush}" CornerRadius="10"
+                Padding="10,2" VerticalAlignment="Center" Margin="10,0,0,0">
+          <TextBlock Text="{CompiledBinding CurrentPeriodText}"
+                     FontSize="12" FontWeight="SemiBold"
+                     Foreground="{DynamicResource InfoForegroundBrush}"/>
+        </Border>
+      </Grid>
+    </Border>
 
     <!-- ═══ 안내 메시지 (설정 미완료 시) ═══ -->
-    <Border Grid.Row="0"
+    <Border Grid.Row="1"
             IsVisible="{CompiledBinding HasHint}"
             Background="{DynamicResource WarningSurfaceBrush}"
             BorderBrush="{DynamicResource WarningForegroundBrush}"
@@ -22,13 +55,13 @@
     </Border>
 
     <!-- ═══ 메인 콘텐츠 ═══ -->
-    <Grid Grid.Row="1" ColumnDefinitions="280,12,*">
+    <Grid Grid.Row="2" ColumnDefinitions="280,12,*">
 
       <!-- ── 좌측 패널: 시간표(상단) · 학사일정(채움) · 급식(하단 고정, 내용 초과 시 내부 스크롤) ── -->
       <Grid Grid.Column="0" RowDefinitions="Auto,*,Auto" RowSpacing="12">
 
           <!-- 1. 수업 시간표 (내 수업 | 우리 반) -->
-          <Border Grid.Row="0"
+          <Border Grid.Row="0" Classes="elevated"
                   BorderBrush="{DynamicResource CardHeaderBorderBrush}"
                   BorderThickness="1" CornerRadius="8" ClipToBounds="True"
                   Background="{DynamicResource SystemControlBackgroundAltHighBrush}">

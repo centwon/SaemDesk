@@ -1,6 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:controls="using:SaemDesk.Views.Controls"
+        xmlns:are="using:AvaloniaRichEditor.Controls"
         x:Class="SaemDesk.Views.Dialogs.MemoEditDialog"
         Title="메모 편집"
         Width="560" Height="660"
@@ -23,12 +23,12 @@
                  FontSize="14" FontWeight="Medium"/>
       </Grid>
 
-      <!-- Row 1: Jodit 에디터 -->
+      <!-- Row 1: RichEditorView (에디터 + 툴바 + 스크롤) -->
       <Border Grid.Row="1" CornerRadius="4"
               BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
               BorderThickness="1"
               Margin="0,0,0,8">
-        <controls:JoditEditor x:Name="Editor" Mode="Full"/>
+        <are:RichEditorView x:Name="Editor"/>
       </Border>
 
       <!-- Row 2: 버튼 -->

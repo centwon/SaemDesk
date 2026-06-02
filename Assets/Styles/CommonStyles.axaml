@@ -51,6 +51,11 @@
     <Setter Property="CornerRadius" Value="8,8,0,0" />
   </Style>
 
+  <!-- 카드 공통 입체감(옅은 그림자) — 인라인 테두리/배경은 유지한 채 깊이만 추가 -->
+  <Style Selector="Border.elevated">
+    <Setter Property="BoxShadow" Value="0 1 4 0 #18000000" />
+  </Style>
+
   <!-- ══════════════════════════════════════
        툴바 (필터 + 액션 버튼 영역)
        ══════════════════════════════════════ -->

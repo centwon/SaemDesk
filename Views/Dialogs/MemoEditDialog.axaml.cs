@@ -2,10 +2,12 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using SaemDesk.Board.Models;
+using SaemDesk.Helpers;
 
 namespace SaemDesk.Views.Dialogs;
 
@@ -39,7 +41,7 @@ public partial class MemoEditDialog : Window
         SelectCategory(category);
     }
 
-    public void InitForEdit(Post post)
+    public async Task InitForEdit(Post post)
     {
         _post = post;
         Title = "메모 수정";
@@ -47,8 +49,15 @@ public partial class MemoEditDialog : Window
         TxtTitle.Text = post.Title;
         SelectCategory(post.Category);
 
-        if (!string.IsNullOrEmpty(post.Content))
-            Editor.Text = post.Content;
+        if (post.ContentArdx is { Length: > 0 } ardx)
+        {
+            using var ms = new MemoryStream(ardx);
+            await Editor.Editor.LoadPackageAsync(ms);
+        }
+        else if (!string.IsNullOrEmpty(post.Content))
+        {
+            Editor.Editor.LoadHtml(post.Content); // 폴백: 미변환 구 HTML/plaintext
+        }
     }
 
     private void SelectCategory(string category)
@@ -64,13 +73,19 @@ public partial class MemoEditDialog : Window
         if (_post is null) return;
 
         string title = TxtTitle.Text?.Trim() ?? "";
-        string html  = await Editor.GetHtmlAsync();
 
-        if (string.IsNullOrEmpty(title) && string.IsNullOrEmpty(html))
+        // 리치 콘텐츠 정본은 ardx BLOB, 검색용은 plaintext
+        using (var ms = new MemoryStream())
+        {
+            await Editor.Editor.SavePackageAsync(ms);
+            _post.ContentArdx = ms.ToArray();
+        }
+        _post.Content = Editor.Editor.Document is { } doc ? RichContent.PlainText(doc) : string.Empty;
+
+        if (string.IsNullOrEmpty(title) && string.IsNullOrWhiteSpace(_post.Content) && Editor.Editor.GetImageCount() == 0)
             return;
 
         _post.Title    = title;
-        _post.Content  = html;
         _post.DateTime = DateTime.Now;
 
         if (CBoxCategory.SelectedItem is string cat)

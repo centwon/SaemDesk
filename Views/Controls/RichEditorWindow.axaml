@@ -1,0 +1,22 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:are="using:AvaloniaRichEditor.Controls"
+        x:Class="SaemDesk.Views.Controls.RichEditorWindow"
+        Title="편집기"
+        Width="900" Height="700"
+        WindowStartupLocation="CenterOwner">
+
+  <Grid RowDefinitions="*,Auto">
+
+    <are:RichEditorView Name="editor" Grid.Row="0"/>
+
+    <StackPanel Grid.Row="1"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                Spacing="8"
+                Margin="16,12">
+      <Button Content="확인" Classes="accent" MinWidth="80" Click="BtnOk_Click"/>
+      <Button Content="취소" MinWidth="80" Click="BtnCancel_Click"/>
+    </StackPanel>
+  </Grid>
+</Window>

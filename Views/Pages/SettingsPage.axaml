@@ -13,6 +13,11 @@
       <!-- 페이지 제목 -->
       <TextBlock Text="설정" Classes="page-title"/>
 
+      <!-- ══════════════════════════════════════════════════
+           그룹 1. 학사 정보
+           ══════════════════════════════════════════════════ -->
+      <TextBlock Text="학사 정보" Classes="section-header" Margin="0,8,0,0"/>
+
       <!-- ────────── 사용자 / 담임 정보 ────────── -->
       <Expander Header="사용자 및 담임 정보" IsExpanded="True">
         <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto"
@@ -160,8 +165,12 @@
         </Grid>
       </Expander>
 
-      <!-- ────────── 일정 / Google Calendar 설정 ────────── -->
-      <Expander Header="일정 · Google Calendar 설정">
+      <!-- ══════════════════════════════════════════════════
+           그룹 2. 일정 · 연동
+           ══════════════════════════════════════════════════ -->
+      <TextBlock Text="일정 · 연동" Classes="section-header" Margin="0,8,0,0"/>
+
+      <Expander Header="일정 · Google Calendar 설정" IsExpanded="True">
         <StackPanel Margin="0,8,0,4" Spacing="10">
           <TextBlock Text="달력 표시 옵션, Google Calendar 연동, 학사일정 일괄 등록을 한 화면에서 관리합니다."
                      TextWrapping="Wrap" FontSize="12"
@@ -173,13 +182,90 @@
         </StackPanel>
       </Expander>
 
-      <!-- ────────── 앱 옵션 ────────── -->
-      <Expander Header="앱 옵션">
+      <!-- ══════════════════════════════════════════════════
+           그룹 3. 앱
+           ══════════════════════════════════════════════════ -->
+      <TextBlock Text="앱" Classes="section-header" Margin="0,8,0,0"/>
+
+      <Expander Header="화면 및 동작" IsExpanded="True">
         <StackPanel Margin="0,8,0,4" Spacing="10">
+
+          <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto">
+            <TextBlock Grid.Column="0" Text="테마"
+                       VerticalAlignment="Center" Width="120" Margin="0,0,12,0"/>
+            <ComboBox  Grid.Column="1"
+                       SelectedIndex="{Binding ThemeIndex, Mode=TwoWay}"
+                       HorizontalAlignment="Stretch">
+              <ComboBoxItem Content="시스템 기본" />
+              <ComboBoxItem Content="라이트" />
+              <ComboBoxItem Content="다크" />
+            </ComboBox>
+          </Grid>
+
+          <CheckBox Content="항상 다른 창 위에 표시"
+                    IsChecked="{Binding TopMost, Mode=TwoWay}" />
           <CheckBox Content="Windows 시작 시 자동 실행"
                     IsChecked="{Binding StartWithWindows, Mode=TwoWay}" />
+        </StackPanel>
+      </Expander>
+
+      <!-- ══════════════════════════════════════════════════
+           그룹 4. 데이터 관리
+           ══════════════════════════════════════════════════ -->
+      <TextBlock Text="데이터 관리" Classes="section-header" Margin="0,8,0,0"/>
+
+      <Expander Header="백업 및 복원" IsExpanded="True">
+        <StackPanel Margin="0,8,0,4" Spacing="10">
+
+          <!-- 수동 백업 / 복원 -->
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <Button Content="지금 백업"
+                    Command="{Binding BackupNowCommand}"
+                    Classes="accent"/>
+            <Button Content="백업에서 복원…"
+                    Command="{Binding RestoreBackupCommand}"/>
+          </StackPanel>
+          <TextBlock Text="{Binding LastBackupDisplay, StringFormat='마지막 백업: {0}'}"
+                     Classes="caption"/>
+
+          <Separator Margin="0,2"/>
+
+          <!-- 자동 백업 -->
           <CheckBox Content="자동 백업 활성화"
                     IsChecked="{Binding AutoBackup, Mode=TwoWay}" />
+          <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto"
+                IsEnabled="{Binding AutoBackup}">
+            <Grid.Styles>
+              <Style Selector="TextBlock.label">
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="Width" Value="160"/>
+                <Setter Property="Margin" Value="0,0,12,8"/>
+              </Style>
+            </Grid.Styles>
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="백업 간격 (일)" Classes="label"/>
+            <NumericUpDown Grid.Row="0" Grid.Column="1"
+                           Value="{Binding AutoBackupIntervalDays, Mode=TwoWay}"
+                           Minimum="1" Maximum="90" Increment="1"
+                           Margin="0,0,0,8"/>
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="백업 보관 개수" Classes="label"/>
+            <NumericUpDown Grid.Row="1" Grid.Column="1"
+                           Value="{Binding BackupRetentionCount, Mode=TwoWay}"
+                           Minimum="1" Maximum="100" Increment="1"
+                           Margin="0,0,0,8"/>
+          </Grid>
+        </StackPanel>
+      </Expander>
+
+      <Expander Header="고급">
+        <StackPanel Margin="0,8,0,4" Spacing="10">
+          <Button Content="데이터 폴더 열기"
+                  Command="{Binding OpenDataFolderCommand}"
+                  HorizontalAlignment="Left"/>
+          <Button Content="모든 설정 기본값으로 초기화…"
+                  Command="{Binding ResetToDefaultsCommand}"
+                  HorizontalAlignment="Left"/>
+          <TextBlock Text="설정만 초기화되며 학생·일정 등 데이터는 보존됩니다."
+                     Classes="caption"/>
         </StackPanel>
       </Expander>
 

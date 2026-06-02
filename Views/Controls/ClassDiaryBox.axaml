@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:SaemDesk.ViewModels"
              xmlns:ctrl="using:SaemDesk.Views.Controls"
+             xmlns:are="using:AvaloniaRichEditor.Controls"
              xmlns:helpers="using:SaemDesk.Helpers"
              x:Class="SaemDesk.Views.Controls.ClassDiaryBox"
              x:DataType="vm:ClassDiaryViewModel">
@@ -107,7 +108,7 @@
       <Border BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
               BorderThickness="0,1,0,0"
               MinHeight="150" MaxHeight="300">
-        <ctrl:JoditEditor Name="NoticeBox" Mode="ReadOnly"/>
+        <are:RichEditor Name="NoticeBox" EditorMode="ReadOnly"/>
       </Border>
     </Expander>
   </Grid>

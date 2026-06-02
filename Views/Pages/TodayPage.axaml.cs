@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using SaemDesk.Services;
 using SaemDesk.ViewModels.Pages;
 
@@ -17,6 +18,9 @@ public partial class TodayPage : UserControl
 {
     private bool _loaded;
 
+    // 헤더의 현재 교시 표시 갱신 (비주얼 트리에 붙어 있는 동안만 동작)
+    private readonly DispatcherTimer _periodTimer = new() { Interval = TimeSpan.FromMinutes(1) };
+
     public TodayPage()
     {
         InitializeComponent();
@@ -31,11 +35,18 @@ public partial class TodayPage : UserControl
             ClassBodyCell.IsVisible = false;
         }
 
+        _periodTimer.Tick += (_, _) => (DataContext as TodayPageVM)?.RefreshCurrentPeriod();
+
         Loaded += OnLoaded;
+        Unloaded += (_, _) => _periodTimer.Stop();
     }
 
     private async void OnLoaded(object? sender, RoutedEventArgs e)
     {
+        // 현재 교시: 즉시 1회 갱신 후 1분 주기 타이머 시작
+        (DataContext as TodayPageVM)?.RefreshCurrentPeriod();
+        _periodTimer.Start();
+
         if (_loaded) return;
         _loaded = true;
         try
