@@ -38,27 +38,30 @@
         </Grid>
       </Border>
 
-      <ScrollViewer Grid.Row="1" Padding="12,8,12,12" MaxHeight="300" VerticalScrollBarVisibility="Auto">
-        <ItemsControl Name="MealsRepeater">
-          <ItemsControl.ItemsPanel>
-            <ItemsPanelTemplate><StackPanel Orientation="Vertical" Spacing="10"/></ItemsPanelTemplate>
-          </ItemsControl.ItemsPanel>
-          <ItemsControl.ItemTemplate>
-            <DataTemplate DataType="models:SchoolMeal">
-              <StackPanel Spacing="4" Margin="4,0">
-                <StackPanel Orientation="Horizontal" Spacing="6">
-                  <TextBlock Text="{Binding MealIcon}" FontSize="13"/>
-                  <TextBlock Text="{Binding MMEAL_SC_NM}" FontWeight="SemiBold" FontSize="13"
-                             Foreground="{DynamicResource SystemAccentColor}"/>
-                </StackPanel>
-                <TextBlock Text="{Binding MenuText}" TextWrapping="Wrap" FontSize="12"
-                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                           Margin="22,0,0,0"/>
+      <ListBox Grid.Row="1" Name="MealsRepeater"
+               Padding="12,8,12,12" MaxHeight="560" SelectionMode="Single"
+               Background="Transparent" BorderThickness="0">
+        <ListBox.Styles>
+          <Style Selector="ListBoxItem">
+            <Setter Property="MinHeight" Value="0"/>
+            <Setter Property="Padding" Value="0,5"/>
+          </Style>
+        </ListBox.Styles>
+        <ListBox.ItemTemplate>
+          <DataTemplate DataType="models:SchoolMeal">
+            <StackPanel Spacing="4" Margin="4,0">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <TextBlock Text="{Binding MealIcon}" FontSize="13"/>
+                <TextBlock Text="{Binding MMEAL_SC_NM}" FontWeight="SemiBold" FontSize="13"
+                           Foreground="{DynamicResource SystemAccentColor}"/>
               </StackPanel>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
-      </ScrollViewer>
+              <TextBlock Text="{Binding MenuText}" TextWrapping="Wrap" FontSize="12"
+                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                         Margin="22,0,0,0"/>
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
     </Grid>
   </Border>
 </UserControl>

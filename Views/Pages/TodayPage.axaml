@@ -24,7 +24,7 @@
     <!-- ═══ 메인 콘텐츠 ═══ -->
     <Grid Grid.Row="1" ColumnDefinitions="280,12,*">
 
-      <!-- ── 좌측 패널: 시간표(상단) · 학사일정(채움) · 급식(하단 고정) ── -->
+      <!-- ── 좌측 패널: 시간표(상단) · 학사일정(채움) · 급식(하단 고정, 내용 초과 시 내부 스크롤) ── -->
       <Grid Grid.Column="0" RowDefinitions="Auto,*,Auto" RowSpacing="12">
 
           <!-- 1. 수업 시간표 (내 수업 | 우리 반) -->
@@ -75,7 +75,7 @@
                               Padding="4,4,4,8">
                   <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="tvm:TimetableItemViewModel">
-                      <Grid ColumnDefinitions="22,*" Margin="4,2" MinHeight="26">
+                      <Grid ColumnDefinitions="22,*" Margin="4,1" MinHeight="20">
                         <Border Grid.Column="0"
                                 Background="{DynamicResource InfoSurfaceBrush}"
                                 CornerRadius="4" Padding="0,2"
@@ -110,7 +110,7 @@
                               Padding="4,4,4,8">
                   <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="models:ClassTimetable">
-                      <Grid ColumnDefinitions="22,*" Margin="4,2" MinHeight="26">
+                      <Grid ColumnDefinitions="22,*" Margin="4,1" MinHeight="20">
                         <Border Grid.Column="0"
                                 Background="{DynamicResource InfoSurfaceBrush}"
                                 CornerRadius="4" Padding="0,2"
