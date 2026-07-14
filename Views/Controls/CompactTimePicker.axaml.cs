@@ -38,11 +38,15 @@ public partial class CompactTimePicker : UserControl
     //  생성자
     // ────────────────────────────────────────────────────
 
+    // 속성 변경 핸들러는 정적 옵저버블 — 타입당 1회만 등록 (인스턴스 생성자에서 등록 금지)
+    static CompactTimePicker()
+    {
+        TimeProperty.Changed.AddClassHandler<CompactTimePicker>((s, _) => s.UpdateDisplay());
+    }
+
     public CompactTimePicker()
     {
         InitializeComponent();
-
-        TimeProperty.Changed.AddClassHandler<CompactTimePicker>((s, _) => s.UpdateDisplay());
 
         _lastFocused = HourBox;
         UpdateDisplay();

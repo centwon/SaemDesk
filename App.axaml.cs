@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -67,6 +69,30 @@ public partial class App : Application
         // 게시글 리치 콘텐츠: 구버전 HTML → ardx BLOB 1회성 변환 (UI 스레드·자동 백업·플래그 게이트)
         await BoardDatabase.MigrateContentToArdxAsync();
 
+        // DB 무결성 점검 — 손상 감지 시 조용한 크래시 대신 복원/종료 안내 후 조기 반환
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime corruptCheck)
+        {
+            var corrupt = Helpers.DbIntegrity.FindCorrupt(new[]
+            {
+                SchoolDatabase.DbPath,
+                BoardDatabase.DbPath,
+                Path.Combine(Settings.UserDataPath, Settings.SchedulerDB),
+            });
+            if (corrupt.Count > 0)
+            {
+                Debug.WriteLine($"[App] DB 손상 감지: {string.Join(", ", corrupt)}");
+                await HandleCorruptDatabasesAsync(corruptCheck, corrupt);
+                return; // 복원(재시작) 또는 종료 — 정상 시작 흐름 진입 안 함
+            }
+        }
+
+        // 자동 백업: 설정된 주기가 지났으면 전체 DB 스냅샷 1회 (백그라운드, 시작 지연 없음)
+        _ = Task.Run(() =>
+        {
+            try   { Settings.RunAutoBackupIfNeeded(); }
+            catch (Exception ex) { Debug.WriteLine($"[App] 자동 백업 실패: {ex.Message}"); }
+        });
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // 3. 초기 설정 여부 확인 — SchoolCode가 없으면 최초 실행
@@ -116,6 +142,70 @@ public partial class App : Application
             "Light" => Avalonia.Styling.ThemeVariant.Light,
             _        => Avalonia.Styling.ThemeVariant.Default,
         };
+    }
+
+    /// <summary>시작 시 손상 DB 감지 → 백업 복원(성공 시 재시작) 또는 종료.</summary>
+    private static async Task HandleCorruptDatabasesAsync(
+        IClassicDesktopStyleApplicationLifetime desktop, List<string> corruptFiles)
+    {
+        // 폴더 피커·모달이 TopLevel 을 사용할 수 있도록 호스트 창 표시 (손상 안내 배경)
+        var host = new Avalonia.Controls.Window
+        {
+            Width = 320,
+            Height = 120,
+            Title = "데이터베이스 손상 감지",
+            ShowInTaskbar = false,
+            CanResize = false,
+            WindowStartupLocation = Avalonia.Controls.WindowStartupLocation.CenterScreen,
+            Content = new Avalonia.Controls.TextBlock
+            {
+                Margin = new Thickness(16),
+                TextWrapping = Avalonia.Media.TextWrapping.Wrap,
+                Text = "데이터 파일 손상을 확인하는 중입니다…",
+            },
+        };
+        desktop.MainWindow = host;
+        host.Show();
+
+        var dlg = new ConfirmDialog(
+            $"데이터 파일이 손상되었습니다: {string.Join(", ", corruptFiles)}\n\n" +
+            "백업 폴더를 선택해 복원하시겠습니까?\n'종료'를 누르면 앱이 닫힙니다.",
+            "백업에서 복원", "종료")
+        { Title = "데이터베이스 손상 감지" };
+
+        bool restore = await dlg.ShowDialogAsync(host);
+        if (restore)
+        {
+            var folder = await FilePicker.OpenFolderAsync();
+            if (!string.IsNullOrEmpty(folder) && Settings.Restore(folder))
+            {
+                RestartApp();
+                return;
+            }
+            await new ConfirmDialog("복원 실패",
+                "백업에서 복원하지 못했습니다. 올바른 백업 폴더(backup_* 또는 .db 포함)인지 확인하세요.")
+                .ShowDialogAsync(host);
+        }
+
+        desktop.Shutdown();
+    }
+
+    /// <summary>현재 실행 파일을 새로 띄우고 이 인스턴스를 종료한다. DB 복원 직후 깨끗한 상태로 재시작용.</summary>
+    public static void RestartApp()
+    {
+        try
+        {
+            var exe = Environment.ProcessPath;
+            if (!string.IsNullOrEmpty(exe))
+                Process.Start(new ProcessStartInfo(exe) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[App] 재시작 실패: {ex.Message}");
+        }
+
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            desktop.Shutdown();
     }
 
     private static void ShowMainWindow(IClassicDesktopStyleApplicationLifetime desktop)

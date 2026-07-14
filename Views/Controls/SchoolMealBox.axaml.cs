@@ -34,12 +34,10 @@ public partial class SchoolMealBox : UserControl
         }
     }
 
-    public SchoolMealBox()
+    // 속성 변경 핸들러는 정적 옵저버블 — 타입당 1회만 등록 (인스턴스 생성자에서 등록 금지).
+    // 생성자에서 등록하면 인스턴스마다 핸들러가 누적돼 날짜 변경 시 급식 API 가 중복 호출된다.
+    static SchoolMealBox()
     {
-        InitializeComponent();
-        MealsRepeater.ItemsSource = _meals;
-        DatePicker.SelectedDate = DateTime.Today;
-
         SelectedDateProperty.Changed.AddClassHandler<SchoolMealBox>(async (s, e) =>
         {
             if (e.NewValue is DateTime d)
@@ -48,6 +46,13 @@ public partial class SchoolMealBox : UserControl
                 await s.LoadMealsAsync(d);
             }
         });
+    }
+
+    public SchoolMealBox()
+    {
+        InitializeComponent();
+        MealsRepeater.ItemsSource = _meals;
+        DatePicker.SelectedDate = DateTime.Today;
     }
 
     private void DatePicker_DateChanged(object? sender, Avalonia.Controls.SelectionChangedEventArgs e)

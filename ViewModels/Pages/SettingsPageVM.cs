@@ -293,10 +293,8 @@ public partial class SettingsPageVM : ViewModelBase
 
         if (Settings.Restore(folder))
         {
-            _isLoading = true;
-            LoadSettings();
-            _isLoading = false;
-            await DialogService.ShowInfoAsync("복원이 완료되었습니다. 앱을 다시 시작하세요.");
+            await DialogService.ShowInfoAsync("복원이 완료되었습니다. 확인을 누르면 앱이 다시 시작됩니다.");
+            App.RestartApp();
         }
         else
         {

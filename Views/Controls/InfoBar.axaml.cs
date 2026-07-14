@@ -46,12 +46,17 @@ public partial class InfoBar : UserControl
     //  생성자 + 프로퍼티 변경 핸들러
     // ────────────────────────────────────────────────────
 
-    public InfoBar()
+    // 속성 변경 핸들러는 정적 옵저버블 — 타입당 1회만 등록 (인스턴스 생성자에서 등록 금지)
+    static InfoBar()
     {
-        InitializeComponent();
         SeverityProperty.Changed.AddClassHandler<InfoBar>((s, _) => s.ApplySeverity());
         TitleProperty.Changed.AddClassHandler<InfoBar>((s, _) => s.ApplyText());
         MessageProperty.Changed.AddClassHandler<InfoBar>((s, _) => s.ApplyText());
+    }
+
+    public InfoBar()
+    {
+        InitializeComponent();
 
         // UserControl: named elements are available after InitializeComponent()
         ApplySeverity();

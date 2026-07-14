@@ -538,6 +538,9 @@ public static class Settings
     {
         try
         {
+            // 풀에 남은 DB 파일 핸들을 모두 해제 — 덮어쓰기 중 잠김/고아 WAL로 인한 손상 방지
+            SqliteConnection.ClearAllPools();
+
             // 단일 파일이면 기존 Settings.db 복원 (하위호환)
             if (File.Exists(backupDirOrFile) && backupDirOrFile.EndsWith(".db"))
             {
@@ -821,6 +824,7 @@ internal static class SettingsDb
             {
                 if (File.Exists(backupPath))
                 {
+                    SqliteConnection.ClearAllPools(); // 덮어쓰기 전 풀 핸들 해제
                     File.Copy(backupPath, DbPath, true);
                     Helpers.DbFileHelper.DeleteSidecars(DbPath); // 고아 -wal/-shm 제거
                     _isInitialized = false;

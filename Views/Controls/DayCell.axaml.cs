@@ -41,10 +41,15 @@ public partial class DayCell : UserControl
     /// <summary>셀 안의 일정/할일 항목 클릭 — 부모는 그 항목 편집 다이얼로그를 연다.</summary>
     public event EventHandler<KEvent>? ItemClicked;
 
+    // 속성 변경 핸들러는 정적 옵저버블 — 타입당 1회만 등록 (인스턴스 생성자에서 등록 금지)
+    static DayCell()
+    {
+        DayinfoProperty.Changed.AddClassHandler<DayCell>((s, _) => s.UpdateDisplay());
+    }
+
     public DayCell()
     {
         InitializeComponent();
-        DayinfoProperty.Changed.AddClassHandler<DayCell>((s, _) => s.UpdateDisplay());
 
         // 드롭 타겟 등록 — 다른 셀에서 드래그한 KEvent 를 이 날짜로 이동
         DragDrop.SetAllowDrop(this, true);
